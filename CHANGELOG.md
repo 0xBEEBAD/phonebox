@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.9.9 — 2026-11-15
+
+Install PhoneBox with one command on Windows, Linux and macOS. The installer checks the download and sets up what is
+missing. This release also adds OLED burn-in protection and Pomodoro sequences with long breaks.
 
 **Android app**
 - OLED burn-in protection (#79), in **Settings › General › OLED burn-in protection**, both off by default:
