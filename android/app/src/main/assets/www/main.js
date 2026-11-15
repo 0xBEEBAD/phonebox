@@ -21,7 +21,9 @@ export const API = '/agent/api';
 // Custom HTML widget cannot reach the agent: adding the header to a cross-origin request needs a CORS preflight,
 // which the proxy refuses. See MainActivity.fromPanel.
 export const PANEL_HEADERS = { 'X-PhoneBox-Panel': '1' };
-export const LOCALE = 'en-GB';
+export const I18n = window.PhoneBoxI18n;
+export const t = (key, vars) => (I18n ? I18n.t(key, vars) : key);
+export let LOCALE = I18n ? I18n.getLocale() : 'en-GB';
 export const COLS = 12;
 export const ROWS = 6;
 export const $ = (id) => document.getElementById(id);
@@ -140,20 +142,20 @@ export function fmtRate(bps) {
 export const rateStr = (b) => fmtRate(b).join(' ');
 export function fmtDur(ms) {
   const m = Math.max(0, Math.round(ms / 60000));
-  if (m < 60) return `${m} min`;
+  if (m < 60) return t('time.min', { m });
   const hr = Math.floor(m / 60);
-  if (hr < 24) return `${hr} h ${m % 60} min`;
+  if (hr < 24) return t('time.hMin', { h: hr, m: m % 60 });
   const d = Math.floor(hr / 24);
-  return `${d} d ${hr % 24} h`;
+  return t('time.dH', { d, h: hr % 24 });
 }
 export function shortDur(ms) {
   const m = Math.max(0, Math.floor(ms / 60000));
-  if (m < 1) return 'now';
+  if (m < 1) return t('time.now');
   if (m < 60) return m + 'm';
   const hr = Math.floor(m / 60);
   return hr < 24 ? `${hr}h ${m % 60}m` : `${Math.floor(hr / 24)}d`;
 }
-export const ago = (ts) => { const d = Date.now() - ts; return d < 60_000 ? 'just now' : shortDur(d) + ' ago'; };
+export const ago = (ts) => { const d = Date.now() - ts; return d < 60_000 ? t('time.justNow') : t('time.ago', { dur: shortDur(d) }); };
 export const r1 = (v) => (v == null ? '—' : (Math.round(v * 10) / 10).toString());
 export const fmtMem = (mb) => (mb >= 1024 ? (mb / 1024).toFixed(1) + ' GB' : Math.round(mb) + ' MB');
 export const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -384,7 +386,7 @@ export function quotaProviders() { return D.quotas?.providers || []; }
 
 export function renderStatus(el) {
   const via = transport();
-  const name = online ? (D.state?.host || 'PC') + (via === 'wifi' ? ' · Wi-Fi' : via === 'usb' ? ' · USB' : '') : online === false ? 'PC not connected' : 'Connecting…';
+  const name = online ? (D.state?.host || 'PC') + (via === 'wifi' ? ' · Wi-Fi' : via === 'usb' ? ' · USB' : '') : online === false ? t('panel.pcNotConnected') : t('panel.connecting');
   const kids = [h('span', 'dot ' + (online ? 'on' : online === false ? 'off' : '')), h('span', null, name)];
   const bat = phoneBattery();
   if (bat) kids.push(h('span', 'sep', '·'), h('span', null, bat));
@@ -482,8 +484,8 @@ export const MEDIA_HTML = `
       <input type="range" class="volr" min="0" max="100" step="1" value="50"><span class="vol-val">--</span>
     </div>
   </div>
-  <div class="offline-msg"><b>Computer not connected</b>
-    <span>Is the PhoneBox agent running? Plug in the USB cable, or pair over Wi-Fi: in the PhoneBox settings on the computer choose Wi-Fi &amp; Tailscale › Pair a phone over Wi-Fi and scan the QR code with this phone's camera.</span></div>`;
+  <div class="offline-msg"><b data-i18n="panel.computerNotConnected">${t('panel.computerNotConnected')}</b>
+    <span data-i18n="panel.offlineHelp">${t('panel.offlineHelp')}</span></div>`;
 
 // ---------------------------------------------------------------- quotas
 export const Q_STYLE = { antigravity: { color: '#38bdf8', logo: '✦' }, claude: { color: '#d97757', logo: '✳' }, codex: { color: '#e5e7eb', logo: '◎' } };
@@ -493,7 +495,7 @@ export function fmtReset(ts) {
   const d = new Date(ts);
   const hm = fmtHM(d);
   const day = d.toDateString() === new Date().toDateString() ? hm : d.toLocaleDateString(LOCALE, { weekday: 'short' }) + ' ' + hm;
-  return `${day} · in ${fmtDur(ts - Date.now())}`;
+  return `${day} · ${t('time.inDur', { dur: fmtDur(ts - Date.now()) })}`;
 }
 
 /** Compares the share of the quota used with the share of the window elapsed. */
@@ -502,15 +504,15 @@ export function paceInfo(l) {
   const win = l.windowSec * 1000;
   const left = l.resetsAt - Date.now();
   const elapsed = Math.min(1, Math.max(0, 1 - left / win));
-  if (l.percent >= 100) return { elapsed, cls: 'over', text: 'Limit reached' };
-  if (elapsed < 0.04 || l.percent < 1) return { elapsed, cls: 'calm', text: 'Plenty left' };
+  if (l.percent >= 100) return { elapsed, cls: 'over', text: t('pace.limitReached') };
+  if (elapsed < 0.04 || l.percent < 1) return { elapsed, cls: 'calm', text: t('pace.plentyLeft') };
   const rate = l.percent / (elapsed * win);          // % per ms
   const msTo100 = (100 - l.percent) / rate;
-  if (msTo100 < left) return { elapsed, cls: 'over', text: `At this pace: full in ${fmtDur(msTo100)}` };
+  if (msTo100 < left) return { elapsed, cls: 'over', text: t('pace.fullIn', { dur: fmtDur(msTo100) }) };
   const diff = l.percent - elapsed * 100;
-  if (diff > 10) return { elapsed, cls: 'fast', text: 'Ahead of pace' };
-  if (diff < -10) return { elapsed, cls: 'calm', text: 'Plenty left' };
-  return { elapsed, cls: '', text: 'On pace' };
+  if (diff > 10) return { elapsed, cls: 'fast', text: t('pace.ahead') };
+  if (diff < -10) return { elapsed, cls: 'calm', text: t('pace.plentyLeft') };
+  return { elapsed, cls: '', text: t('pace.onPace') };
 }
 
 // ---------------------------------------------------------------- sessions & GitHub
@@ -525,10 +527,10 @@ export function notifyTransitions(sessions) {
     if (workLoaded && before && before !== s.status) {
       if (s.status === 'waiting') {
         buzz('0,90,90,90,90,160');
-        toast(s.waitingFor || 'needs input', 'err', s.name);
+        toast(s.waitingFor || t('panel.needsInput'), 'err', s.name);
       } else if (s.status === 'idle' && (before === 'busy' || before === 'shell')) {
         buzz('0,70,110,70');
-        toast(`${s.name} finished`, 'ok');
+        toast(t('panel.sessionFinished', { name: s.name }), 'ok');
       }
     }
     prevStatus.set(s.id, s.status);
@@ -646,23 +648,24 @@ export async function loadSheet() {
 export function renderSheet() {
   const d = sheet.detail, canKill = sheet.canKill;
   const totalCpu = d.instances.reduce((a, i) => a + i.cpu, 0), totalMem = d.instances.reduce((a, i) => a + i.memMb, 0);
-  $('psSub').textContent = `${d.instances.length} instance${d.instances.length === 1 ? '' : 's'} · CPU ${totalCpu.toFixed(1)}% · ${fmtMem(totalMem)}` +
-    (d.locked ? ' · system process' : !canKill ? ' · ending disabled in settings' : '');
+  const instLabel = t(d.instances.length === 1 ? 'panel.instanceOne' : 'panel.instanceMany', { n: d.instances.length });
+  $('psSub').textContent = `${instLabel} · CPU ${totalCpu.toFixed(1)}% · ${fmtMem(totalMem)}` +
+    (d.locked ? ` · ${t('panel.systemProcess')}` : !canKill ? ` · ${t('panel.endingDisabled')}` : '');
   const all = $('psAll');
-  if (!all.classList.contains('armed')) all.textContent = d.instances.length > 1 ? `End all ${d.instances.length}` : 'End';
+  if (!all.classList.contains('armed')) all.textContent = d.instances.length > 1 ? t('panel.endAllN', { n: d.instances.length }) : t('panel.end');
   all.disabled = d.locked || !canKill || !d.instances.length;
 
   const list = $('psList');
   list.replaceChildren();
-  if (!d.instances.length) { list.appendChild(h('div', 'empty', 'No running instances')); return; }
+  if (!d.instances.length) { list.appendChild(h('div', 'empty', t('panel.noInstances'))); return; }
   for (const i of d.instances) {
     const primary = i.session ? '✳ ' + i.session : i.window || i.args || d.title;
     const secondary = [i.session ? i.args : i.window ? i.args : null,
-      i.startedAt ? (Date.now() - i.startedAt < 60_000 ? 'just started' : 'started ' + shortDur(Date.now() - i.startedAt) + ' ago') : null]
+      i.startedAt ? (Date.now() - i.startedAt < 60_000 ? t('panel.justStarted') : t('panel.startedAgo', { dur: shortDur(Date.now() - i.startedAt) })) : null]
       .filter(Boolean).join(' · ');
-    const btn = h('button', 'ps-btn danger', 'End');
+    const btn = h('button', 'ps-btn danger', t('panel.end'));
     btn.disabled = i.locked || !canKill;
-    armButton(btn, 'Confirm', () => killInstance(i, primary));
+    armButton(btn, t('panel.confirm'), () => killInstance(i, primary));
     list.appendChild(h('div', 'pi', h('span', 'pid', 'PID ' + i.pid),
       h('div', 'lbl', h('b', i.session ? 'sess' : '', primary), h('small', null, secondary)),
       h('div', 'num', h('b', null, i.cpu.toFixed(1) + '%'), h('br'), fmtMem(i.memMb)), btn));
@@ -677,19 +680,19 @@ export async function postKill(query) {
 export async function killInstance(i, label) {
   try {
     const { ok, body } = await postKill('pid=' + i.pid);
-    ok ? toast(`Ended ${label} (PID ${i.pid})`, 'ok') : toast(body.error || 'Could not end it', 'err');
-  } catch (_) { toast('Computer unreachable', 'err'); }
+    ok ? toast(t('panel.endedPid', { label, pid: i.pid }), 'ok') : toast(body.error || t('panel.couldNotEnd'), 'err');
+  } catch (_) { toast(t('panel.pcUnreachable'), 'err'); }
   setTimeout(() => { loadSheet(); loadProcs(); }, 500);
 }
 
-armButton($('psAll'), 'Tap again to confirm', async () => {
+armButton($('psAll'), t('panel.tapToConfirm'), async () => {
   const g = sheet?.group;
   if (!g) return;
   try {
     const { ok, body } = await postKill('name=' + encodeURIComponent(g.name));
-    if (ok) { toast(`Ended ${body.killed} × ${g.title}${body.failed ? ` (${body.failed} failed)` : ''}`, 'ok'); closeSheet(); }
-    else toast(body.error || 'Could not end them', 'err');
-  } catch (_) { toast('Computer unreachable', 'err'); }
+    if (ok) { toast(t('panel.endedGroup', { killed: body.killed, title: g.title }) + (body.failed ? t('panel.failedCount', { n: body.failed }) : ''), 'ok'); closeSheet(); }
+    else toast(body.error || t('panel.couldNotEndThem'), 'err');
+  } catch (_) { toast(t('panel.pcUnreachable'), 'err'); }
   setTimeout(loadProcs, 500);
 });
 $('psClose').addEventListener('click', () => { haptic(); closeSheet(); });
@@ -768,7 +771,7 @@ export function renderApproval() {
   $('apSkip').hidden = !asking;
   $('apSource').textContent = a.source || 'Claude Code';
   $('apProject').textContent = a.project || a.session || '';
-  $('apCount').textContent = approvals.length > 1 ? `1 of ${approvals.length}` : '';
+  $('apCount').textContent = approvals.length > 1 ? t('panel.oneOfN', { n: approvals.length }) : '';
   $('apTool').textContent = a.tool;
   $('apDesc').textContent = a.description || '';
   $('apDetail').textContent = a.detail || '';
@@ -781,8 +784,8 @@ export function tickApproval() {
   const a = approvals[0];
   if (!a || $('approval').hidden) return;
   const left = a.expiresAt - Date.now();
-  $('apTime').textContent = a.kind === 'question' ? 'Answer it in the terminal on your PC'
-    : left > 0 ? `otherwise asked in the terminal in ${fmtTime(left)}` : 'asking in the terminal…';
+  $('apTime').textContent = a.kind === 'question' ? t('panel.answerInTerminal')
+    : left > 0 ? t('panel.askedInTerminalIn', { time: fmtTime(left) }) : t('panel.askingInTerminal');
   if (left < -3000) { approvals.shift(); renderApproval(); }
 }
 setInterval(tickApproval, 1000);
@@ -794,9 +797,9 @@ export async function decide(decision) {
   $('apAllow').disabled = $('apDeny').disabled = $('apSkip').disabled = true;
   try {
     await api(`/approvals/${encodeURIComponent(a.id)}?decision=${decision}`, 'POST', 4000);
-    if (decision === 'skip') toast('The question is waiting in the terminal', 'warn');
-    else toast(`${decision === 'allow' ? 'Allowed' : 'Denied'}: ${a.tool}`, decision === 'allow' ? 'ok' : 'err');
-  } catch (_) { toast('Already answered in the terminal', 'warn'); }
+    if (decision === 'skip') toast(t('panel.questionWaiting'), 'warn');
+    else toast(t(decision === 'allow' ? 'panel.allowedTool' : 'panel.deniedTool', { tool: a.tool }), decision === 'allow' ? 'ok' : 'err');
+  } catch (_) { toast(t('panel.alreadyAnswered'), 'warn'); }
   approvals = approvals.filter((x) => x.id !== a.id);
   renderApproval();
 }
@@ -1126,7 +1129,7 @@ function renderNav(req = null, why = '') {
   // waits, so only its first appearance counts, or the panel would never dim behind a request that keeps waiting
   const wakeKey = why ? req : navCount;
   if (wakeKey !== navWoken) { navWoken = wakeKey; undim(); }
-  const name = req.name || (req.kind === 'home' ? 'Nobody around' : req.kind === 'back' ? 'Done' : 'Page switch');
+  const name = req.name || (req.kind === 'home' ? t('panel.nobodyAround') : req.kind === 'back' ? t('panel.done') : t('panel.pageSwitch'));
   const target = req.kind === 'home' ? pageLabel(homeIndex()) : pageLabel(req.page);
   const more = navQueue.length > 1 ? ` +${navQueue.length - 1}` : '';
   if (why) {
@@ -1143,8 +1146,8 @@ function renderNav(req = null, why = '') {
   if (navShown !== navCount) {
     navShown = navCount;
     $('nvName').textContent = name;
-    $('nvLine').textContent = req.kind === 'goto' ? `Switching to ${target}` : `Back to ${target}`;
-    $('nvDetail').textContent = req.detail && req.detail !== 'test' ? req.detail : more ? `${navQueue.length - 1} more waiting` : '';
+    $('nvLine').textContent = req.kind === 'goto' ? t('panel.switchingTo', { target }) : t('panel.backTo', { target });
+    $('nvDetail').textContent = req.detail && req.detail !== 'test' ? req.detail : more ? t('panel.moreWaiting', { n: navQueue.length - 1 }) : '';
     const ring = $('nvRing');
     ring.style.animation = 'none';
     void ring.getBoundingClientRect();
@@ -1164,8 +1167,8 @@ export async function toggleRulesPause() {
     const r = await api(`/rules/pause?minutes=${paused ? 0 : 60}`, 'POST', 4000);
     rulesPaused = r.pausedUntil || null;
     if (!rulesPaused) navQueue = navQueue.filter((x) => x.kind === 'home');
-    toast(rulesPaused ? 'Rules paused for an hour' : 'Rules are back on', 'ok');
-  } catch (_) { toast('The PC did not answer', 'warn'); }
+    toast(rulesPaused ? t('panel.rulesPausedToast') : t('panel.rulesResumedToast'), 'ok');
+  } catch (_) { toast(t('panel.pcNoAnswer'), 'warn'); }
   renderRulesBtn();
 }
 export function renderRulesBtn() {
@@ -1174,7 +1177,7 @@ export function renderRulesBtn() {
   const paused = rulesPaused && rulesPaused > Date.now();
   b.hidden = PREVIEW || !online;
   b.classList.toggle('on', !!paused);
-  b.textContent = paused ? `⏸ Rules paused until ${fmtHM(new Date(rulesPaused))} · resume` : '⏸ Pause rules 1 h';
+  b.textContent = paused ? t('panel.rulesPausedUntil', { time: fmtHM(new Date(rulesPaused)) }) : t('panel.pauseRules1h');
 }
 
 export let titleTimer = 0;
@@ -1218,7 +1221,7 @@ export function openOverview() {
   // several paired computers: switch between them here (a USB cable always wins)
   const pcs = pairedPcs();
   $('ovPcs').replaceChildren(...(pcs.length > 1 ? pcs.map((pc) => {
-    const b = h('button', 'ov-pc' + (pc.active ? ' on' : ''), '🖥️ ' + (pc.name || 'Computer'));
+    const b = h('button', 'ov-pc' + (pc.active ? ' on' : ''), '🖥️ ' + (pc.name || t('panel.computer')));
     b.addEventListener('click', (e) => { e.stopPropagation(); switchPc(pc); });
     return b;
   }) : []));
@@ -1234,7 +1237,7 @@ export function pairedPcs() {
 /** Makes another paired computer the one used over Wi-Fi; the app then reloads the panel from it. */
 export function switchPc(pc) {
   if (!pc || pc.active || !bridge?.selectPc) return;
-  haptic(); toast(`Switching to ${pc.name || 'the other computer'}…`);
+  haptic(); toast(t('panel.switchingPc', { name: pc.name || t('panel.otherComputer') }));
   setTimeout(() => bridge.selectPc(pc.id), 300);
 }
 export function closeOverview() { $('overview').hidden = true; }
@@ -1460,6 +1463,9 @@ export function tick() {
 // ---------------------------------------------------------------- data from the agent
 export function applyDisplay() {
   const d = cfg.display || {};
+  const langChanged = I18n ? I18n.setLang(d.language || 'auto') : false;
+  LOCALE = I18n ? I18n.getLocale() : 'en-GB';
+  I18n?.applyDom();
   // theme and accent apply in the preview and the browser too
   document.body.dataset.theme = ['amoled', 'midnight', 'warm', 'graphite'].includes(d.theme) ? d.theme : 'default';
   const accent = hexToRgb(d.accent);
@@ -1468,6 +1474,7 @@ export function applyDisplay() {
   document.documentElement.style.setProperty('--accent', `rgb(${DEFAULT_AMBIENT})`);
   artTint = d.artTint !== false;
   if (before !== DEFAULT_AMBIENT || !artTint) setAmbient(artTint ? currentArtColor : null);
+  if (langChanged) { buildLayout(); renderApproval(); }
   renderRulesBtn();
   if (PREVIEW || !bridge) return;
   try { bridge.setVolumeKeys && bridge.setVolumeKeys(d.volumeKeys !== false); } catch (_) {}

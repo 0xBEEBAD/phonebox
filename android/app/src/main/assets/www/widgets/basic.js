@@ -1,4 +1,4 @@
-import { $, API, D, LEVEL_COLOR, LOCALE, MEDIA_HTML, METRICS, Q_STYLE, S_ORDER, ago, api, averageColor, buzz, cfg, chart, color, cssVar, currentProcessesSort, emit, fillIcon, fmtClock, fmtDur, fmtHM, fmtMem, fmtReset, fmtTime, fmtValue, gotoProcesses, gpuMem, gpusOf, h, haptic, hasProcessesPage, hist, hour12, keyButton, levelOf, media, metricText, online, openSheet, paceInfo, pad, prRow, pushView, quotaProviders, r1, registerProcessesSorter, renderStatus, ringSvg, setArtColor, setMediaState, setVolDragging, shortDur, shortGpu, store, tick, toast, volDragging, wxBlock, wxIcon } from '../main.js';
+import { $, API, D, LEVEL_COLOR, LOCALE, MEDIA_HTML, METRICS, Q_STYLE, S_ORDER, ago, api, averageColor, buzz, cfg, chart, color, cssVar, currentProcessesSort, emit, fillIcon, fmtClock, fmtDur, fmtHM, fmtMem, fmtReset, fmtTime, fmtValue, gotoProcesses, gpuMem, gpusOf, h, haptic, hasProcessesPage, hist, hour12, keyButton, levelOf, media, metricText, online, openSheet, paceInfo, pad, prRow, pushView, quotaProviders, r1, registerProcessesSorter, renderStatus, ringSvg, setArtColor, setMediaState, setVolDragging, shortDur, shortGpu, store, t, tick, toast, volDragging, wxBlock, wxIcon } from '../main.js';
 import { W } from '../registry.js';
 import { invalidateDeckState } from './controls.js';
 
@@ -73,7 +73,7 @@ W.forecast = {
         if (daily) {
           const d = w.daily;
           for (let i = 0; i < Math.min(n, d.time.length); i++) {
-            const day = i === 0 ? 'Today' : new Date(d.time[i] + 'T12:00').toLocaleDateString(LOCALE, { weekday: 'short' });
+            const day = i === 0 ? t('time.today') : new Date(d.time[i] + 'T12:00').toLocaleDateString(LOCALE, { weekday: 'short' });
             const rain = d.precipitation_probability_max?.[i];
             cells.push(h('div', 'fc-i', h('span', 'fc-t', day), h('span', 'fc-ic', wxIcon(d.weather_code[i])),
               h('span', 'fc-v', Math.round(d.temperature_2m_max[i]) + '°', h('small', null, ' ' + Math.round(d.temperature_2m_min[i]) + '°')),
@@ -649,8 +649,8 @@ W.github = {
         rc.textContent = g.reviewRequests.length;
         mc.textContent = g.myPrs.length;
         const nRev = Math.min(g.reviewRequests.length || 1, Math.max(1, Math.floor(rows / 2)));
-        rev.replaceChildren(...(g.reviewRequests.length ? g.reviewRequests.slice(0, nRev).map((p) => prRow(p, false)) : [h('div', 'gh-pr', 'No pending reviews')]));
-        mine.replaceChildren(...(g.myPrs.length ? g.myPrs.slice(0, Math.max(1, rows - nRev)).map((p) => prRow(p, true)) : [h('div', 'gh-pr', 'No open pull requests')]));
+        rev.replaceChildren(...(g.reviewRequests.length ? g.reviewRequests.slice(0, nRev).map((p) => prRow(p, false)) : [h('div', 'gh-pr', t('w.noReviews'))]));
+        mine.replaceChildren(...(g.myPrs.length ? g.myPrs.slice(0, Math.max(1, rows - nRev)).map((p) => prRow(p, true)) : [h('div', 'gh-pr', t('w.noPrs'))]));
         err.textContent = g.error ? 'GitHub: ' + g.error : '';
       },
     };
@@ -664,7 +664,7 @@ W.processes = {
     let sort = currentProcessesSort();
     const sum = h('span', 'p-sum');
     const seg = h('div', 'seg', h('button', sort === 'cpu' ? 'on' : null, 'CPU'), h('button', sort === 'mem' ? 'on' : null, 'RAM'));
-    const grid = h('div', 'p-grid', h('div', 'empty', 'Processes appear once the computer is connected.'));
+    const grid = h('div', 'p-grid', h('div', 'empty', t('w.procsWait')));
     box.style.setProperty('--c', '#f472b6');
     box.append(h('div', 'p-head', h('span', 's-label', 'Processes'), sum, seg), grid);
     const els = new Map();
@@ -682,7 +682,7 @@ W.processes = {
     const render = () => {
       const data = D.procs;
       if (!data) return;
-      if (!data.groups.length) { sum.textContent = ''; grid.replaceChildren(h('div', 'empty', 'Measuring…')); return; }
+      if (!data.groups.length) { sum.textContent = ''; grid.replaceChildren(h('div', 'empty', t('w.measuring'))); return; }
       const cols = box.clientWidth > 460 ? 2 : 1;
       const rows = Math.max(1, Math.floor((box.clientHeight - 46) / 40));
       grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
@@ -698,7 +698,7 @@ W.processes = {
       const loadPart = sort === 'cpu'
         ? (cpuPct != null ? `Total CPU ${cpuPct}% · ` : '')
         : ramStr;
-      sum.textContent = box.clientWidth > 380 ? `${loadPart}${data.total} processes · ${data.groupCount ?? data.groups.length} apps · tap one for details` : `${loadPart}${data.total} processes`;
+      sum.textContent = box.clientWidth > 380 ? loadPart + t('w.procsSummary', { n: data.total, apps: data.groupCount ?? data.groups.length }) : loadPart + t('w.procsSummaryShort', { n: data.total });
       if (grid.querySelector('.empty')) grid.replaceChildren();
       const keep = new Set(list.map((g) => g.name));
       for (const [n, e] of els) if (!keep.has(n)) { e.remove(); els.delete(n); }
@@ -741,7 +741,7 @@ W.shortcuts = {
     const ids = Array.isArray(o.ids) && o.ids.length ? o.ids : null;
     const list = ids ? ids.map((id) => all.find((s) => s.id === id)).filter(Boolean) : all;
     if (!list.length) {
-      box.append(h('div', 'empty', all.length ? 'None of the chosen shortcuts exist any more.' : 'Shortcuts load once the computer is connected.\nEdit them from the tray icon › Settings.'));
+      box.append(h('div', 'empty', all.length ? t('w.shortcutsMissing') : t('w.shortcutsWait')));
       return {};
     }
     const cols = Math.min(8, Math.max(1, o.columns || 4));
@@ -757,7 +757,7 @@ W.button = {
   bare: true, needs: ['state'],
   create(box, { o }) {
     const s = (cfg.shortcuts || []).find((x) => x.id === o.id) || (cfg.shortcuts || [])[0];
-    box.append(s ? keyButton(s) : h('div', 'empty', 'Pick a shortcut in the settings'));
+    box.append(s ? keyButton(s) : h('div', 'empty', t('w.pickShortcut')));
     return { update: () => applyToggles(box) };
   },
 };
@@ -794,7 +794,7 @@ W.worldclock = {
           const zoneUtc = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute);
           const diffH = Math.round((zoneUtc - localUtc) / 360000) / 10;
           const dayDiff = Math.round((Date.UTC(+p.year, +p.month - 1, +p.day) - Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())) / 86400000);
-          const day = dayDiff > 0 ? 'Tomorrow' : dayDiff < 0 ? 'Yesterday' : 'Today';
+          const day = dayDiff > 0 ? t('time.tomorrow') : dayDiff < 0 ? t('time.yesterday') : t('time.today');
           it.s.textContent = diffH === 0 ? day : `${day}, ${diffH > 0 ? '+' : '−'}${Math.abs(diffH)}h`;
         }
       },
@@ -881,8 +881,8 @@ W.pomodoro = {
       dial.insertAdjacentHTML('afterbegin', ringSvg(100 * (1 - left / total())));
       svg = dial.firstElementChild;
       time.textContent = fmtTime(left + 999);
-      phase.textContent = st.phase === 'focus' ? 'Focus' : 'Break';
-      count.textContent = st.count ? '🍅'.repeat(Math.min(st.count, 6)) + (st.count > 6 ? ` ×${st.count}` : '') : 'No sessions yet today';
+      phase.textContent = st.phase === 'focus' ? t('w.focus') : t('w.break');
+      count.textContent = st.count ? '🍅'.repeat(Math.min(st.count, 6)) + (st.count > 6 ? ` ×${st.count}` : '') : t('w.noSessionsToday');
       play.textContent = st.endsAt ? '⏸' : '▶';
     };
     play.addEventListener('click', () => {
@@ -903,7 +903,7 @@ W.countdown = {
     const target = m ? new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0)).getTime() : NaN;
     const big = h('div', 'cd-v'), sub = h('div', 'cd-s');
     box.append(h('div', 'cd-l', o.label || 'Countdown'), big, sub);
-    if (Number.isNaN(target)) { big.textContent = '—'; sub.textContent = 'Set a date as YYYY-MM-DD HH:MM'; return {}; }
+    if (Number.isNaN(target)) { big.textContent = '—'; sub.textContent = t('w.setDateFormat'); return {}; }
     sub.textContent = new Date(target).toLocaleDateString(LOCALE, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) + ', ' + fmtHM(new Date(target));
     return {
       update() {
@@ -949,11 +949,11 @@ W.command = {
       try {
         res = await api(`/widget/${encodeURIComponent(page.id)}/${encodeURIComponent(w.id)}${force ? '?force=true' : ''}`, 'GET', 4000);
         const text = res.output ?? '';
-        out.textContent = text || (res.running ? 'Running…' : '(no output)');
+        out.textContent = text || (res.running ? t('w.running') : t('w.noOutput'));
         const short = text.length <= 14 && !text.includes('\n');
         out.classList.toggle('big', short);
         box.classList.toggle('bad', res.ok === false);
-      } catch (_) { if (!res) out.textContent = online ? 'Unavailable' : '—'; }
+      } catch (_) { if (!res) out.textContent = online ? t('w.unavailable') : '—'; }
       busy = false;
     };
     box.addEventListener('click', () => { haptic(); last = Date.now(); load(true).then(() => setTimeout(() => load(false), 1500)); });
@@ -979,7 +979,7 @@ W.push = {
         if (lastAt === 0) return;
         lastAt = 0;
         box.style.removeProperty('--c');
-        box.replaceChildren(h('div', 'w-title', o.title || key), h('div', 'push-empty', 'No data yet', h('code', null, `POST /api/push/${key}`)));
+        box.replaceChildren(h('div', 'w-title', o.title || key), h('div', 'push-empty', t('w.noDataYet'), h('code', null, `POST /api/push/${key}`)));
         return;
       }
       const ageEl = box.querySelector('.push-age');
@@ -1044,7 +1044,7 @@ W.inbox = {
           const e = h('div', 'ib-i', h('div', 'ib-h', h('b', null, n.title || n.text), h('span', null, ago(n.at))), n.title && n.text ? h('div', 'ib-t', n.text) : null);
           e.style.setProperty('--lc', LEVEL_COLOR[n.level] || 'var(--dim)');
           return e;
-        }) : [h('div', 'empty', 'Nothing yet.\nSend one with POST /api/notify')]));
+        }) : [h('div', 'empty', t('w.notifyEmpty'))]));
       },
     };
   },

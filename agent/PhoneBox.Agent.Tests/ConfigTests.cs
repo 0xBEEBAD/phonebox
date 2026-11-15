@@ -243,6 +243,30 @@ public class ConfigConcurrencyTests
         }
         finally { File.Delete(path); File.Delete(path + ".bak"); }
     }
+
+    [Fact]
+    public void DisplayLanguageDefaultsAndExposesToPublic()
+    {
+        var (s, path) = NewStore();
+        try
+        {
+            Assert.Equal("auto", s.Get().Display.Language);
+
+            Assert.Null(s.Save("""{"display":{"language":"tr"}}"""));
+            Assert.Equal("tr", s.Get().Display.Language);
+            var pub = JsonSerializer.Serialize(s.Get().ToPublic(), ConfigStore.WriteOpts);
+            using var doc = JsonDocument.Parse(pub);
+            Assert.Equal("tr", doc.RootElement.GetProperty("display").GetProperty("language").GetString());
+        }
+        finally { File.Delete(path); File.Delete(path + ".bak"); }
+    }
+
+    [Fact]
+    public void EmbeddedI18nResourceExists()
+    {
+        using var s = AppPaths.Resource("www/i18n.js");
+        Assert.NotNull(s);
+    }
 }
 
 public class Hour12ConfigTests
