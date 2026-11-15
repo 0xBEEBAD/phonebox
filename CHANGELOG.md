@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+**Agent**
+- Settings: **Open on phone** works over Wi-Fi and Tailscale too. It shows the page selected in the editor on the phone
+  (over USB it also wakes the phone, as before), and says "No phone connected" instead of claiming it worked (#62,
+  thanks to d4rk-lucif3r).
+
 ## 0.9.6 — 2026-11-15
 
 A Computers widget to switch between paired computers, a privacy policy and code signing policy, fewer outbound
