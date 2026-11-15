@@ -1,8 +1,12 @@
 # Changelog
 
-## Unreleased
+## 0.9.10 — 2026-11-16
 
-Fixes from an evidence-led audit. Each one was reproduced on the unchanged code before the fix (#88, #89, #90, #91).
+A reliability release. Updates are checked against the release checksums and no longer get stuck on a hung or refusing
+phone. Notifications sent while the agent restarts now reach the phone.
+
+Most of the fixes come from an evidence-led audit. Each one was reproduced on the unchanged code before the fix
+(#88, #89, #90, #91).
 
 **Agent**
 - **Updates:**
