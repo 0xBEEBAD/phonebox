@@ -1,6 +1,54 @@
 # Changelog
 
-## Unreleased
+## 0.9.10 — 2026-11-16
+
+A reliability release. Updates are checked against the release checksums and no longer get stuck on a hung or refusing
+phone. Notifications sent while the agent restarts now reach the phone.
+
+Most of the fixes come from an evidence-led audit. Each one was reproduced on the unchanged code before the fix
+(#88, #89, #90, #91).
+
+**Agent**
+- **Updates:**
+  - Downloaded updates are checked against the release's SHA-256 checksums before they are installed. A copy that
+    does not match is deleted and fetched again, and refused if it still does not match. Before, a damaged copy kept
+    in the updates folder could be used again and again.
+  - A phone that refuses the app update (another signing key, or "Install via USB" off on Xiaomi) no longer keeps the
+    other phones, or the agent itself, from updating.
+  - A stuck `adb install` (a hung phone or cable) no longer blocks updates until the agent restarts. adb now has a
+    3-minute limit and is stopped when an update is cancelled.
+  - On Linux and macOS, the agent now updates itself when the home folder is a symbolic link (for example, moved to
+    another disk).
+- **USB:**
+  - A phone that refuses to become the home app no longer stops USB setup for the other phones, or the keep-awake
+    setting.
+  - An `adb reverse` rule left by an agent on another port is pointed back at this one. Before, the panel stayed offline
+    over USB until the cable was plugged in again.
+  - On Windows, adb is found when its folder is on PATH in quotes.
+- **Wi-Fi pairing:** a pairing request without the key whose body is not JSON gets the usual refusal (403). Before,
+  anyone on the network got a 500 and added an error line to `agent.log` with every such request.
+- **Radio directory:** a mirror that answers with something other than the station list is skipped like a failing one.
+  Before, one bad mirror broke "Load countries" and "Import stations".
+
+**Android app**
+- Notifications, page switches and permission prompts that the agent queued while it restarted (after saving
+  settings, an update or a crash) now reach the phone. Before, the panel skipped them because the restarted agent
+  counted its events from 0 again (#86, thanks to Seyamalam).
+- Page switching:
+  - **Stay** on a rule's "Back to …" card now keeps the page.
+  - A rule that ended while you were on another page no longer undoes that page when you open it yourself later.
+  - A notification whose `countdown` is not a number (`"soon"`, `1e9`, an object) no longer freezes page switching or
+    the events after it. The countdown is limited to 0–30 seconds, like every other countdown.
+
+**Setup**
+- `setup.sh` no longer sets up a login service that systemd refuses to start (an install path with a quote, an
+  apostrophe or a backslash). It says to use the desktop's startup applications instead.
+- With several phones connected, skipping the phone choice in `setup.sh` no longer ends setup with PhoneBox stopped.
+
+## 0.9.9 — 2026-11-15
+
+Install PhoneBox with one command on Windows, Linux and macOS. The installer checks the download and sets up what is
+missing. This release also adds OLED burn-in protection and Pomodoro sequences with long breaks.
 
 **Android app**
 - OLED burn-in protection (#79), in **Settings › General › OLED burn-in protection**, both off by default:
@@ -8,6 +56,14 @@
   - **Idle dim**: after a set time without a touch, a dark layer covers the panel. The touch that brightens it does
     not press anything under it. A page switch, a notification, a permission prompt, waking on plug-in and the
     proximity sensor brighten it too.
+- Pomodoro (#82):
+  - **Long breaks**: a long break after every N focus sessions.
+  - **Your own sequence**: for example `25 focus, 5 break, 25 focus, 5 break, 25 focus, 15 long`. It advances by
+    itself, can repeat a number of rounds, and then stops with a message.
+  - **Display**: the widget shows "Focus 2/3" or "Long break", in blue. ↺ restarts the step; pressed again it
+    restarts the sequence.
+  - **Presets**: put several Pomodoro widgets on your pages, each with its own sequence (study, reading, deep work).
+  - **Compatibility**: existing widgets keep working as before, including a timer that is running during the update.
 
 **Setup**
 - One-step installers: `irm https://raw.githubusercontent.com/ersinkoc/phonebox/main/setup.ps1 | iex` on Windows,
