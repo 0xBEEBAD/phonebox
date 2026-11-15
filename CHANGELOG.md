@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.9.6 — 2026-11-15
+
+A Computers widget to switch between paired computers, a privacy policy and code signing policy, fewer outbound
+requests (weather only when shown, a switchable ping), owner-only settings files on macOS / Linux, and a live stream
+that keeps up under heavy load on macOS (thanks to d4rk-lucif3r).
 
 **Panel**
 - Computers widget: the computers this phone is paired with over Wi-Fi, one tap to switch, as in the page overview.
@@ -14,6 +18,12 @@
   read the Wi-Fi, webhook and Home Assistant keys.
 - Settings › General › Ping: the host pinged every 5 seconds for the ping metric and the "ping high" rule (1.1.1.1 by
   default); empty turns pinging off.
+- macOS / Linux: the live stream no longer waits on `osascript`, `wpctl` or `pactl` for the volume. Under heavy CPU
+  load those took seconds, `/api/state` and the stream stopped answering, and the phone kept reconnecting with
+  "computer not connected"; the volume is now read in the background, and volume controls still act on a fresh
+  reading (#60, thanks to d4rk-lucif3r).
+- Settings: the badge says "Phone connected · Wi-Fi" for a phone on Wi-Fi or Tailscale instead of "No phone
+  connected", and "· USB" over the cable (#60).
 
 **Docs**
 - A privacy policy ([PRIVACY.md](PRIVACY.md)) lists every connection the agent and the app make and how to turn each

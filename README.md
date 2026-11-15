@@ -532,7 +532,7 @@ Free code signing provided by [SignPath.io](https://about.signpath.io/), certifi
 - **What is signed**: the Windows agent (`PhoneBoxAgent.exe` and `PhoneBoxAgent.dll`) in the `win-x64` release zip.
   It is built from this repository by the [release workflow](.github/workflows/release.yml) on GitHub Actions, and
   every signing request is approved by hand. Third-party libraries in the zip keep their own publishers' signatures.
-  Status: the application to SignPath Foundation is pending; releases up to 0.9.5 are unsigned.
+  Status: the application to SignPath Foundation is pending; until it is approved, releases are unsigned.
 - **Android app**: the APK is signed with the project's own release key, not through SignPath.
 - **Team roles**: committers and reviewers: [ersinkoc](https://github.com/ersinkoc); approvers:
   [ersinkoc](https://github.com/ersinkoc). Pull requests from other contributors are reviewed before they are merged.
