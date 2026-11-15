@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.9.7 — 2026-11-15
+
+The agent no longer needs .NET installed: each release is one self-contained program. The Claude quota shows again
+after Anthropic rate-limits it, Open on phone works over Wi-Fi, and there is a contributing guide.
 
 **Agent**
 - Claude quota: when Anthropic's usage endpoint answers 429 (it is rate limited per account, and Claude Code uses it
@@ -12,8 +15,12 @@
   about 45 MB) and updates download that size. After updating, the agent removes the framework-dependent files the
   updater leaves behind; source installs (`install.ps1`, `install.sh`) stay framework-dependent.
 - Settings: **Open on phone** works over Wi-Fi and Tailscale too. It shows the page selected in the editor on the phone
-  (over USB it also wakes the phone, as before), and says "No phone connected" instead of claiming it worked (#62,
+  (over USB it also wakes the phone, as before), and says "No phone connected" instead of claiming it worked; a page that is not saved yet asks to save first (#62, #64,
   thanks to d4rk-lucif3r).
+
+**Docs**
+- [CONTRIBUTING.md](CONTRIBUTING.md), pull request and issue templates, and review rules for the automated reviewer:
+  scope, the security model, privacy and the tests to run.
 
 ## 0.9.6 — 2026-11-15
 
