@@ -302,7 +302,9 @@ app.MapGet("/api/info", (AdbReverse adb, ConfigStore cfg) => Results.Json(new
     configPath = cfg.Path,
     logPath = AppPaths.LogPath,
     adb = AdbReverse.FindAdb(cfg.Get().AdbPath),
-    connected = adb.Connected,
+    // USB (adb) or a live stream from the phone in the last few seconds, which covers Wi-Fi / Tailscale too
+    connected = adb.Connected || ApprovalStore.PhoneConnected,
+    via = adb.Connected ? "USB" : ApprovalStore.PhoneConnected ? "Wi-Fi" : null,
     devices = adb.AllDevices,
     appMissing = adb.MissingApp,
     usbProblem = adb.UsbProblem,
@@ -560,7 +562,7 @@ app.MapPost("/api/volume", (int? level, string? op, AudioControl audio) =>
         _ when level is { } l => audio.SetVolume(l),
         _ => false,
     };
-    return ok ? Results.Json(audio.Snapshot()) : Results.BadRequest();
+    return ok ? Results.Json(audio.Current()) : Results.BadRequest();
 });
 
 app.MapGet("/api/quotas", (QuotaMonitor q) => Results.Json(new { providers = q.Snapshot(), overview = q.Overview() }));
