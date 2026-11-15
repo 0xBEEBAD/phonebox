@@ -328,6 +328,8 @@ export async function loadWeather(force = false) {
   const cached = store.get('wx', null);
   if (cached && cached.key === key && !D.weather) { D.weather = cached.data; emit('weather'); }
   if (!force && cached && cached.key === key && Date.now() - cached.at < 14 * 60_000) return;
+  // only while a page shows the weather (PRIVACY.md): no widget, no request with the location
+  if (!anyNeeds('weather')) return;
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
       '&current=temperature_2m,apparent_temperature,weather_code,is_day' +
@@ -481,7 +483,7 @@ export const MEDIA_HTML = `
     </div>
   </div>
   <div class="offline-msg"><b>Computer not connected</b>
-    <span>Is the PhoneBox agent running? Plug in the USB cable, or turn on Wi-Fi in the PhoneBox settings and pair once over USB.</span></div>`;
+    <span>Is the PhoneBox agent running? Plug in the USB cable, or pair over Wi-Fi: in the PhoneBox settings on the computer choose Wi-Fi &amp; Tailscale › Pair a phone over Wi-Fi and scan the QR code with this phone's camera.</span></div>`;
 
 // ---------------------------------------------------------------- quotas
 export const Q_STYLE = { antigravity: { color: '#38bdf8', logo: '✦' }, claude: { color: '#d97757', logo: '✳' }, codex: { color: '#e5e7eb', logo: '◎' } };
@@ -728,6 +730,7 @@ export const levelOf = (v) => v.level || (typeof v.value === 'string' ? (/^(ok|p
 export function handleNotify(d) {
   const level = d.level === 'error' ? 'err' : d.level === 'ok' || d.level === 'success' ? 'ok' : d.level === 'warn' ? 'warn' : '';
   if (d.wake && nightOn) { wakeUntil = Date.now() + 30_000; setNight(false); }
+  undim();
   toast(d.text || '', level, d.title || '', d.seconds || 5);
   if (d.vibrate !== false) buzz(level === 'err' ? '0,90,90,90,90,160' : '0,70,110,70');
   D.notes.unshift({ title: d.title || '', text: d.text || '', level: d.level || 'info', at: Date.now() });
@@ -754,6 +757,7 @@ export function renderApproval() {
   if (approvalShown !== a.id) {
     approvalShown = a.id;
     lastTouch = Date.now();
+    undim();
     if (nightOn) { wakeUntil = Date.now() + 60_000; setNight(false); }
     buzz('0,120,80,120,80,240');
     $('apAllow').disabled = $('apDeny').disabled = $('apSkip').disabled = false;
@@ -813,7 +817,7 @@ export function handleEvent(e) {
 export const WIDGET_ICONS = { rules: '⚡', chargecare: '🔋', nextup: '⏭️', moon: '🌙', wordclock: '🔤', clock: '🕒', weather: '⛅', forecast: '🌦️', media: '🎵', stat: '📈', gauge: '⏲️', chart: '📊', meters: '💾', gpu: '🎮', quotas: '✳️', sessions: '🤖',
   github: '🐙', processes: '⚙️', shortcuts: '🎛️', button: '🔘', worldclock: '🌍', calendar: '📅', pomodoro: '🍅', countdown: '⏳', note: '📝', command: '💻',
   push: '📡', inbox: '📬', label: '🔤', analog: '🕰️', progress: '📆', stopwatch: '⏱️', timer: '⏲️', counter: '🔢', breathe: '🫁', quote: '💬',
-  checklist: '✅', battery: '🔋', topprocs: '🔥', quotaring: '🎯', volume: '🔊', sun: '🌅', air: '🍃', hackernews: '📰', exchange: '💱', crypto: '🪙', image: '🖼️' };
+  checklist: '✅', battery: '🔋', topprocs: '🔥', quotaring: '🎯', volume: '🔊', sun: '🌅', air: '🍃', hackernews: '📰', exchange: '💱', crypto: '🪙', image: '🖼️', pcswitch: '🖥️' };
 
 // ================================================================= pages
 export const pager = $('pager');
@@ -1114,9 +1118,14 @@ export function pump() {
 }
 
 let navShown = null;
+let navWoken = null; // the waiting request or the countdown that last brightened a dimmed panel
 function renderNav(req = null, why = '') {
   const card = $('navCard'), chip = $('navChip');
-  if (!req) { card.classList.remove('on'); chip.classList.remove('on'); navShown = null; return; }
+  if (!req) { card.classList.remove('on'); chip.classList.remove('on'); navShown = null; navWoken = null; return; }
+  // a new waiting request or countdown must not be hidden under the dark layer; this runs every 250 ms while one
+  // waits, so only its first appearance counts, or the panel would never dim behind a request that keeps waiting
+  const wakeKey = why ? req : navCount;
+  if (wakeKey !== navWoken) { navWoken = wakeKey; undim(); }
   const name = req.name || (req.kind === 'home' ? 'Nobody around' : req.kind === 'back' ? 'Done' : 'Page switch');
   const target = req.kind === 'home' ? pageLabel(homeIndex()) : pageLabel(req.page);
   const more = navQueue.length > 1 ? ` +${navQueue.length - 1}` : '';
@@ -1207,22 +1216,27 @@ export function openOverview() {
   $('ovGrid').replaceChildren(...pages.map(tile));
   renderRulesBtn();
   // several paired computers: switch between them here (a USB cable always wins)
-  let pcs = [];
-  try { pcs = bridge?.pcs ? JSON.parse(bridge.pcs()) : []; } catch (_) {}
+  const pcs = pairedPcs();
   $('ovPcs').replaceChildren(...(pcs.length > 1 ? pcs.map((pc) => {
     const b = h('button', 'ov-pc' + (pc.active ? ' on' : ''), '🖥️ ' + (pc.name || 'Computer'));
-    b.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (pc.active) return;
-      haptic(); toast(`Switching to ${pc.name || 'the other computer'}…`);
-      setTimeout(() => bridge.selectPc(pc.id), 300);
-    });
+    b.addEventListener('click', (e) => { e.stopPropagation(); switchPc(pc); });
     return b;
   }) : []));
   $('ovGrid').style.setProperty('--n', Math.min(4, Math.ceil(Math.sqrt(pages.length * 1.6))));
   ov.hidden = false;
 }
 window.openOverview = openOverview;
+
+/** The computers this phone is paired with over Wi-Fi: [{ id, name, active }] (empty outside the app). */
+export function pairedPcs() {
+  try { return bridge?.pcs ? JSON.parse(bridge.pcs()) : []; } catch (_) { return []; }
+}
+/** Makes another paired computer the one used over Wi-Fi; the app then reloads the panel from it. */
+export function switchPc(pc) {
+  if (!pc || pc.active || !bridge?.selectPc) return;
+  haptic(); toast(`Switching to ${pc.name || 'the other computer'}…`);
+  setTimeout(() => bridge.selectPc(pc.id), 300);
+}
 export function closeOverview() { $('overview').hidden = true; }
 $('overview').addEventListener('click', closeOverview);
 $('ovRules').addEventListener('click', (e) => { e.stopPropagation(); toggleRulesPause(); });
@@ -1306,6 +1320,7 @@ window.onAndroidBack = () => {
 window.addEventListener('resize', () => { buildLayout(); goPage(curPage, true); });
 
 ['pointerdown', 'touchstart'].forEach((ev) => document.addEventListener(ev, (e) => {
+  if (dimmed) wakeFromDim();
   if (e.target?.closest?.('#navCard, #navChip')) return;
   lastTouch = lastUserTouch = Date.now();
   if (navQueue.length) { navQueue = navQueue.filter((r) => r.kind !== 'home'); pump(); }
@@ -1357,11 +1372,73 @@ window.onAndroidSensor = (kind, value) => {
     if (lux < 3) { darkSince ||= Date.now(); } else darkSince = 0;
     if (darkRoom && lux > 15) darkRoom = false;
     applyBrightness();
-  } else if (kind === 'proximity' && value === true && cfg.display?.proximityWake !== false && nightOn) {
+  } else if (kind === 'proximity' && value === true && cfg.display?.proximityWake !== false && (nightOn || dimmed)) {
+    undim();
+    if (!nightOn) return;
     wakeUntil = Date.now() + 30_000;
     setNight(false);
   }
 };
+
+// ---------------------------------------------------------------- OLED burn-in protection
+// Pixel shift (display.pixelShift): every 2 minutes the panel steps along a small loop, at most 2 px from its place, so
+// edges and text don't sit on the same pixels all day; the night clock, the most static thing on screen, drifts further.
+// Idle dim (display.idleDimMin): after that many minutes without a touch, page switch, notification or prompt, a dark
+// layer covers the panel. Like waking the night screen, the touch that brightens it does nothing else.
+const SHIFT = [[0, 0], [1, 0], [2, 1], [1, 2], [0, 2], [-1, 1], [-2, 0], [-1, -1], [0, -2], [1, -1]];
+const NIGHT_SHIFT = [[0, 0], [4, -3], [-4, 3], [3, 4], [-4, -2], [2, -4], [-2, 2], [4, 1], [-3, -4], [1, 3]]; // vmin
+const SHIFT_MS = 120_000;
+let shiftStep = -1;
+let lastWake = Date.now();
+let dimmed = false;
+
+/** Something happened that the user should see: brighten a dimmed panel and restart its idle time. */
+export function undim() {
+  lastWake = Date.now();
+  if (!dimmed) return;
+  dimmed = false;
+  document.body.classList.remove('dimmed');
+}
+
+// The dark layer keeps catching this touch until the finger lifts, so the widget under it is not pressed.
+function wakeFromDim() {
+  const body = document.body.classList;
+  body.add('waking');
+  undim();
+  const done = () => {
+    clearTimeout(fallback);
+    ['pointerup', 'pointercancel'].forEach((t) => document.removeEventListener(t, done, true));
+    setTimeout(() => body.remove('waking'), 300);
+  };
+  const fallback = setTimeout(done, 3000);
+  ['pointerup', 'pointercancel'].forEach((t) => document.addEventListener(t, done, true));
+}
+
+export function applyBurnIn() {
+  const d = cfg.display || {};
+  const shift = d.pixelShift === true && !PREVIEW;
+  document.body.classList.toggle('shifted', shift);
+  const step = shift ? Math.floor(Date.now() / SHIFT_MS) % SHIFT.length : -1;
+  if (step !== shiftStep) {
+    shiftStep = step;
+    const [x, y] = step < 0 ? [0, 0] : SHIFT[step];
+    const [nx, ny] = step < 0 ? [0, 0] : NIGHT_SHIFT[step];
+    const root = document.documentElement.style;
+    root.setProperty('--shift-x', `${x}px`);
+    root.setProperty('--shift-y', `${y}px`);
+    root.setProperty('--night-x', `${nx}vmin`);
+    root.setProperty('--night-y', `${ny}vmin`);
+  }
+  const after = Math.max(0, Math.floor(+d.idleDimMin || 0)) * 60_000;
+  const dim = after > 0 && !PREVIEW && !nightOn && $('approval').hidden
+    && Date.now() - Math.max(lastTouch, lastNav, lastWake) > after;
+  if (dim !== dimmed) {
+    dimmed = dim;
+    document.body.classList.toggle('dimmed', dim);
+  }
+}
+
+document.addEventListener('visibilitychange', () => { if (!document.hidden) undim(); }); // woken on plug-in, back from another app
 
 export function tick() {
   if (lastHour12 !== null && hour12() !== lastHour12) { buildLayout(); renderRulesBtn(); }
@@ -1375,6 +1452,7 @@ export function tick() {
     if (curPage === homeIndex()) { closeSheet(); closeOverview(); lastNav = Date.now(); } // only a sheet to close
     else { navQueue.push({ kind: 'home', at: Date.now(), priority: -1 }); pump(); }
   }
+  applyBurnIn();
   if (!nightOn) emit('tick');
   setTimeout(tick, 1000 - (Date.now() % 1000) + 5);
 }

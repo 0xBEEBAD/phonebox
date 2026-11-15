@@ -12,6 +12,7 @@ public sealed class AgentConfig
     public string? DeviceSerial { get; set; }
     public string? AdbPath { get; set; }
     public WeatherConfig Weather { get; set; } = new();
+    public PingConfig Ping { get; set; } = new();
     public NightConfig Night { get; set; } = new();
     public DisplayConfig Display { get; set; } = new();
     public LanConfig Lan { get; set; } = new();
@@ -82,6 +83,12 @@ public sealed class WeatherConfig
     public double Lon { get; set; } = 24.745;
 }
 
+public sealed class PingConfig
+{
+    /// <summary>Host or IP address pinged every 5 s for the ping metric and the "ping high" rule; empty = off.</summary>
+    public string? Host { get; set; } = PingMonitor.DefaultHost;
+}
+
 public sealed class NightConfig
 {
     public bool Enabled { get; set; } = true;
@@ -117,6 +124,10 @@ public sealed class DisplayConfig
     public bool NightWhenDark { get; set; }
     /// <summary>A hand near the phone (proximity sensor) wakes the night screen.</summary>
     public bool ProximityWake { get; set; } = true;
+    /// <summary>OLED burn-in protection: every 2 minutes the panel moves by a few pixels and the night clock drifts.</summary>
+    public bool PixelShift { get; set; }
+    /// <summary>OLED burn-in protection: dim the panel after this many minutes without a touch; 0 = never.</summary>
+    public int IdleDimMin { get; set; }
     /// <summary>Screen pinning: Home and Recents stay on the panel.</summary>
     public bool Pin { get; set; }
     /// <summary>The panel is the phone's home app: it starts after a reboot and Home returns to it.</summary>
@@ -396,8 +407,9 @@ public sealed partial class ConfigStore(string path)
             if (expectedVersion is { } expected && File.Exists(path) && File.GetLastWriteTimeUtc(path).Ticks != expected) return Conflict;
             Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
             var tmp = path + ".tmp";
-            File.WriteAllText(tmp, JsonSerializer.Serialize(cfg, WriteOpts));
-            if (File.Exists(path)) File.Copy(path, path + ".bak", overwrite: true);
+            // owner-only on macOS/Linux: the file holds the Wi-Fi, webhook and Home Assistant keys
+            AppPaths.WriteAllTextPrivate(tmp, JsonSerializer.Serialize(cfg, WriteOpts));
+            if (File.Exists(path)) AppPaths.CopyPrivate(path, path + ".bak");
             File.Move(tmp, path, overwrite: true);
             _config = cfg;
             _stamp = _seen = File.GetLastWriteTimeUtc(path);
@@ -425,6 +437,7 @@ public sealed partial class ConfigStore(string path)
         c.Display.Appearance?.Normalize();
         c.Display.Hour12 = Hour12JsonConverter.Normalize(c.Display.Hour12);
         c.Display.IdleReturnSec = Math.Clamp(c.Display.IdleReturnSec, 0, 3600);
+        c.Display.IdleDimMin = Math.Clamp(c.Display.IdleDimMin, 0, 1440);
         c.Display.SwitchCountdownSec = Math.Clamp(c.Display.SwitchCountdownSec, 0, 30);
         c.Display.TouchGraceSec = Math.Clamp(c.Display.TouchGraceSec, 0, 600);
         c.Display.MinDwellSec = Math.Clamp(c.Display.MinDwellSec, 0, 600);
@@ -432,6 +445,9 @@ public sealed partial class ConfigStore(string path)
         c.Display.HomePage = string.IsNullOrWhiteSpace(c.Display.HomePage) ? null : c.Display.HomePage.Trim();
         c.Lan ??= new();
         c.Updates ??= new();
+        c.Ping ??= new();
+        c.Ping.Host = c.Ping.Host?.Trim() ?? "";
+        if (c.Ping.Host.Length > 253 || c.Ping.Host.Any(ch => ch <= ' ' || ch > '~')) c.Ping.Host = PingMonitor.DefaultHost;
         c.Claude ??= new();
         c.Claude.TimeoutSec = Math.Clamp(c.Claude.TimeoutSec, 10, 3600);
         if (string.IsNullOrWhiteSpace(c.Updates.Repo)) c.Updates.Repo = "ersinkoc/phonebox";

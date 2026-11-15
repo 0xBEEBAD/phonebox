@@ -1,5 +1,104 @@
 # Changelog
 
+## Unreleased
+
+**Android app**
+- OLED burn-in protection (#79), in **Settings › General › OLED burn-in protection**, both off by default:
+  - **Pixel shift**: the panel moves by up to 2 px every 2 minutes, and the night clock drifts around the screen.
+  - **Idle dim**: after a set time without a touch, a dark layer covers the panel. The touch that brightens it does
+    not press anything under it. A page switch, a notification, a permission prompt, waking on plug-in and the
+    proximity sensor brighten it too.
+
+**Setup**
+- One-step installers: `irm https://raw.githubusercontent.com/ersinkoc/phonebox/main/setup.ps1 | iex` on Windows,
+  `curl -fsSL https://raw.githubusercontent.com/ersinkoc/phonebox/main/setup.sh | bash` on Linux and macOS. They
+  download the latest release and check its checksum (and its build provenance with a signed-in GitHub CLI). They
+  install adb and the optional helpers when missing, after asking, then the agent and start at login. They can also
+  put the app on a phone over USB, with step-by-step help for USB debugging, and finally start PhoneBox. Warnings
+  cover the unsigned build, antivirus, USB debugging, firewall, Linux USB permissions and macOS prompts. Running
+  setup again updates or repairs PhoneBox and keeps the settings; `-DryRun` / `--dry-run` changes nothing. A CI workflow runs
+  both installers on Windows, Linux x64/ARM64 and macOS every week.
+
+**Docs**
+- The README quick start is rewritten around setup: what it does, its options and warnings, connecting the phone
+  over USB or Wi-Fi only, other ways to install, and how to uninstall.
+
+## 0.9.8 — 2026-11-15
+
+Pair a phone over Wi-Fi without a USB cable: the computer shows a QR code, the phone scans it with its camera and
+pairs after you compare a check code. The Claude quota keeps its last reading across restarts.
+
+**Agent**
+- Pair a phone over Wi-Fi without USB: Settings › General › Wi-Fi & Tailscale › **Pair a phone over Wi-Fi** shows a
+  QR code to install the app and one to pair. The pairing link carries the computer's addresses, the certificate
+  fingerprint and a one-time code (5 minutes, single use); the phone trades the code for the Wi-Fi key over the
+  pinned TLS connection, so the key is never in the QR code.
+- Claude quota: the last successful reading is kept on disk, so after a restart (an update) or while Anthropic
+  rate-limits the checks, the panel shows the last values and their age instead of an empty quota.
+
+**Android app**
+- Opens pairing links from the computer's QR code: it shows the computer's name, addresses and a check code to compare
+  with the computer's pairing window, and pairs only after you confirm. It accepts only private network and Tailscale
+  addresses, and pairing a computer never replaces another one with the same name.
+
+**Docs**
+- A pairing page at `/pair/` on the project site, which the QR code opens: it checks the link, shows the check code
+  and hands the link to the app (or to the download page when the app is missing). The pairing details stay in the
+  part of the link that browsers never send to a server. The README and the privacy policy describe both ways to pair.
+
+## 0.9.7 — 2026-11-15
+
+The agent no longer needs .NET installed: each release is one self-contained program. The Claude quota shows again
+after Anthropic rate-limits it, Open on phone works over Wi-Fi, and there is a contributing guide.
+
+**Agent**
+- Claude quota: when Anthropic's usage endpoint answers 429 (it is rate limited per account, and Claude Code uses it
+  too), the agent now waits as long as `Retry-After` asks and backs off on repeated errors (1, 2, 4 … 15 minutes)
+  instead of asking again every minute, which could keep the limit in place so the quota never showed. The panel says
+  when it will try again and keeps the last values.
+- The release agent is a single self-contained program on every system: unzip and run, no .NET runtime to install
+  (Windows needed the .NET 10 Desktop Runtime before). The zips are larger (Windows about 65 MB, Linux and macOS
+  about 45 MB) and updates download that size. After updating, the agent removes the framework-dependent files the
+  updater leaves behind; source installs (`install.ps1`, `install.sh`) stay framework-dependent.
+- Settings: **Open on phone** works over Wi-Fi and Tailscale too. It shows the page selected in the editor on the phone
+  (over USB it also wakes the phone, as before), and says "No phone connected" instead of claiming it worked; a page that is not saved yet asks to save first (#62, #64,
+  thanks to d4rk-lucif3r).
+
+**Docs**
+- [CONTRIBUTING.md](CONTRIBUTING.md), pull request and issue templates, and review rules for the automated reviewer:
+  scope, the security model, privacy and the tests to run.
+
+## 0.9.6 — 2026-11-15
+
+A Computers widget to switch between paired computers, a privacy policy and code signing policy, fewer outbound
+requests (weather only when shown, a switchable ping), owner-only settings files on macOS / Linux, and a live stream
+that keeps up under heavy load on macOS (thanks to d4rk-lucif3r).
+
+**Panel**
+- Computers widget: the computers this phone is paired with over Wi-Fi, one tap to switch, as in the page overview.
+  The buttons wait while a USB cable is plugged in, since USB always wins (#58).
+- The weather is fetched only while a page has a widget that uses it (weather, forecast, sun & moon, a clock with its
+  weather line, Custom HTML); before, the phone asked Open-Meteo every 15 minutes whatever was on screen.
+
+**Agent**
+- On macOS and Linux `config.json`, its backup and the pushed data are written readable only by your user (0600), and
+  an existing config is tightened at start; before, they followed the umask (often 0644), so other local users could
+  read the Wi-Fi, webhook and Home Assistant keys.
+- Settings › General › Ping: the host pinged every 5 seconds for the ping metric and the "ping high" rule (1.1.1.1 by
+  default); empty turns pinging off.
+- macOS / Linux: the live stream no longer waits on `osascript`, `wpctl` or `pactl` for the volume. Under heavy CPU
+  load those took seconds, `/api/state` and the stream stopped answering, and the phone kept reconnecting with
+  "computer not connected"; the volume is now read in the background, and volume controls still act on a fresh
+  reading (#60, thanks to d4rk-lucif3r).
+- Settings: the badge says "Phone connected · Wi-Fi" for a phone on Wi-Fi or Tailscale instead of "No phone
+  connected", and "· USB" over the cable (#60).
+
+**Docs**
+- A privacy policy ([PRIVACY.md](PRIVACY.md)) lists every connection the agent and the app make and how to turn each
+  one off; the README no longer says that nothing else leaves the machine.
+- Code signing policy in the README and on the demo site, linked under every release: the Windows agent is to be
+  signed through SignPath Foundation (application pending, #56).
+
 ## 0.9.5 — 2026-11-14
 
 AMD and Intel graphics cards with no vendor tool, a GPU details widget, internet radio in Now Playing with station
