@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.9.8 — 2026-11-15
+
+Pair a phone over Wi-Fi without a USB cable: the computer shows a QR code, the phone scans it with its camera and
+pairs after you compare a check code. The Claude quota keeps its last reading across restarts.
 
 **Agent**
 - Pair a phone over Wi-Fi without USB: Settings › General › Wi-Fi & Tailscale › **Pair a phone over Wi-Fi** shows a
