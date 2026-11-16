@@ -36,6 +36,8 @@ public sealed class AgentConfig
     public ObsConfig Obs { get; set; } = new();
     /// <summary>Discord desktop app (local IPC): the developer application's client id and secret (the secret never goes to the phone).</summary>
     public DiscordConfig Discord { get; set; } = new();
+    /// <summary>App console widget: key and dial bindings per app (the phone gets labels and ids, not the keys to press).</summary>
+    public ConsoleConfig Console { get; set; } = new();
 
     /// <summary>The pages a phone shows: its own selection (Settings › Phones), or all of them.</summary>
     public IEnumerable<PageConfig> PagesFor(string? deviceId)
@@ -422,6 +424,9 @@ public sealed partial class ConfigStore(string path)
         cfg = Normalize(cfg);
         foreach (var s in cfg.Shortcuts)
             if (string.IsNullOrWhiteSpace(s.Cmd)) return $"Shortcut '{s.Label}' has no command";
+        if (cfg.Console.Profiles.Count > AppConsole.MaxProfiles) return $"The app console has more than {AppConsole.MaxProfiles} apps";
+        foreach (var p in cfg.Console.Profiles)
+            if (AppConsole.Validate(p) is { } consoleError) return consoleError;
         if (cfg.Weather.Lat is < -90 or > 90 || cfg.Weather.Lon is < -180 or > 180) return "Invalid weather location";
         if (!HhMm().IsMatch(cfg.Night.Start ?? "") || !HhMm().IsMatch(cfg.Night.End ?? "")) return "Night mode times must be in HH:MM format";
 
@@ -514,6 +519,25 @@ public sealed partial class ConfigStore(string path)
         c.HomeAssistant ??= new();
         c.HomeAssistant.Url = string.IsNullOrWhiteSpace(c.HomeAssistant.Url) ? null : c.HomeAssistant.Url.Trim().TrimEnd('/');
         c.HomeAssistant.Token = string.IsNullOrWhiteSpace(c.HomeAssistant.Token) ? null : c.HomeAssistant.Token.Trim();
+        c.Console ??= new();
+        c.Console.Profiles = (c.Console.Profiles ?? []).Where(p => p is not null).Take(200).ToList(); // more than 30 is refused on save
+        var consoleIds = new HashSet<string>();
+        foreach (var p in c.Console.Profiles)
+        {
+            p.Label = Cap(p.Label?.Trim() ?? "", 40);
+            p.Apps = p.Apps?.Trim() ?? ""; // too long is refused on save (AppConsole.Validate), not cut short
+            var id = Slug(string.IsNullOrWhiteSpace(p.Id) ? p.Label : p.Id);
+            if (id == "") id = "app";
+            var unique = id;
+            for (var i = 2; !consoleIds.Add(unique); i++) unique = $"{id}-{i}";
+            p.Id = unique;
+            p.Keys = (p.Keys ?? []).Where(k => k is not null && !string.IsNullOrWhiteSpace(k.Keys)).Take(100).ToList();
+            // a key without a label shows its keys on the phone ("ctrl+z")
+            foreach (var k in p.Keys) { k.Keys = k.Keys.Trim(); k.Label = Cap(k.Label?.Trim() is { Length: > 0 } l ? l : k.Keys, 24); }
+            p.DialLeft = string.IsNullOrWhiteSpace(p.DialLeft) ? null : p.DialLeft.Trim();
+            p.DialRight = string.IsNullOrWhiteSpace(p.DialRight) ? null : p.DialRight.Trim();
+            p.DialPress = string.IsNullOrWhiteSpace(p.DialPress) ? null : p.DialPress.Trim();
+        }
         c.Calendars = (c.Calendars ?? []).Where(x => x is not null).Take(20).ToList();
         foreach (var cal in c.Calendars) { cal.Name = cal.Name?.Trim() ?? ""; cal.Url = cal.Url?.Trim() ?? ""; }
         c.Feeds = (c.Feeds ?? []).Where(x => x is not null).Take(30).ToList();
@@ -672,6 +696,8 @@ public sealed partial class ConfigStore(string path)
         catch { }
         Save(JsonSerializer.Serialize(c, WriteOpts), version);
     }
+
+    private static string Cap(string s, int max) => s.Length > max ? s[..max] : s;
 
     // ToLowerInvariant keeps the Turkish capital İ (U+0130) as it is, so it is mapped by hand like the other letters
     private static string Slug(string s) => NonSlug().Replace(s.ToLowerInvariant()

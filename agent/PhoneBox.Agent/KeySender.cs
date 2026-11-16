@@ -45,6 +45,8 @@ public static class KeySender
         "next" => "nexttrack",
         "prev" or "previous" => "prevtrack",
         "volup" => "volumeup",
+        "[" or "openbracket" => "bracketleft",
+        "]" or "closebracket" => "bracketright",
         "voldown" => "volumedown",
         var x => x,
     };
@@ -61,6 +63,7 @@ public static class KeySender
         ["up"] = (0x26, "Up", 126), ["down"] = (0x28, "Down", 125), ["left"] = (0x25, "Left", 123), ["right"] = (0x27, "Right", 124),
         ["printscreen"] = (0x2C, "Print", 105), ["minus"] = (0xBD, "minus", 27), ["equals"] = (0xBB, "equal", 24),
         ["comma"] = (0xBC, "comma", 43), ["period"] = (0xBE, "period", 47), ["slash"] = (0xBF, "slash", 44), ["semicolon"] = (0xBA, "semicolon", 41),
+        ["bracketleft"] = (0xDB, "bracketleft", 33), ["bracketright"] = (0xDD, "bracketright", 30),
         ["playpause"] = (0xB3, "XF86AudioPlay", -1), ["nexttrack"] = (0xB0, "XF86AudioNext", -1), ["prevtrack"] = (0xB1, "XF86AudioPrev", -1),
         ["mute"] = (0xAD, "XF86AudioMute", -1), ["volumeup"] = (0xAF, "XF86AudioRaiseVolume", -1), ["volumedown"] = (0xAE, "XF86AudioLowerVolume", -1),
     };
@@ -88,13 +91,16 @@ public static class KeySender
     };
 
 #if WINDOWS
-    private static void Send(List<string> combo)
+    private static void Send(List<string> combo) => SendCombo(combo);
+
+    /// <summary>Presses one parsed combo; false when Windows took none or only part of the input.</summary>
+    public static bool SendCombo(List<string> combo)
     {
         var vks = combo.Select(WinVk).ToList();
         var inputs = new List<INPUT>();
         foreach (var vk in vks) inputs.Add(Key(vk, false));
         foreach (var vk in Enumerable.Reverse(vks)) inputs.Add(Key(vk, true));
-        SendInput((uint)inputs.Count, inputs.ToArray(), Marshal.SizeOf<INPUT>());
+        return SendInput((uint)inputs.Count, inputs.ToArray(), Marshal.SizeOf<INPUT>()) == inputs.Count;
     }
 
     public static void TypeText(string text)
@@ -139,6 +145,8 @@ public static class KeySender
     [StructLayout(LayoutKind.Sequential)] private struct KEYBDINPUT { public ushort wVk; public ushort wScan; public uint dwFlags; public uint time; public nint dwExtraInfo; }
     [StructLayout(LayoutKind.Sequential)] private struct MOUSEINPUT { public int dx, dy; public uint mouseData, dwFlags, time; public nint dwExtraInfo; }
 #else
+    public static bool SendCombo(List<string> combo) { Send(combo); return true; }
+
     private static void Send(List<string> combo)
     {
         if (OperatingSystem.IsMacOS()) { MacKeystroke(combo); return; }
