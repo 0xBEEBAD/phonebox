@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.9.11 — 2026-11-16
+
+PhoneBox now runs on Android 7 and 8 phones. Shortcut keys work in apps that read raw input, such as Discord, the
+default Terminal shortcut works on Windows 10 and on Linux outside the Debian family, and setup explains a Smart App
+Control block instead of stopping.
 
 **Android**
 - The app runs on Android 7.0 and later (it was Android 9), as first proposed by
@@ -19,10 +23,16 @@
   PowerShell opens instead. Outside the Debian family there is no `x-terminal-emulator`, so `$TERMINAL` or the first
   installed common terminal (GNOME Console, Konsole, Alacritty, kitty, xterm …) opens (#73).
 
+**Panel and settings**
+- Changing the language rebuilds the widgets on the phone, so they switch language right away instead of after the
+  next layout change. Texts the first translation pass missed (loading and "unavailable" messages, the Pomodoro
+  steps, the breathe widget, the hook button in the settings) are translated too (#96, Seyamalam).
+
 **Setup**
 - When Smart App Control blocks the unsigned agent, `setup.ps1` no longer stops with "An Application Control policy
   has blocked this file". It says that PhoneBox is installed but can't run until the agent is signed (#56), and it
-  no longer claims the release agent runs with Smart App Control on (#69).
+  no longer claims the release agent runs with Smart App Control on (#69). A block by AppLocker or another policy on
+  a managed computer points to its administrator instead.
 
 ## 0.9.10 — 2026-11-16
 
