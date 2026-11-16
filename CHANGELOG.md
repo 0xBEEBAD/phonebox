@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+**Agent**
+- Windows: wireless Razer mice, keyboards and headsets on a 2.4 GHz receiver show up in Device batteries, without
+  Razer Synapse (#158, [MarsOldboy](https://github.com/MarsOldboy)). Only known Razer products are asked, only for
+  the battery and charging state, and the BlackShark V2 Pro headset only while Synapse isn't running.
+
+**Settings**
+- The settings page draws its buttons and marks (export, import, order arrows, home, warnings) as small built-in SVG
+  icons instead of emoji, so they look the same on every system (#161, [Seyamalam](https://github.com/Seyamalam)).
+
 ## 0.9.14 — 2026-11-16
 
 A new News feeds widget for your RSS and Atom feeds; the weather says when it can't be fetched instead of loading for
