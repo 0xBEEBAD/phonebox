@@ -1,11 +1,15 @@
 # Changelog
 
-## Unreleased
+## 0.9.14 — 2026-11-16
+
+A new News feeds widget for your RSS and Atom feeds; the weather says when it can't be fetched instead of loading for
+good; and Apply JSON in the settings copes with partial configs.
 
 **New widget**
 - **News feeds**: headlines from your RSS and Atom feeds; with the widget's "Open articles on the PC" option on, tap
-  one to open the article in the computer's browser (#108, asked for by [Vampie](https://github.com/Vampie)). Add the feeds in Settings › General. The agent fetches
-  each at most every 15 minutes and only while a page shows the widget; the addresses stay on the computer.
+  one to open the article in the computer's browser (#108, asked for by [Vampie](https://github.com/Vampie)). Add the
+  feeds in Settings › General. The agent fetches each at most every 15 minutes and only while a page shows the widget;
+  the addresses stay on the computer, and a feed on the internet can't send the agent into your local network.
 
 **Panel**
 - When the forecast can't be fetched, the weather says "Weather unavailable" and tries again after 2 minutes, instead
