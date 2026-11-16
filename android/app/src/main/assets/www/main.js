@@ -355,11 +355,15 @@ export const WX = {
 export const wxIcon = (code, day = 1) => { const x = WX[code] || ['—', '🌡️']; return day === 0 && x[2] ? x[2] : x[1]; };
 
 let weatherRetry = 0;
+let weatherFor = ''; // the location the forecast in D.weather belongs to
+const weatherKey = () => { const { lat, lon } = cfg.weather || DEFAULT_CFG.weather; return `v3:${lat},${lon}`; };
 export async function loadWeather(force = false) {
   const { lat, lon } = cfg.weather || DEFAULT_CFG.weather;
-  const key = `v3:${lat},${lon}`;
+  const key = weatherKey();
   const cached = store.get('wx', null);
-  if (cached && cached.key === key && !D.weather) { D.weather = cached.data; emit('weather'); }
+  // a new place starts from its own cache or from "Loading…", never from the previous place's forecast
+  if (D.weather && weatherFor !== key) { D.weather = null; emit('weather'); }
+  if (cached && cached.key === key && !D.weather) { D.weather = cached.data; weatherFor = key; emit('weather'); }
   if (!force && cached && cached.key === key && Date.now() - cached.at < 14 * 60_000) return;
   // only while a page shows the weather (PRIVACY.md): no widget, no request with the location
   if (!anyNeeds('weather')) return;
@@ -376,8 +380,10 @@ export async function loadWeather(force = false) {
     const data = await r.json();
     // an error answer (from Open-Meteo or the agent's fallback) must not be kept as the forecast for 14 minutes
     if (!data || !data.current) throw new Error('no forecast');
+    if (weatherKey() !== key) return; // the place changed while this was on its way
     store.set('wx', { key, at: Date.now(), data });
     D.weather = data;
+    weatherFor = key;
     emit('weather');
   } catch (_) {
     // false, not null: the widgets say "Weather unavailable" instead of "Loading…" for good, and try again soon
@@ -406,7 +412,14 @@ export function wxBlock() {
     h('div', 'wx-meta', h('span', 'wx-desc', t('w.loading')), h('span', 'wx-range muted')));
   e.update = () => {
     const l = wxLines();
-    if (!l) { e.querySelector('.wx-desc').textContent = D.weather === null ? t('w.loading') : t('w.weatherUnavailable'); return; }
+    if (!l) {
+      // no forecast: clear the last one too, so an old temperature never sits next to the new message
+      e.querySelector('.wx-icon').textContent = '·';
+      e.querySelector('.wx-temp').textContent = '--°';
+      e.querySelector('.wx-range').textContent = '';
+      e.querySelector('.wx-desc').textContent = D.weather === null ? t('w.loading') : t('w.weatherUnavailable');
+      return;
+    }
     e.querySelector('.wx-icon').textContent = l.icon;
     e.querySelector('.wx-temp').textContent = l.temp;
     e.querySelector('.wx-desc').textContent = l.desc;

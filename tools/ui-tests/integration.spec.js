@@ -349,6 +349,25 @@ test('a weather fetch that fails shows "Weather unavailable"', async ({ page }) 
   expect(await page.evaluate(() => localStorage.getItem('wx'))).toBeNull();
 });
 
+// After a location change whose fetch fails, the panel must not show the previous city's forecast under the new name.
+test('a new weather location never shows the previous place\'s forecast', async ({ page }) => {
+  const forecast = { current: { temperature_2m: 31, apparent_temperature: 31, weather_code: 0, is_day: 1 }, daily: {}, hourly: {} };
+  let fail = false;
+  await page.route('https://api.open-meteo.com/**', (route) => (fail ? route.abort() : route.fulfill({ json: forecast })));
+  await layout(page, [widget('clock', { weather: true })], { weather: { city: 'Alpha', lat: 10, lon: 10 } });
+  await expect(page.locator('.wx-temp')).toHaveText('31°');
+
+  fail = true;
+  await page.evaluate(async () => {
+    const c = JSON.parse(localStorage.getItem('pb-demo-config'));
+    localStorage.setItem('pb-demo-config', JSON.stringify({ ...c, weather: { city: 'Beta', lat: 20, lon: 20 } }));
+    const m = await import('./main.js');
+    await m.loadConfig();
+  });
+  await expect(page.locator('.wx-desc')).toHaveText('Weather unavailable');
+  await expect(page.locator('.wx-temp')).not.toHaveText('31°');
+});
+
 // PRIVACY.md: the phone sends the weather location to Open-Meteo only while a page has a widget that uses the weather.
 test('the weather is fetched only while a widget needs it', async ({ page }) => {
   const asked = [];
