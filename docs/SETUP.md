@@ -194,8 +194,7 @@ watts, fan speed and clocks. Without it Windows still reports any GPU's load, VR
 cards get the full set from `nvidia-smi`. A PC with two GPUs (a graphics card and the processor's integrated one) shows
 both: the card is the main GPU, the GPU details widget can show either.
 
-<details>
-<summary>Setting up LibreHardwareMonitor (Windows)</summary>
+#### LibreHardwareMonitor on Windows
 
 PhoneBox reads LibreHardwareMonitor's sensor list from `http://127.0.0.1:8085/data.json` whenever it is there; there
 is nothing to turn on in PhoneBox.
@@ -212,8 +211,6 @@ is nothing to turn on in PhoneBox.
 The web server answers on every network the PC is on. If Windows Firewall asks, PhoneBox only needs it on this
 computer, so you can leave the network access unchecked. Menu names are those of recent LibreHardwareMonitor versions
 and may differ slightly in older ones.
-
-</details>
 
 ## Wi-Fi & Tailscale
 
