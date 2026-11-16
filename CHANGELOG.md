@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.9.13 — 2026-11-16
+
+Two new widgets, Discord and All apps (macOS); the panel runs on phones whose WebView is stuck on Chromium 83; and
+some 40 fixes from an outside review: calendars, pushed values, settings, setup and the panel.
 
 **Agent**
 - A calendar feed with a recurring event whose `INTERVAL` is huge keeps its other events. Before, such a rule could
@@ -46,6 +49,8 @@
 - Exchange rates show a dash instead of "NaN %" for a currency the feed doesn't have (#145); Air quality follows a new
   weather location without a restart (#146); the Media volume slider no longer stays stuck after a cancelled drag,
   which also blocked page swipes (#147). All by [rudycelekli](https://github.com/rudycelekli).
+- Nine settings texts that were still English in every language but Turkish are translated, and a test checks that
+  every language has every text (#136, [Seyamalam](https://github.com/Seyamalam)).
 - A chart whose metrics are all unknown shows the CPU instead of an error card (#125,
   [Seyamalam](https://github.com/Seyamalam)).
 - A Smart Stack's timer and alarm keep running and ring while the stack shows another card or another page is on
