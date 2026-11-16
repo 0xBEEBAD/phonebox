@@ -16,6 +16,8 @@
   [blx10](https://github.com/blx10)).
 - The panel's own buttons and marks (close, waiting chip, offline, toasts, the WebView notice, pause rules) are small
   built-in SVG icons instead of emoji, so they look the same on old WebViews too (#163, [Seyamalam](https://github.com/Seyamalam)).
+- Discord widget: with several servers wrapping into rows, a row no longer gets shorter than its content and covers
+  the next one (#166, [ThalesAugusto0](https://github.com/ThalesAugusto0)).
 
 **Settings**
 - The settings page draws its buttons and marks (export, import, order arrows, home, warnings) as small built-in SVG
