@@ -1,5 +1,7 @@
 using System.Globalization;
+using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -33,7 +35,65 @@ public sealed partial class QuotaMonitor(ConfigStore config, ILogger<QuotaMonito
     internal QuotaMonitor(ILogger<QuotaMonitor> log) : this(null!, log) { }
 
     private static readonly string Home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-    private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(15) };
+    // IPv4 first: on networks where IPv6 is advertised but not routable, the default connect fails with
+    // "Socket is not connected" instead of falling back, which breaks the quota checks.
+    private readonly HttpClient _http = new(new SocketsHttpHandler { ConnectCallback = (ctx, ct) => ConnectIpv4First(ctx.DnsEndPoint, ct) })
+    {
+        Timeout = TimeSpan.FromSeconds(15),
+    };
+
+    /// <summary>The addresses in the order to try them: IPv4 first, each family keeping its resolver order.</summary>
+    internal static IEnumerable<IPAddress> Ipv4First(IEnumerable<IPAddress> addresses) =>
+        addresses.OrderBy(a => a.AddressFamily == AddressFamily.InterNetwork ? 0 : 1);
+
+    /// <summary>Time all connect attempts of one request may use together; the request itself times out after 15 s.</summary>
+    internal static readonly TimeSpan ConnectBudget = TimeSpan.FromSeconds(10);
+
+    internal static async ValueTask<Stream> ConnectIpv4First(DnsEndPoint endpoint, CancellationToken ct)
+    {
+        var addresses = await Dns.GetHostAddressesAsync(endpoint.Host, ct);
+        return await ConnectInOrder(addresses, endpoint.Port, ConnectBudget, static (s, ep, t) => s.ConnectAsync(ep, t), ct);
+    }
+
+    /// <summary>
+    /// Tries the addresses one after another, IPv4 first. Each attempt gets an equal share of the time that is left,
+    /// so dead addresses of one family can't use up the budget before the other family is tried. The socket of an
+    /// attempt is disposed on every exit that doesn't hand it to the returned stream.
+    /// </summary>
+    internal static async ValueTask<Stream> ConnectInOrder(IReadOnlyCollection<IPAddress> addresses, int port, TimeSpan budget,
+        Func<Socket, IPEndPoint, CancellationToken, ValueTask> connect, CancellationToken ct)
+    {
+        var ordered = Ipv4First(addresses).ToList();
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        Exception? last = null;
+        for (var i = 0; i < ordered.Count; i++)
+        {
+            var left = budget - clock.Elapsed;
+            if (left <= TimeSpan.Zero) break;
+            var ip = ordered[i];
+            var socket = new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
+            var handedOver = false;
+            try
+            {
+                using var attempt = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                attempt.CancelAfter(left / (ordered.Count - i));
+                await connect(socket, new IPEndPoint(ip, port), attempt.Token);
+                var stream = new NetworkStream(socket, ownsSocket: true);
+                handedOver = true;
+                return stream;
+            }
+            catch (Exception ex) when (ex is SocketException or OperationCanceledException && !ct.IsCancellationRequested)
+            {
+                last = ex;
+            }
+            finally
+            {
+                if (!handedOver) socket.Dispose();
+            }
+        }
+        ct.ThrowIfCancellationRequested();
+        throw new HttpRequestException("Could not connect", last);
+    }
 
     private volatile QuotaProvider? _claude;
     private volatile QuotaProvider? _codex;
