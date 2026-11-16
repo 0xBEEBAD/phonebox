@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+**Agent**
+- A new rule condition, "an app is in front", holds while a named app owns the foreground window (for example
+  `Code|obs64|Safari`). With "show the page" and "while active", the phone shows the page for the app you are using
+  and goes back when you switch away (#103, #104, [Seyamalam](https://github.com/Seyamalam)). It works on Windows, on
+  macOS with the Accessibility permission, and on Linux under X11 with `xdotool`; Wayland has no way to ask which app
+  is in front.
+- The AI quotas load on networks that announce IPv6 but don't route it. The quota requests try the IPv4 addresses
+  first, then the others, within one 10-second connect budget. Before, the Claude quota failed with "Socket is not
+  connected" (#105, [sateesh2020](https://github.com/sateesh2020)).
+
 ## 0.9.11 — 2026-11-16
 
 PhoneBox now runs on Android 7 and 8 phones. Shortcut keys work in apps that read raw input, such as Discord, the
