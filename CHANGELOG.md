@@ -22,6 +22,12 @@
   spike or a zero (#124, [rudycelekli](https://github.com/rudycelekli)).
 
 **Panel**
+- **All apps** widget (macOS): browse the computer's applications with their icons and open one with two taps. Opening
+  works only while the widget is on a page that is shown (#63, [d4rk-lucif3r](https://github.com/d4rk-lucif3r)).
+- The Agenda's window ends at local midnight also on days the clocks change, including where midnight itself is
+  skipped (#135); Time Progress stays right on those days (#133); a Countdown with an impossible date such as
+  February 31 shows a dash instead of a date in March (#132); Air quality with no index shows "unavailable" instead of
+  0 (#134). All by [rudycelekli](https://github.com/rudycelekli).
 - A chart whose metrics are all unknown shows the CPU instead of an error card (#125,
   [Seyamalam](https://github.com/Seyamalam)).
 - A Smart Stack's timer and alarm keep running and ring while the stack shows another card or another page is on
