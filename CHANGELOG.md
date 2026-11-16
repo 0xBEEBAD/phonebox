@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+**Agent**
+- A calendar feed with a recurring event whose `INTERVAL` is huge keeps its other events. Before, such a rule could
+  run past the year 9999 and the whole feed failed, showing only its last good copy (#106,
+  [Seyamalam](https://github.com/Seyamalam)).
+- On a WorkBuddy permission request, the card shows the name WorkBuddy gave the workspace instead of its timestamp
+  folder name (#111, [4gui](https://github.com/4gui)). The guide explains how to add the hook to WorkBuddy.
+
 ## 0.9.12 — 2026-11-16
 
 Pages can follow the app in front, the AI quotas load on networks with broken IPv6, and the Claude quota check asks
