@@ -451,3 +451,65 @@ test('the charge guard serves the battery the phone reports', async ({ page }) =
   await expect.poll(() => page.evaluate(() => fetch('/api/charge').then((r) => r.json()).then((j) => j.phone)), { timeout: 15000 })
     .toMatchObject({ level: 82, plugged: true, temp: 29.5 });
 });
+
+// The agent sends headlines without their links; a tap asks the agent to open the article by its id.
+test('news feeds list headlines and open one on the PC by its id', async ({ page }) => {
+  await layout(page, [widget('feeds', { title: 'News', feed: '', showSource: true, showTime: true, open: true })]);
+  // the demo answers inside the page, so the call is recorded there
+  await page.evaluate(() => {
+    const real = window.fetch;
+    window.__opened = [];
+    window.fetch = (url, init) => {
+      if (String(url).includes('/feeds/open')) window.__opened.push({ id: new URL(String(url), location.href).searchParams.get('id'), method: init?.method });
+      return real(url, init);
+    };
+  });
+  const rows = page.locator('.w-feeds .fd-i');
+  await expect(rows.first()).toContainText('e-ink weather station');
+  await expect(rows.first().locator('.fd-m')).toContainText('Hackaday');
+  await rows.first().click();
+  await expect.poll(() => page.evaluate(() => window.__opened)).toEqual([{ id: 'f1', method: 'POST' }]);
+  await expect(page.locator('#toast')).toContainText('Opening on the PC');
+
+  // opening is off until the widget allows it: a tap asks nothing of the PC
+  await layout(page, [widget('feeds', { title: 'News', open: false })]);
+  await page.evaluate(() => {
+    const real = window.fetch;
+    window.__opened = [];
+    window.fetch = (url, init) => { if (String(url).includes('/feeds/open')) window.__opened.push(String(url)); return real(url, init); };
+  });
+  await expect(page.locator('.w-feeds .fd-i.link')).toHaveCount(0);
+  await page.locator('.w-feeds .fd-i').first().click();
+  await expect(page.locator('#toast')).toContainText('Open articles on the PC');
+  expect(await page.evaluate(() => window.__opened)).toEqual([]);
+
+  // one feed only, by its name
+  await layout(page, [widget('feeds', { title: 'Tech', feed: 'tech news', showSource: false, showTime: false })]);
+  await expect(page.locator('.w-feeds .fd-i').first()).toContainText('Rust 2.0');
+  await expect(page.locator('.w-feeds .fd-m')).toHaveCount(0);
+  await layout(page, [widget('feeds', { title: 'None', feed: 'nothing like this' })]);
+  await expect(page.locator('.w-feeds .empty')).toHaveText('No headlines from "nothing like this"');
+});
+
+// Each News feeds widget follows its own "open" option, and the demo, like the agent, ignores disabled pages.
+test('news feeds open only from a widget whose own option allows it', async ({ page }) => {
+  await layout(page, [
+    { ...widget('feeds', { title: 'Open', open: true }), id: 'a', w: 6 },
+    { ...widget('feeds', { title: 'Closed', open: false }), id: 'b', x: 6, w: 6 },
+  ]);
+  await expect(page.locator('.w-feeds').nth(0).locator('.fd-i.link').first()).toBeVisible();
+  await expect(page.locator('.w-feeds').nth(1).locator('.fd-i').first()).toBeVisible();
+  await expect(page.locator('.w-feeds').nth(1).locator('.fd-i.link')).toHaveCount(0);
+
+  // the only widget that allows opening sits on a disabled page: the demo refuses like the agent does
+  await page.goto('/panel/');
+  await page.evaluate(() => {
+    localStorage.setItem('pb-demo-config', JSON.stringify({ night: { enabled: false }, shortcuts: [], pages: [
+      { id: 'on', title: 'On', enabled: true, widgets: [{ id: 'x', type: 'feeds', x: 0, y: 0, w: 12, h: 6, options: { open: false } }] },
+      { id: 'off', title: 'Off', enabled: false, widgets: [{ id: 'y', type: 'feeds', x: 0, y: 0, w: 12, h: 6, options: { open: true } }] },
+    ] }));
+  });
+  await page.reload();
+  const canOpen = await page.evaluate(() => fetch('/agent/api/feeds').then((r) => r.json()).then((j) => j.canOpen));
+  expect(canOpen).toBe(false);
+});
