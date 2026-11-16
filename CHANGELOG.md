@@ -3,6 +3,9 @@
 ## Unreleased
 
 **Agent**
+- Windows: the CPU temperature also works on older Intel processors that LibreHardwareMonitor reports only per core
+  ("CPU Core #1"…): the hottest core of the CPU is shown when there is no package reading (idea and first version in
+  #164, [anandyakshit](https://github.com/anandyakshit)).
 - Windows: wireless Razer mice, keyboards and headsets on a 2.4 GHz receiver show up in Device batteries, without
   Razer Synapse (#158, [MarsOldboy](https://github.com/MarsOldboy)). Only known Razer products are asked, only for
   the battery and charging state, and the BlackShark V2 Pro headset only while Synapse isn't running.

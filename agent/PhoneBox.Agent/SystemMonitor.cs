@@ -26,7 +26,7 @@ public sealed record PcSnapshot(double? Cpu, double? CpuTemp, string CpuName, do
     IReadOnlyList<GpuInfo>? Gpus = null);
 
 /// <summary>Samples CPU, RAM, network, disk and GPU metrics once a second.</summary>
-public sealed class SystemMonitor(ILogger<SystemMonitor> log) : BackgroundService
+public sealed partial class SystemMonitor(ILogger<SystemMonitor> log) : BackgroundService
 {
     private readonly HttpClient _http = new() { Timeout = TimeSpan.FromMilliseconds(600) };
     private readonly string _cpuName = ReadCpuName();
@@ -209,7 +209,6 @@ public sealed class SystemMonitor(ILogger<SystemMonitor> log) : BackgroundServic
         }
         return;
 #else
-        string[] names = ["Core (Tctl/Tdie)", "Tctl/Tdie", "CPU Package", "Tdie", "Tctl", "Core (Tdie)"];
 #pragma warning disable CS0162
         while (!ct.IsCancellationRequested)
         {
@@ -217,7 +216,7 @@ public sealed class SystemMonitor(ILogger<SystemMonitor> log) : BackgroundServic
             try
             {
                 using var doc = JsonDocument.Parse(await _http.GetStringAsync("http://127.0.0.1:8085/data.json", ct));
-                _cpuTemp = FindTemp(doc.RootElement, names);
+                _cpuTemp = FindCpuTemp(doc.RootElement);
                 try { _lhmGpus = Gpus.ParseLhm(doc.RootElement); }
                 catch (Exception ex)
                 {
@@ -236,6 +235,47 @@ public sealed class SystemMonitor(ILogger<SystemMonitor> log) : BackgroundServic
         }
 #endif
     }
+
+    private static readonly string[] CpuTempNames = ["Core (Tctl/Tdie)", "Tctl/Tdie", "CPU Package", "Tdie", "Tctl", "Core (Tdie)"];
+
+    /// <summary>
+    /// The CPU temperature from LibreHardwareMonitor's data.json: the package (Intel) or Tctl/Tdie (AMD) reading when
+    /// there is one; otherwise the hottest "CPU Core #n" / "Core #n" temperature of a CPU, which is all that older
+    /// Intel processors report. Core sensors count only under a CPU's own node, so a GPU or disk can't be mistaken.
+    /// </summary>
+    internal static double? FindCpuTemp(JsonElement root)
+    {
+        if (FindTemp(root, CpuTempNames) is { } package) return package;
+        double? hottest = null;
+        void Visit(JsonElement node, bool inCpu)
+        {
+            inCpu = inCpu || IsCpuNode(node);
+            if (inCpu && node.TryGetProperty("Text", out var text) && text.GetString() is { } name && CoreSensor().IsMatch(name)
+                && ReadCelsius(node) is { } t && (hottest is null || t > hottest))
+                hottest = t;
+            if (node.TryGetProperty("Children", out var kids) && kids.ValueKind == JsonValueKind.Array)
+                foreach (var k in kids.EnumerateArray()) Visit(k, inCpu);
+        }
+        Visit(root, false);
+        return hottest;
+    }
+
+    private static bool IsCpuNode(JsonElement node) =>
+        (node.TryGetProperty("HardwareId", out var id) && id.GetString() is { } hw
+            && (hw.StartsWith("/intelcpu/", StringComparison.OrdinalIgnoreCase) || hw.StartsWith("/amdcpu/", StringComparison.OrdinalIgnoreCase)))
+        || (node.TryGetProperty("ImageURL", out var img) && img.GetString() is { } url && url.EndsWith("/cpu.png", StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>A temperature value such as "54,0 °C"; load and clock sensors share the core names but have no °.</summary>
+    private static double? ReadCelsius(JsonElement node)
+    {
+        if (!node.TryGetProperty("Value", out var val) || val.GetString() is not { } s || !s.Contains('°')) return null;
+        if (node.TryGetProperty("Type", out var type) && type.GetString() is { } ty && ty != "Temperature") return null;
+        var num = s.Split(' ')[0].Replace(',', '.');
+        return double.TryParse(num, NumberStyles.Float, CultureInfo.InvariantCulture, out var t) ? t : null;
+    }
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"^(?:CPU )?Core #\d+$", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.CultureInvariant)]
+    private static partial System.Text.RegularExpressions.Regex CoreSensor();
 
     private static double? FindTemp(JsonElement node, string[] names)
     {
