@@ -150,7 +150,11 @@ export function h(tag, cls, ...kids) {
 
 /* Interface icons: Lucide (https://lucide.dev), ISC license — a small inline set keeps the
    panel's chrome consistent across platforms and works fully offline. Icons are decorative
-   (aria-hidden); the controls they sit in carry the accessible names. */
+   (aria-hidden); the controls they sit in carry the accessible names.
+   Lucide licence (ISC): Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as part of Feather (MIT).
+   All other copyright (c) for Lucide are held by Lucide Contributors 2022.
+   Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby
+   granted, provided that the above copyright notice and this permission notice appear in all copies. */
 const ICONS = {
   x: 'M18 6 6 18M6 6l12 12',
   hourglass: 'M5 22h14M5 2h14M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2',

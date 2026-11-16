@@ -10,6 +10,13 @@
   Razer Synapse (#158, [MarsOldboy](https://github.com/MarsOldboy)). Only known Razer products are asked, only for
   the battery and charging state, and the BlackShark V2 Pro headset only while Synapse isn't running.
 
+**Panel**
+- Pause page switching: tap the pause button next to the page dots, or hold the dots, to keep the current page. While
+  paused, neither idle return nor rules switch away; swiping to another page ends the pause (#162,
+  [blx10](https://github.com/blx10)).
+- The panel's own buttons and marks (close, waiting chip, offline, toasts, the WebView notice, pause rules) are small
+  built-in SVG icons instead of emoji, so they look the same on old WebViews too (#163, [Seyamalam](https://github.com/Seyamalam)).
+
 **Settings**
 - The settings page draws its buttons and marks (export, import, order arrows, home, warnings) as small built-in SVG
   icons instead of emoji, so they look the same on every system (#161, [Seyamalam](https://github.com/Seyamalam)).
