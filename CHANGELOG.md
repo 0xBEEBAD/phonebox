@@ -10,6 +10,8 @@
 **Panel**
 - When the forecast can't be fetched, the weather says "Weather unavailable" and tries again after 2 minutes, instead
   of "Loading…" until the next 15-minute refresh; an error answer is no longer kept as the forecast (#159).
+- After a weather location change, the panel no longer shows the previous place's forecast while the new one loads or
+  fails, and the clock's weather line clears the old temperature when there is no forecast.
 - The Docker widget no longer stays on "Loading…" when its filter matches nothing; with "stopped" hidden and every
   match stopped it says so (#152, [blx10](https://github.com/blx10)).
 
