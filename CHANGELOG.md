@@ -20,6 +20,13 @@
 - The Antigravity quota falls back to the older status call when the summary can't be read (#122, [rudycelekli](https://github.com/rudycelekli)).
 - The network speed reads each adapter on its own, so a dock, a Wi-Fi reconnect or a counter reset no longer shows a
   spike or a zero (#124, [rudycelekli](https://github.com/rudycelekli)).
+- More fixes by [rudycelekli](https://github.com/rudycelekli):
+  - pushed values received just before a restart are saved instead of lost (#139);
+  - a daily, weekly or monthly calendar rule with `BYMONTH` ("every Monday in December") stays in those months (#140),
+    and one event with an impossible `DURATION` no longer drops the whole feed (#142);
+  - GitHub CLI calls time out after 20 s and a cancelled one is ended with its child processes (#141);
+  - `--config` with a bare file name works; it crashed at startup (#144);
+  - a settings tab that loaded before the config file was deleted can't overwrite it afterwards (#116).
 
 **Panel**
 - **Discord** widget: the voice channel you are in, mute, deafen, leave and join, the voice channels of your servers
@@ -36,6 +43,9 @@
   skipped (#135); Time Progress stays right on those days (#133); a Countdown with an impossible date such as
   February 31 shows a dash instead of a date in March (#132); Air quality with no index shows "unavailable" instead of
   0 (#134). All by [rudycelekli](https://github.com/rudycelekli).
+- Exchange rates show a dash instead of "NaN %" for a currency the feed doesn't have (#145); Air quality follows a new
+  weather location without a restart (#146); the Media volume slider no longer stays stuck after a cancelled drag,
+  which also blocked page swipes (#147). All by [rudycelekli](https://github.com/rudycelekli).
 - A chart whose metrics are all unknown shows the CPU instead of an error card (#125,
   [Seyamalam](https://github.com/Seyamalam)).
 - A Smart Stack's timer and alarm keep running and ring while the stack shows another card or another page is on
@@ -46,6 +56,13 @@
   and macOS autostart files quote paths with spaces and special characters (#118).
 - `scripts/install.ps1` builds into a temporary folder and stops the running agent only after the build succeeded
   (#120); `scripts/build.ps1` removes its per-platform staging folders (#127).
+- `scripts/uninstall.sh --help` prints its usage instead of removing PhoneBox, and a mistyped option stops before
+  changing anything (#138, [rudycelekli](https://github.com/rudycelekli)).
+- Setup starts the agent even when the optional phone-app download fails, on Linux and macOS (#143, [rudycelekli](https://github.com/rudycelekli)) and on
+  Windows (#149); the phone app is reported as skipped.
+- The setup guide has step-by-step instructions for LibreHardwareMonitor (#148), and the development notes name both
+  the SDK the app is built with and the Android version it runs on (#137,
+  [anandyakshit](https://github.com/anandyakshit)).
 - The winget release-notes link moved to the locale manifest, where winget reads it (#128).
 - The docs demo keeps a layout saved while its catalog loads (#129). All by [rudycelekli](https://github.com/rudycelekli).
 
