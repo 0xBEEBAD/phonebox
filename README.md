@@ -141,7 +141,7 @@ Change fonts, size, spacing, corners and surfaces globally or for one page or wi
 |---|---|---|---|
 | Release builds | x64 | x64 / ARM64, glibc | Apple silicon / Intel |
 | CPU, RAM, disks, network, processes | ✓ | ✓ | ✓ |
-| GPU data | Windows counters; NVIDIA via `nvidia-smi`; extra sensors via LibreHardwareMonitor | NVIDIA / AMD; Intel clock | Apple silicon, when exposed by macOS |
+| GPU data | Windows counters; NVIDIA via `nvidia-smi`; extra sensors via [LibreHardwareMonitor](docs/SETUP.md#setting-up-librehardwaremonitor-windows) | NVIDIA / AMD; Intel clock | Apple silicon, when exposed by macOS |
 | Media | System media sessions | `playerctl` | `nowplaying-cli`; Spotify / Music fallback |
 | Volume | Native | `wpctl` / `pactl` | System output; availability varies by device |
 | Agent interface | Tray icon + browser settings | Browser settings | Browser settings |
