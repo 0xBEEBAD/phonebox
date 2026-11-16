@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+**Panel**
+- The Docker widget no longer stays on "Loading…" when its filter matches nothing; with "stopped" hidden and every
+  match stopped it says so (#152, [blx10](https://github.com/blx10)).
+
+**Settings**
+- Apply JSON accepts a partial config: missing sections and fields take the agent's defaults instead of breaking the
+  editor, and anything that isn't a JSON object is refused (#150, [Seyamalam](https://github.com/Seyamalam)).
+
 ## 0.9.13 — 2026-11-16
 
 Two new widgets, Discord and All apps (macOS); the panel runs on phones whose WebView is stuck on Chromium 83; and
