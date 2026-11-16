@@ -338,6 +338,17 @@ test('Apply JSON gives pasted widgets a valid grid position', async ({ page }) =
   expect(await page.evaluate(() => JSON.stringify(cfg))).not.toContain('"x":null');
 });
 
+// #159: when the forecast can't be fetched (no route to Open-Meteo, the agent's fallback refused), the weather says so
+// instead of "Loading…" for good, and the error answer is not kept as the forecast.
+test('a weather fetch that fails shows "Weather unavailable"', async ({ page }) => {
+  await page.route('https://api.open-meteo.com/**', (route) => route.abort());
+  await layout(page, [widget('clock', { weather: true })]);
+  await page.evaluate(() => localStorage.removeItem('wx'));
+  await page.reload();
+  await expect(page.locator('.wx-desc')).toHaveText('Weather unavailable');
+  expect(await page.evaluate(() => localStorage.getItem('wx'))).toBeNull();
+});
+
 // PRIVACY.md: the phone sends the weather location to Open-Meteo only while a page has a widget that uses the weather.
 test('the weather is fetched only while a widget needs it', async ({ page }) => {
   const asked = [];

@@ -354,6 +354,7 @@ export const WX = {
 };
 export const wxIcon = (code, day = 1) => { const x = WX[code] || ['—', '🌡️']; return day === 0 && x[2] ? x[2] : x[1]; };
 
+let weatherRetry = 0;
 export async function loadWeather(force = false) {
   const { lat, lon } = cfg.weather || DEFAULT_CFG.weather;
   const key = `v3:${lat},${lon}`;
@@ -370,11 +371,19 @@ export async function loadWeather(force = false) {
       '&timezone=auto&forecast_days=7';
     const ctl = new AbortController();
     setTimeout(() => ctl.abort(), 8000);
-    const data = await (await safeFetch(url, { signal: ctl.signal })).json();
+    const r = await safeFetch(url, { signal: ctl.signal });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    // an error answer (from Open-Meteo or the agent's fallback) must not be kept as the forecast for 14 minutes
+    if (!data || !data.current) throw new Error('no forecast');
     store.set('wx', { key, at: Date.now(), data });
     D.weather = data;
     emit('weather');
-  } catch (_) { if (!D.weather) emit('weather'); }
+  } catch (_) {
+    // false, not null: the widgets say "Weather unavailable" instead of "Loading…" for good, and try again soon
+    if (!D.weather) { D.weather = false; emit('weather'); }
+    if (!weatherRetry) weatherRetry = setTimeout(() => { weatherRetry = 0; loadWeather(); }, 2 * 60_000);
+  }
 }
 
 export function wxLines() {
