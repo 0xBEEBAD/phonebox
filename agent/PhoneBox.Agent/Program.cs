@@ -73,6 +73,7 @@ AddMonitor<PrivacyMonitor>(builder.Services);
 AddMonitor<CalendarMonitor>(builder.Services);
 AddMonitor<DockerMonitor>(builder.Services);
 AddMonitor<ObsMonitor>(builder.Services);
+AddMonitor<DiscordMonitor>(builder.Services);
 AddMonitor<BatteryMonitor>(builder.Services);
 AddMonitor<RuleEngine>(builder.Services);
 AddMonitor<ChargeGuard>(builder.Services);
@@ -470,6 +471,20 @@ app.MapPost("/api/obs/{action}", async (string action, string? scene, ObsMonitor
     await obs.ActAsync(action, scene) is { } error ? Results.BadRequest(new { error }) : Results.Ok(new { ok = true }));
 // Settings › General › OBS › Test (local only: deliberately not under /api/obs, which the phone may reach over Wi-Fi)
 app.MapPost("/api/obs-test", async (ObsConfig body) => Results.Json(new { result = await ObsMonitor.TestAsync(body.Url, body.Password) }));
+
+// Discord (widget): voice channel, mute / deafen, joinable voice channels, notifications; buttons only if a widget allows control.
+app.MapGet("/api/discord", (DiscordMonitor dc, ConfigStore cfg) => Results.Json(new
+{
+    enabled = cfg.Get().Discord.Enabled,
+    snapshot = dc.Snapshot(),
+    control = DiscordMonitor.ControlAllowed(cfg.Get()),
+}));
+// Ids go in the query string: the Android app lets image requests through by exact path (READ_ONLY_IMAGES).
+app.MapGet("/api/discord/img", async (string kind, string id, string hash, DiscordMonitor dc, CancellationToken ct) =>
+    await dc.ImageAsync(kind, id, hash, ct) is { } img
+        ? Results.File(img.Data, img.Type, lastModified: null, entityTag: null, enableRangeProcessing: false) : Results.NotFound());
+app.MapPost("/api/discord/{action}", async (string action, string? channel, DiscordMonitor dc) =>
+    await dc.ActAsync(action, channel) is { } error ? Results.BadRequest(new { error }) : Results.Ok(new { ok = true }));
 
 // Battery levels of wireless devices (headphones, mice, keyboards…), for the Device batteries widget.
 app.MapGet("/api/batteries", (BatteryMonitor b) => Results.Json(new { devices = b.Snapshot() }));
