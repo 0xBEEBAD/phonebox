@@ -22,6 +22,14 @@
   spike or a zero (#124, [rudycelekli](https://github.com/rudycelekli)).
 
 **Panel**
+- **Discord** widget: the voice channel you are in, mute, deafen, leave and join, the voice channels of your servers
+  and your Discord notifications. It talks to the Discord app on the computer, needs your own Discord application
+  (see [docs/DISCORD.md](docs/DISCORD.md)), is off by default, and the controls and notifications are each a widget
+  option (#112, [bhuwan1321](https://github.com/bhuwan1321)).
+- The panel works on phones whose system WebView is stuck on Chromium 83 (it stayed black), and the permission prompt
+  shows there too. An approval that arrives while the live stream reconnects is no longer lost, an answer that
+  didn't reach the computer can be given again, and the prompt is shown above the night screen (#110,
+  [4gui](https://github.com/4gui)).
 - **All apps** widget (macOS): browse the computer's applications with their icons and open one with two taps. Opening
   works only while the widget is on a page that is shown (#63, [d4rk-lucif3r](https://github.com/d4rk-lucif3r)).
 - The Agenda's window ends at local midnight also on days the clocks change, including where midnight itself is
