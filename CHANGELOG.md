@@ -9,6 +9,8 @@
 **Settings**
 - Apply JSON accepts a partial config: missing sections and fields take the agent's defaults instead of breaking the
   editor, and anything that isn't a JSON object is refused (#150, [Seyamalam](https://github.com/Seyamalam)).
+- Widgets pasted through Apply JSON or imported from a page file without a grid position are placed on the grid, so
+  moving one no longer makes the agent refuse the whole save (#154, [Seyamalam](https://github.com/Seyamalam)).
 
 ## 0.9.13 — 2026-11-16
 
