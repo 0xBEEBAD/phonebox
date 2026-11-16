@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.9.12 — 2026-11-16
+
+Pages can follow the app in front, the AI quotas load on networks with broken IPv6, and the Claude quota check asks
+Anthropic less often and shows fewer errors.
 
 **Agent**
 - A new rule condition, "an app is in front", holds while a named app owns the foreground window (for example
