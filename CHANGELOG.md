@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.9.18 — 2026-11-17
+
+A Camera widget for IP cameras, the App dock bringing a running app back as it was, and more of the panel in every
+language.
 
 **New widget**
 - **Camera**: a live picture from an IP camera, a couple of frames a second. Add the camera in Settings › General ›
@@ -8,6 +11,10 @@
   point PhoneBox at). A camera is pulled only while a Camera widget for it is on the phone's screen, and stops a few
   seconds after it leaves. The address and its password stay on the computer; the phone only gets the pictures (#209,
   asked for by [Hoangminhfcb](https://github.com/Hoangminhfcb)).
+
+**Panel**
+- The Sessions, Processes and Memory widgets and their empty states are in every language (#210,
+  [cavalei](https://github.com/cavalei)).
 
 **Agent**
 - Windows: a tap on a running app in the App dock brings its window to the front as it was. A maximized window stays
