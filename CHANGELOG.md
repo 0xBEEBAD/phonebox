@@ -1,16 +1,28 @@
 # Changelog
 
-## Unreleased
+## 0.9.17 — 2026-11-17
+
+Shortcut keys with real icons, the settings page and widget catalog in Vietnamese, and a few panel fixes.
 
 **Panel**
+- A shortcut key shows a real icon instead of only an emoji: the program's own icon when the command is a program on
+  the computer, or a PNG, WEBP or SVG you upload for it in Settings › Shortcuts. The emoji stays as the fallback.
+  Uploads stay on the computer, and only the settings page can change them (#202, #205,
+  [ThalesAugusto0](https://github.com/ThalesAugusto0); asked for by [arrowssuhail-oss](https://github.com/arrowssuhail-oss)).
 - The red problem box at the bottom of the panel no longer appears for a cover, photo or icon that fails to load (for
   example a song's cover when its tab closes while the cover loads); the widgets already handle those. It still
   reports the panel's own scripts and styles, and a tap puts it away (#200,
   [Muhammadrizo04](https://github.com/Muhammadrizo04)).
-- Discord widget: server tiles drop their border/background card, showing just the icon, name and channel count, so
-  more servers fit per row.
-- A shortcut key shows a real icon instead of only an emoji: the program's own icon when the command is an actual
-  file on disk, or a custom PNG/WEBP/SVG you upload for it in Settings. Falls back to the emoji when neither exists.
+- Discord widget: server tiles drop their border and background card, showing just the icon, name and channel count,
+  so more servers fit per row (#206, [ThalesAugusto0](https://github.com/ThalesAugusto0)).
+- Vietnamese: the settings page, the widget and template catalog, the weather conditions, session states and the
+  phone's pairing dialog are translated too. The weather, session and status texts are translated in every language;
+  the rest of the settings page stays English in the other languages for now (#198,
+  [sonvivu](https://github.com/sonvivu)).
+
+**Agent**
+- macOS: music from the YouTube Music desktop app shows "YouTube Music" as its source in Now playing (#207,
+  [Necwolf](https://github.com/Necwolf)).
 
 ## 0.9.16 — 2026-11-17
 
