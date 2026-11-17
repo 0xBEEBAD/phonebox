@@ -27,6 +27,9 @@
   stopped with it (#182, [shobhit-lyzr](https://github.com/shobhit-lyzr)).
 - PRIVACY.md: on macOS the Claude quota reads the token from the Keychain (the default search list, normally the login Keychain) when
   `~/.claude/.credentials.json` doesn't exist (#183, [shobhit-lyzr](https://github.com/shobhit-lyzr)).
+- Settings › General › Ping: choose which network adapters the network meters count. With a VPN that tunnels the same
+  traffic, or a driver that reports it twice, the meters showed double; tick only the adapter you use (#190,
+  [h2r2me453](https://github.com/h2r2me453); also a way around #169). None ticked keeps the automatic choice.
 - Windows: the CPU temperature also works on older Intel processors that LibreHardwareMonitor reports only per core
   ("CPU Core #1"…): the hottest core of the CPU is shown when there is no package reading (idea and first version in
   #164, [anandyakshit](https://github.com/anandyakshit)).
