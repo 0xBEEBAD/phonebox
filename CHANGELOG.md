@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.9.19 — 2026-11-17
+
+A smoother Camera widget, and the app on Android 5.0 and 6.0.
 
 **Panel**
 - Camera widget: smoother. 5 pictures a second by default, and 1 to 10 per camera in Settings › General › Cameras;
