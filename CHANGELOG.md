@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.9.16 — 2026-11-17
+
+A fix for Vietnamese: choosing it in the settings now sticks.
 
 **Agent**
 - Settings › Display › Language: choosing Tiếng Việt sticks. The agent didn't know the new language yet and saved
