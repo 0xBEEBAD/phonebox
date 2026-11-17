@@ -32,6 +32,8 @@
   common on LineageOS), a second link opens the pairing link directly (#175, [hassanxs](https://github.com/hassanxs)).
 
 **Panel**
+- Settings › Display › "Page dots and the Allow / Deny buttons at the top of the screen", for a panel that stands below
+  the screen, where the bottom edge is hard to reach (#181, [Muhammadrizo04](https://github.com/Muhammadrizo04)).
 - Smart Stack: a rotation interval of 0 turns automatic rotation off, so the stack changes only when you swipe or tap
   a dot; the longest interval is now 10 minutes (#171, [MrKatsuragi](https://github.com/MrKatsuragi)).
 - The Spotify queue widget shows what is playing now and what comes next, with covers; tap a track to play it. Covers
