@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+**Panel**
+- The Note widget can be edited from the phone: tap it, write, save (#218, [cavalei](https://github.com/cavalei)).
+
 **Settings**
 - Saving after uploading or removing a shortcut's custom icon no longer fails with "The settings were changed in
   another tab or window". The agent sent the settings version as a number too large for the page to keep exactly, so
