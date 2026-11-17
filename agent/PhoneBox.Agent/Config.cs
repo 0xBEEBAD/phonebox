@@ -49,7 +49,7 @@ public sealed class AgentConfig
     }
 
     /// <summary>The part sent to the phone: commands (shortcut cmd/args/cwd, command widget scripts) are never included.</summary>
-    public object ToPublic(string? deviceId = null) => new
+    public object ToPublic(string? deviceId = null, Func<Shortcut, long?>? shortcutIconRev = null) => new
     {
         weather = Weather,
         codexBar = CodexBar,
@@ -65,7 +65,7 @@ public sealed class AgentConfig
                 options = StackWidgets.PublicOptions(w),
             }),
         }),
-        shortcuts = Shortcuts.Select(s => new { s.Id, s.Label, s.Icon, s.Color, toggle = s.Toggle || s.Cmd == "builtin:mute" }),
+        shortcuts = Shortcuts.Select(s => new { s.Id, s.Label, s.Icon, s.Color, toggle = s.Toggle || s.Cmd == "builtin:mute", iconRev = shortcutIconRev?.Invoke(s) }),
         // names only (for the Rules widget); what a rule matches on stays here
         rules = Rules.Select(r => new { r.Id, r.Name, r.Enabled, r.When }),
         charge = new { Charge.Enabled, Charge.Min, Charge.Max },
@@ -418,6 +418,16 @@ public sealed partial class ConfigStore(string path)
     /// <summary>Save refused: the file changed after the caller loaded it (<see cref="Save"/> with an expected version).</summary>
     public const string Conflict = "The settings were changed in another tab or window after this one loaded them. Reload the page to see them; the changes made here were not saved.";
 
+    /// <summary>True when <paramref name="header"/> (X-Config-Version) names a version other than the current one.
+    /// Missing or unparseable is not a conflict: scripts and other callers that never send it still go through.</summary>
+    public bool VersionConflict(string? header) => long.TryParse(header, out var expected) && expected != Version;
+
+    /// <summary>
+    /// Advances <see cref="Version"/> without touching the saved settings: for a write that bypasses <see cref="Save"/>
+    /// (a shortcut icon upload or removal), so another tab's own optimistic-concurrency check still notices it.
+    /// </summary>
+    public void Touch() { lock (_lock) { try { File.SetLastWriteTimeUtc(path, DateTime.UtcNow); } catch { } } }
+
     /// <summary>
     /// Validates and saves the settings. Returns an error message, or null on success. With
     /// <paramref name="expectedVersion"/> (the <see cref="Version"/> the caller loaded), a save over a newer file is
@@ -429,7 +439,8 @@ public sealed partial class ConfigStore(string path)
         try { cfg = JsonSerializer.Deserialize<AgentConfig>(json, ReadOpts) ?? throw new JsonException("empty"); }
         catch (JsonException ex) { return "Invalid JSON: " + ex.Message; }
 
-        cfg = Normalize(cfg);
+        var staleIds = Get().Shortcuts.Select(s => s.Id).ToHashSet(StringComparer.Ordinal);
+        cfg = Normalize(cfg, staleIds);
         foreach (var s in cfg.Shortcuts)
             if (string.IsNullOrWhiteSpace(s.Cmd)) return $"Shortcut '{s.Label}' has no command";
         if (cfg.Console.Profiles.Count > AppConsole.MaxProfiles) return $"The app console has more than {AppConsole.MaxProfiles} apps";
@@ -455,7 +466,7 @@ public sealed partial class ConfigStore(string path)
     }
 
     /// <summary>Fills in defaults: builds pages from templates, migrates old pages, generates unique ids.</summary>
-    private static AgentConfig Normalize(AgentConfig c)
+    private static AgentConfig Normalize(AgentConfig c, IReadOnlySet<string>? staleIds = null)
     {
         c.Weather ??= new();
         c.CodexBar ??= new();
@@ -500,15 +511,33 @@ public sealed partial class ConfigStore(string path)
 
         var used = new HashSet<string>();
         c.Shortcuts = (c.Shortcuts ?? []).Where(s => s is not null).ToList(); // "shortcuts": [null] in a hand-written file
+
+        // Pass 1: reserve every explicitly-provided id first. Otherwise a blank-id (brand-new) shortcut processed
+        // earlier in the list than one that explicitly keeps an id could grab that id for itself, since at that
+        // point nothing yet says it is taken — bumping the one that actually owns it to an unrelated id instead.
+        var reserved = new Dictionary<Shortcut, string>();
+        foreach (var s in c.Shortcuts.Where(s => !string.IsNullOrWhiteSpace(s.Id)))
+        {
+            var id = Slug(s.Id);
+            if (id == "") id = "shortcut";
+            var unique = id;
+            for (var i = 2; !used.Add(unique); i++) unique = $"{id}-{i}";
+            reserved[s] = unique;
+        }
+
         foreach (var s in c.Shortcuts)
         {
             s.Label = s.Label?.Trim() ?? "";
             s.Icon = IconText.Repair(s.Icon);
-            var id = string.IsNullOrWhiteSpace(s.Id) ? Slug(s.Label) : Slug(s.Id);
-            if (id == "") id = "shortcut";
-            var unique = id;
-            for (var i = 2; !used.Add(unique); i++) unique = $"{id}-{i}";
-            s.Id = unique;
+            if (reserved.TryGetValue(s, out var keptId)) s.Id = keptId;
+            else
+            {
+                var id = Slug(s.Label);
+                if (id == "") id = "shortcut";
+                var unique = id;
+                for (var i = 2; staleIds?.Contains(unique) == true || !used.Add(unique); i++) unique = $"{id}-{i}";
+                s.Id = unique;
+            }
             if (string.IsNullOrWhiteSpace(s.Args)) s.Args = null;
             if (string.IsNullOrWhiteSpace(s.Cwd)) s.Cwd = null;
             s.Steps = s.Steps?.Where(x => x is not null).Select(x => x.Trim()).Where(x => x.Length > 0).Take(50).ToList();
