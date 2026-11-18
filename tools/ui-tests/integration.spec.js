@@ -112,6 +112,7 @@ test('session sheet shows counters and keeps prompt content out of the panel', a
   await page.getByRole('button', { name: /project/ }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toContainText('test-model');
+  await expect(dialog.locator('button.session-close svg.ico')).toBeVisible();
   await expect(dialog).toContainText('1.2k');
   await expect(dialog).toContainText('read');
   await page.getByRole('button', { name: 'Close session details' }).click();
@@ -489,7 +490,8 @@ test('the Computers widget lists paired computers and switches between them', as
   await layout(page, [widget('pcswitch')]);
 
   const pcs = page.locator('.w-pcswitch .ov-pc');
-  await expect(pcs).toHaveText(['🖥️ Desk PC', '🖥️ MacBook']);
+  await expect(pcs).toHaveText(['Desk PC', 'MacBook']);
+  await expect(pcs.locator('svg.ico')).toHaveCount(2); // a stroke icon, not the emoji an old WebView draws however it likes
   await expect(pcs.nth(0)).toHaveClass(/\bon\b/);
   await pcs.nth(0).click();
   await pcs.nth(1).click();
