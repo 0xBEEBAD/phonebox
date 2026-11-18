@@ -151,6 +151,20 @@ The settings are at <http://127.0.0.1:8765>, on Windows also from the tray icon.
   ./scripts/install.sh --apk --autostart  # systemd user service (Linux) or launchd agent (macOS)
   ```
 
+### Stop and start the agent
+
+On Windows, use **Quit** in the tray menu; with **Start with Windows** on, it starts again at the next sign-in.
+On Linux, setup installs a systemd user service named `phonebox` (no sudo needed):
+
+```sh
+systemctl --user stop phonebox            # off until the next login; start / restart / status work the same way
+systemctl --user disable --now phonebox   # off, and no longer started at login (enable --now turns both back on)
+```
+
+On macOS, `launchctl unload ~/Library/LaunchAgents/net.oxog.phonebox.agent.plist` stops it, and `launchctl load`
+with the same path starts it again. While the agent is off, the phone shows that it is offline and reconnects by
+itself once the agent runs again.
+
 ### Uninstall
 
 ```powershell
