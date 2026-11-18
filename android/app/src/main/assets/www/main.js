@@ -513,20 +513,43 @@ export async function runShortcut(btn, id) {
   setTimeout(() => btn.classList.remove('ok', 'err'), 900);
 }
 
-export function keyButton(s) {
+/** A shortcut key. The Big button's options: with `cover`, a picture the user uploaded becomes the key's background
+ *  instead of the centred icon; without `label`, the key shows no name (screen readers still get it). */
+export function keyButton(s, { cover = false, label = true } = {}) {
   const icon = h('span', 'k-icon', s.icon || '•');
-  const b = h('button', 'key' + (s.toggle ? ' toggle' : ''), icon, h('span', 'k-label', s.label));
+  const b = h('button', 'key' + (s.toggle ? ' toggle' : '') + (label ? '' : ' k-nolabel'), icon, h('span', 'k-label', s.label));
+  // The agent accepts a blank label, and a filled key hides its icon, so the id keeps the button named when no text
+  // is shown; visible text names it otherwise.
+  const name = String(s.label || '').trim();
+  if (!label || !name) b.setAttribute('aria-label', name || s.id);
   b.style.setProperty('--k', s.color || '#6b7280');
   b.dataset.id = s.id;
   b.addEventListener('click', () => runShortcut(b, s.id));
-  if (s.iconRev != null) applyShortcutIcon(icon, s.id);
+  // Only an upload fills the key: a program's own icon is 32 px on Windows, 64 px on macOS, and on Linux whatever logo
+  // the icon theme has, none of them a picture the user chose for the button. The agent says which is which, since the
+  // picture's size cannot tell (an SVG reports a default size, often 24 px from an icon set).
+  if (s.iconRev != null) applyShortcutIcon(b, icon, s.id, cover && s.iconUpload === true);
   return b;
 }
 
-function applyShortcutIcon(icon, id) {
+function applyShortcutIcon(b, icon, id, cover) {
+  const url = `${API}/shortcuts/icon?id=${encodeURIComponent(id)}`;
   const img = new Image();
+  if (cover) {
+    // the upload only: if it was removed since the config was read, the key falls back to the centred icon (the
+    // program's own, or the emoji) instead of the agent's next choice stretched across it
+    img.onload = () => {
+      img.className = 'k-bg';
+      img.alt = '';
+      b.prepend(img, h('span', 'k-shade'));
+      b.classList.add('k-cover');
+    };
+    img.onerror = () => applyShortcutIcon(b, icon, id, false);
+    img.src = url + '&upload=true'; // "true", not "1": the agent binds it as a bool and answers 400 to "1"
+    return;
+  }
   img.onload = () => { icon.replaceChildren(img); icon.classList.add('k-icon-img'); };
-  img.src = `${API}/shortcuts/icon?id=${encodeURIComponent(id)}`;
+  img.src = url;
 }
 
 // ---------------------------------------------------------------- media (shared state, any number of widgets)
