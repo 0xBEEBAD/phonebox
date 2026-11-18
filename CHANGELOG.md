@@ -1,8 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.9.21 — 2026-11-18
 
-Big buttons that show a picture, and an audit of the agent, the panel, the phone app and the installers: each fix came
+Security and reliability fixes from an audit of the agent, the panel, the phone app and the installers, Big buttons
+that show a picture, rules that notice when a pushed value stops arriving, and clearer Wi-Fi setup. Each audit fix came
 with a test that failed before it, kept as a regression test (#234, #235, #236, #237).
 
 **Security**
@@ -42,6 +43,8 @@ with a test that failed before it, kept as a regression test (#234, #235, #236, 
   [hassanxs](https://github.com/hassanxs)).
 - Linux: the default Calculator, Settings and System Monitor shortcuts start the desktop's own apps on KDE, Xfce,
   MATE and others when GNOME's are missing (#238, #246, [sateesh2020](https://github.com/sateesh2020)).
+- Rules: a pushed value can trigger a rule when it has no update for N seconds (or isn't there at all), and values
+  can be compared with `>=` and `<=` (#242, #245, [menes97](https://github.com/menes97)).
 - Home Assistant locks and vacuums read their state again before a toggle and do nothing when it is unknown.
 - Panic mute wins over push-to-talk: a microphone it closed (or failed to close) can't be reopened by a hold.
 - OBS, Docker, Spotify and Discord handle disconnects, account changes and malformed messages without stale data.
