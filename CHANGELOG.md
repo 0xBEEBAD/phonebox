@@ -5,6 +5,9 @@
 **Panel**
 - Clock widget: a new option chooses which AI quota providers its status line shows; clocks saved before it show
   all of them, as before (#225, #228, [Seyamalam](https://github.com/Seyamalam)).
+- The computer switch buttons (overview and Computers widget) and the session details close button draw stroke icons
+  instead of an emoji and a text X, so they look the same on older phones (#252,
+  [Seyamalam](https://github.com/Seyamalam)).
 
 ## 0.9.21 — 2026-11-18
 

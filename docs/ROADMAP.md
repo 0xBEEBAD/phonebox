@@ -27,8 +27,6 @@ people who proposed or prototyped something are credited in the [changelog](../C
   [#250](https://github.com/ersinkoc/phonebox/pull/250)).
 - **Steam friends and activity widgets** (pull request [#244](https://github.com/ersinkoc/phonebox/pull/244)): waiting
   for an issue to agree on the scope, and a rebase.
-- **Panel: built-in English widget titles keep English capitals in a Turkish panel**
-  (pull request [#240](https://github.com/ersinkoc/phonebox/pull/240)).
 
 ## Waiting on someone else
 
