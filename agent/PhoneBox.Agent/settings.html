@@ -1624,7 +1624,7 @@ async function pairOverWifi() {
   const cancel = () => fetch('/api/pair/cancel?attempt=' + encodeURIComponent(r.attempt), { method: 'POST' }).catch(() => {});
   if (mine !== pairAttempt) { if (r.enabled) cancel(); return; } // started again meanwhile
   if (!r.enabled) {
-    toast(r.configured ? 'Restart the agent first (Wi-Fi was just turned on)' : 'Turn on “Let the phone connect without the USB cable”, save and restart first', true);
+    toast(t(r.configured ? 's.wifi.restartFirst' : 's.wifi.turnOnFirst'), true);
     return;
   }
   const svg = (markup) => 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(markup)));
@@ -2749,6 +2749,7 @@ function bindForm() {
       setPath(cfg, p, val);
       $('nbv').textContent = Math.round(cfg.night.brightness * 100) + '%';
       if (p === 'charge.method') renderCharge();
+      if (p === 'lan.enabled') renderLanStatus();
       changed();
     };
   });
@@ -2792,6 +2793,19 @@ async function searchCity() {
   } catch (_) { box.replaceChildren(h('button', { disabled: true }, t('s.searchFailed'))); }
 }
 
+// The Wi-Fi line follows the switch at once: the saved state alone said "Off" right after the switch was turned on,
+// as if it had not worked, when it only needed Save and a restart (#239).
+let lanInfo = null; // the agent's last /api/lan answer
+function renderLanStatus() {
+  if (!lanInfo) return;
+  const want = !!cfg.lan?.enabled;
+  $('lanStatus').textContent = want && !lanInfo.configured ? t('s.wifi.saveThenRestart')
+    : !want && lanInfo.configured ? t('s.wifi.saveToTurnOff')
+    // saved as off: the agent refuses Wi-Fi requests at once, even though the port is only released by a restart
+    : !lanInfo.configured ? t('s.wifi.off')
+    : lanInfo.active ? t('s.wifi.listening', { port: lanInfo.port }) : t('s.wifi.restartToListen');
+}
+
 async function loadInfo() {
   try {
     const i = await (await fetch('/api/info')).json();
@@ -2818,7 +2832,8 @@ async function loadInfo() {
     $('lanHosts').textContent = lan.hosts.length
       ? lan.hosts.map((a) => a.startsWith('100.') ? a + ' (Tailscale)' : a).join(', ')
       : 'No LAN or Tailscale address found';
-    $('lanStatus').textContent = lan.active ? t('s.wifi.listening', { port: lan.port }) : lan.configured ? t('s.wifi.restartToListen') : t('s.wifi.off');
+    lanInfo = lan;
+    renderLanStatus();
     $('restartBtn').hidden = !lan.restartNeeded;
     renderUpdate(await (await fetch('/api/update')).json());
     renderWebhooks(lan);
