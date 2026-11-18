@@ -24,7 +24,10 @@ people who proposed or prototyped something are credited in the [changelog](../C
   ([#241](https://github.com/ersinkoc/phonebox/issues/241)).
 - **Rules for pushed values**: a "not updated for N seconds" condition, `>=` / `<=`, and a separate release threshold
   ([#242](https://github.com/ersinkoc/phonebox/issues/242), pull request
-  [#245](https://github.com/ersinkoc/phonebox/pull/245) for the first two).
+  [#245](https://github.com/ersinkoc/phonebox/pull/245), in 0.9.21, did the first two).
+- **Trackpad widget**: move, click and scroll the PC's mouse from the phone, off by default
+  ([#251](https://github.com/ersinkoc/phonebox/issues/251), pull request
+  [#250](https://github.com/ersinkoc/phonebox/pull/250)).
 - **Steam friends and activity widgets** (pull request [#244](https://github.com/ersinkoc/phonebox/pull/244)): waiting
   for an issue to agree on the scope, and a rebase.
 - **Panel: built-in English widget titles keep English capitals in a Turkish panel**
