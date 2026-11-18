@@ -25,6 +25,9 @@ people who proposed or prototyped something are credited in the [changelog](../C
 - **Trackpad widget**: move, click and scroll the PC's mouse from the phone, off by default
   ([#251](https://github.com/ersinkoc/phonebox/issues/251), pull request
   [#250](https://github.com/ersinkoc/phonebox/pull/250)).
+- **Codex permission prompts on the phone**: answer Codex's own approval requests with Allow / Deny, like Claude Code's
+  ([#253](https://github.com/ersinkoc/phonebox/issues/253), pull request
+  [#254](https://github.com/ersinkoc/phonebox/pull/254)).
 - **Steam friends and activity widgets** (pull request [#244](https://github.com/ersinkoc/phonebox/pull/244)): waiting
   for an issue to agree on the scope, and a rebase.
 
