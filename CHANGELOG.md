@@ -1,5 +1,51 @@
 # Changelog
 
+## Unreleased
+
+Big buttons that show a picture, and an audit of the agent, the panel, the phone app and the installers: each fix came
+with a test that failed before it, kept as a regression test (#234, #235, #236, #237).
+
+**Security**
+- Turning Wi-Fi off in Settings closes the LAN API and pairing at once, not after a restart, and a webhook token can no
+  longer pose as a paired phone.
+- A control widget (command, OBS, Home Assistant, Docker and others) on a hidden page, or one that was removed, no
+  longer allows its action, including when the settings change while the action runs.
+- The feed proxy, the radio directory and the Linux/macOS artwork loader reject every private or reserved IPv6 form;
+  the artwork loader no longer reads `file://` addresses or serves SVG/HTML as artwork.
+- The phone app no longer follows redirects, which over Wi-Fi would have opened a connection without the paired PC's
+  pinned certificate.
+- With `--config`, the LAN certificate, the shortcut icon uploads, the pairing and the Discord login stay inside that
+  config folder. **If you run the agent with `--config`, pair your phone and sign in to Discord once more.**
+
+**Panel**
+- Big button: a new option fills the key with the shortcut's uploaded picture, and another hides its label (#233,
+  [dhiya13](https://github.com/dhiya13)).
+- Typing in the Note editor no longer triggers panel shortcuts, and Escape (or Back on Android) closes the editor.
+- A late answer from the agent no longer overwrites a newer one, so settings, sessions and pushed values don't jump
+  back. A note saved from the phone isn't undone by a reload that was already under way.
+- Widgets that aren't on screen stop asking the agent; timers and countdowns keep their deadline while the tab sleeps;
+  countdown targets can include seconds.
+- The panel waits for the agent's settings before asking for the weather, so the default location is never sent.
+
+**Settings**
+- A save that can't reach the agent says so and keeps the draft. Control Deck fields keep an edit even when Save is
+  clicked without leaving the field, and the two language selectors stay in step.
+
+**Agent**
+- Home Assistant locks and vacuums read their state again before a toggle and do nothing when it is unknown.
+- Panic mute wins over push-to-talk: a microphone it closed (or failed to close) can't be reopened by a hold.
+- OBS, Docker, Spotify and Discord handle disconnects, account changes and malformed messages without stale data.
+- "While active" rules no longer flip a toggle that was already on, and Undo restores the mute shortcut.
+- Smaller fixes across commands, GPU and CPU temperature readings, Codex sessions, calendars, the photo frame, charge
+  guard, approvals and updates.
+
+**Phone app**
+- The live connection no longer reports a late close after it was stopped, and isn't restarted in the background.
+
+**Installers**
+- Windows: a failed `-Apk` step no longer leaves the agent stopped.
+- Linux/macOS: `--serial` and `--version` no longer take the next option as their value.
+
 ## 0.9.20 — 2026-11-18
 
 Notes edited from the phone, a Home Assistant entity editor, a translated settings page, Antigravity quotas with
