@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 0.9.20 — 2026-11-18
+
+Notes edited from the phone, a Home Assistant entity editor, a translated settings page, Antigravity quotas with
+newer IDEs and Intel GPU load on Linux.
 
 **Panel**
 - The Note widget can be edited from the phone: tap it, write, save (#218, [cavalei](https://github.com/cavalei)).
