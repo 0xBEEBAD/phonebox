@@ -9,7 +9,7 @@ namespace PhoneBox.Agent;
 /// (D3DKMT and the GPU performance counters, the same data Task Manager shows), Linux sysfs (and DRM fdinfo for Intel's
 /// load) and macOS ioreg.
 /// The same card can come from more than one source; the entries are matched by name and the earlier source wins,
-/// a later one only fills what the earlier one left empty.
+/// a later one only fills what the earlier one left empty (except the Windows adapter's integrated flag, see Merge).
 /// </summary>
 internal static partial class Gpus
 {
@@ -41,7 +41,11 @@ internal static partial class Gpus
             .ToList();
     }
 
-    /// <summary>Fields of <paramref name="a"/> win; <paramref name="b"/> fills the gaps.</summary>
+    /// <summary>
+    /// Fields of <paramref name="a"/> win; <paramref name="b"/> fills the gaps. One exception: the Windows adapter list
+    /// (merged last) marking a GPU integrated is kept, since Windows knows a hybrid laptop's integrated GPU that the name
+    /// heuristic of the sources before it can miss. A guess such as sysfs's small-VRAM rule doesn't override an earlier source.
+    /// </summary>
     public static GpuInfo Merge(GpuInfo a, GpuInfo b) => a with
     {
         Util = a.Util ?? b.Util,
@@ -54,7 +58,7 @@ internal static partial class Gpus
         Clock = a.Clock ?? b.Clock,
         Vendor = a.Vendor ?? b.Vendor,
         Source = a.Source is null ? b.Source : b.Source is null || a.Source.Contains(b.Source) ? a.Source : a.Source + "+" + b.Source,
-        Integrated = a.Integrated || b.Integrated,
+        Integrated = a.Integrated || (b.Integrated && b.Source == "windows"),
         HotSpot = a.HotSpot ?? b.HotSpot,
         MemTemp = a.MemTemp ?? b.MemTemp,
         MemClock = a.MemClock ?? b.MemClock,
@@ -117,9 +121,13 @@ internal static partial class Gpus
         var map = new Dictionary<int, (string, string?)>();
         foreach (var line in text.Split('\n'))
         {
-            var f = line.Split(',').Select(s => s.Trim()).ToArray();
-            if (f.Length >= 2 && int.TryParse(f[0], CultureInfo.InvariantCulture, out var i) && f[1].Length > 0)
-                map[i] = (f[1], f.Length > 2 && f[2].Length > 0 && f[2] != "[N/A]" ? f[2] : null);
+            var first = line.IndexOf(',');
+            if (first <= 0 || !int.TryParse(line[..first].Trim(), CultureInfo.InvariantCulture, out var i)) continue;
+            var last = line.LastIndexOf(',');
+            var name = (last > first ? line[(first + 1)..last] : line[(first + 1)..]).Trim();
+            if (name.Length == 0) continue;
+            var drv = last > first ? line[(last + 1)..].Trim() : "";
+            map[i] = (name, drv.Length > 0 && drv != "[N/A]" ? drv : null);
         }
         return map;
     }
@@ -299,7 +307,7 @@ internal static partial class Gpus
                     Vendor: vendor,
                     Source: "sysfs",
                     // an APU's VRAM is a small carve-out of the RAM; Intel is integrated unless it is an Arc card
-                    Integrated: vendor == "amd" ? vramTotal is { } v && v < 4 * GiB : !IntelDiscrete().IsMatch(name) && !name.Contains("DG2", StringComparison.Ordinal),
+                    Integrated: vendor == "amd" ? vramTotal is { } v && v < 4 * GiB && !AmdDiscrete().IsMatch(name) : !IntelDiscrete().IsMatch(name) && !name.Contains("DG2", StringComparison.Ordinal),
                     HotSpot: temps.TryGetValue("junction", out var j) ? j : null,
                     MemTemp: temps.TryGetValue("mem", out var mt) ? mt : null,
                     MemClock: vendor == "amd" ? DpmCurrent(Read(dev, "pp_dpm_mclk")) : null,
@@ -410,7 +418,7 @@ internal static partial class Gpus
         s is not null && uint.TryParse(s.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? s[2..] : s, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var v) ? v : null;
 
     [GeneratedRegex("[^a-z0-9]")] private static partial Regex NonAlnum();
-    [GeneratedRegex(@"Arc(\(TM\))?\s+(Pro\s+)?[AB]\d{2,3}", RegexOptions.IgnoreCase)] private static partial Regex IntelDiscrete();
+    [GeneratedRegex(@"Arc(?:\(TM\)|™)?\s+(?:Pro\s+)?[AB]\d{2,3}", RegexOptions.IgnoreCase)] private static partial Regex IntelDiscrete();
     [GeneratedRegex(@"\bRX\s+\d{3,4}|\bPro\s+W\d|\bW\d{4}", RegexOptions.IgnoreCase)] private static partial Regex AmdDiscrete();
     [GeneratedRegex(@"^\s*(-?\d+(?:[.,]\d+)?)\s*(°C|°F|%|MHz|GHz|W|RPM|B|KB|MB|GB|TB)\s*$")] private static partial Regex LhmValue();
     [GeneratedRegex(@"^card\d+$")] private static partial Regex CardDir();

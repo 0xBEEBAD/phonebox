@@ -249,8 +249,10 @@ public sealed partial class SystemMonitor(ILogger<SystemMonitor> log, ConfigStor
         double? hottest = null;
         void Visit(JsonElement node, bool inCpu)
         {
+            // a null or non-object entry is skipped, not allowed to throw away the readings after it
+            if (node.ValueKind != JsonValueKind.Object) return;
             inCpu = inCpu || IsCpuNode(node);
-            if (inCpu && node.TryGetProperty("Text", out var text) && text.GetString() is { } name && CoreSensor().IsMatch(name)
+            if (inCpu && StrProp(node, "Text") is { } name && CoreSensor().IsMatch(name)
                 && ReadCelsius(node) is { } t && (hottest is null || t > hottest))
                 hottest = t;
             if (node.TryGetProperty("Children", out var kids) && kids.ValueKind == JsonValueKind.Array)
@@ -260,18 +262,23 @@ public sealed partial class SystemMonitor(ILogger<SystemMonitor> log, ConfigStor
         return hottest;
     }
 
-    private static bool IsCpuNode(JsonElement node) =>
-        (node.TryGetProperty("HardwareId", out var id) && id.GetString() is { } hw
-            && (hw.StartsWith("/intelcpu/", StringComparison.OrdinalIgnoreCase) || hw.StartsWith("/amdcpu/", StringComparison.OrdinalIgnoreCase)))
-        || (node.TryGetProperty("ImageURL", out var img) && img.GetString() is { } url && url.EndsWith("/cpu.png", StringComparison.OrdinalIgnoreCase));
+    /// <summary>A string property of an object node; null when it is missing or not a string.</summary>
+    private static string? StrProp(JsonElement node, string name) =>
+        node.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
 
-    /// <summary>A temperature value such as "54,0 °C"; load and clock sensors share the core names but have no °.</summary>
+    private static bool IsCpuNode(JsonElement node) =>
+        (StrProp(node, "HardwareId") is { } hw
+            && (hw.StartsWith("/intelcpu/", StringComparison.OrdinalIgnoreCase) || hw.StartsWith("/amdcpu/", StringComparison.OrdinalIgnoreCase)))
+        || (StrProp(node, "ImageURL") is { } url && url.EndsWith("/cpu.png", StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>A temperature value such as "54,0 °C" or "140.0 °F"; load and clock sensors share the core names but have no °.</summary>
     private static double? ReadCelsius(JsonElement node)
     {
-        if (!node.TryGetProperty("Value", out var val) || val.GetString() is not { } s || !s.Contains('°')) return null;
-        if (node.TryGetProperty("Type", out var type) && type.GetString() is { } ty && ty != "Temperature") return null;
-        var num = s.Split(' ')[0].Replace(',', '.');
-        return double.TryParse(num, NumberStyles.Float, CultureInfo.InvariantCulture, out var t) ? t : null;
+        if (!node.TryGetProperty("Value", out var val) || val.ValueKind != JsonValueKind.String || val.GetString() is not { } s || !s.Contains('°')) return null;
+        // an older reply has no type; one that names a type must name a temperature
+        if (node.TryGetProperty("Type", out var type) && type.ValueKind != JsonValueKind.Null
+            && (type.ValueKind != JsonValueKind.String || type.GetString() != "Temperature")) return null;
+        return Gpus.ParseLhmValue(s, "Temperature") is { Kind: "temp" } parsed ? parsed.Value : null;
     }
 
     [System.Text.RegularExpressions.GeneratedRegex(@"^(?:CPU )?Core #\d+$", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.CultureInvariant)]
@@ -279,13 +286,11 @@ public sealed partial class SystemMonitor(ILogger<SystemMonitor> log, ConfigStor
 
     private static double? FindTemp(JsonElement node, string[] names)
     {
-        if (node.TryGetProperty("Text", out var text) && names.Contains(text.GetString())
-            && node.TryGetProperty("Value", out var val) && val.GetString() is { } s && s.Contains('°'))
-        {
-            var num = s.Split(' ')[0].Replace(',', '.');
-            if (double.TryParse(num, NumberStyles.Float, CultureInfo.InvariantCulture, out var t)) return t;
-        }
-        if (node.TryGetProperty("Children", out var kids))
+        if (node.ValueKind != JsonValueKind.Object) return null;
+        if (node.TryGetProperty("Text", out var text) && text.ValueKind == JsonValueKind.String && names.Contains(text.GetString())
+            && ReadCelsius(node) is { } temp)
+            return temp;
+        if (node.TryGetProperty("Children", out var kids) && kids.ValueKind == JsonValueKind.Array)
             foreach (var k in kids.EnumerateArray())
                 if (FindTemp(k, names) is { } t) return t;
         return null;
