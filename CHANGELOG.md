@@ -22,6 +22,11 @@
   and update cards and the webhook examples, complete in Vietnamese. The webhooks section no longer stops rendering
   part-way, which a translation helper shadowed by a variable had caused (#219, [sonvivu](https://github.com/sonvivu)).
 
+**Agent**
+- Antigravity quotas show up with newer Antigravity IDE versions (reported with 2.32), whose language server answers
+  over HTTPS on a port it picks at start-up: the agent tries the loopback ports that process listens on, and accepts
+  its self-signed certificate only for this computer (#227, [goutam-prusty](https://github.com/goutam-prusty)).
+
 ## 0.9.19 — 2026-11-17
 
 A smoother Camera widget, and the app on Android 5.0 and 6.0.
