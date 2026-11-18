@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+**Panel**
+- Clock widget: a new option chooses which AI quota providers its status line shows; clocks saved before it show
+  all of them, as before (#225, #228, [Seyamalam](https://github.com/Seyamalam)).
+
 ## 0.9.21 — 2026-11-18
 
 Security and reliability fixes from an audit of the agent, the panel, the phone app and the installers, Big buttons

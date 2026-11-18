@@ -16,9 +16,6 @@ people who proposed or prototyped something are credited in the [changelog](../C
 
 ## Contributions in progress
 
-- **Clock widget: choose the AI providers in the status line**
-  ([#225](https://github.com/ersinkoc/phonebox/issues/225), pull request
-  [#228](https://github.com/ersinkoc/phonebox/pull/228)).
 - **Discord widget: show who is speaking** ([#226](https://github.com/ersinkoc/phonebox/issues/226)).
 - **Feeding PhoneBox from MQTT**: a bridge script and a guide example for pushed values and notifications
   ([#241](https://github.com/ersinkoc/phonebox/issues/241)).
