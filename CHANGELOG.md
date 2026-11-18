@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+**Widgets**
+- Trackpad: move, click and scroll the computer's mouse from the phone, with tap to click, two fingers to right-click
+  and scroll, hold to drag and an optional edge scroll bar. Mouse control is off until you turn on **Allow controlling
+  the mouse from the phone** in the widget's options; Windows, and Linux with `xdotool` under X11 (#250, #251,
+  [Prajjwal2404](https://github.com/Prajjwal2404)).
+- Weather: Settings › General › Weather has a temperature unit, Celsius or Fahrenheit, for the clock's weather line
+  and the Forecast widget (#256, [haydn9000](https://github.com/haydn9000)).
+
 **Panel**
 - Clock widget: a new option chooses which AI quota providers its status line shows; clocks saved before it show
   all of them, as before (#225, #228, [Seyamalam](https://github.com/Seyamalam)).

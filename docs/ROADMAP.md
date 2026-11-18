@@ -22,9 +22,6 @@ people who proposed or prototyped something are credited in the [changelog](../C
 - **Rules for pushed values**: a "not updated for N seconds" condition, `>=` / `<=`, and a separate release threshold
   ([#242](https://github.com/ersinkoc/phonebox/issues/242), pull request
   [#245](https://github.com/ersinkoc/phonebox/pull/245), in 0.9.21, did the first two).
-- **Trackpad widget**: move, click and scroll the PC's mouse from the phone, off by default
-  ([#251](https://github.com/ersinkoc/phonebox/issues/251), pull request
-  [#250](https://github.com/ersinkoc/phonebox/pull/250)).
 - **Codex permission prompts on the phone**: answer Codex's own approval requests with Allow / Deny, like Claude Code's
   ([#253](https://github.com/ersinkoc/phonebox/issues/253), pull request
   [#254](https://github.com/ersinkoc/phonebox/pull/254)).
