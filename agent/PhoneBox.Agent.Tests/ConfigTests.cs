@@ -25,6 +25,26 @@ public class ConfigTests
         Assert.NotEqual(c.Lan.Token, c.Lan.WebhookToken);
     }
 
+    // The panel converts the forecast itself, so the only values the agent hands it are the two it knows how to show.
+    [Theory]
+    [InlineData("""{"weather":{"city":"Tallinn","lat":59.437,"lon":24.745}}""", "celsius")]
+    [InlineData("""{"weather":{"unit":"fahrenheit"}}""", "fahrenheit")]
+    [InlineData("""{"weather":{"unit":" Fahrenheit "}}""", "fahrenheit")]
+    [InlineData("""{"weather":{"unit":"kelvin"}}""", "celsius")]
+    [InlineData("""{"weather":{"unit":null}}""", "celsius")]
+    [InlineData("""{"weather":{"city":"Oslo","unit":123}}""", "celsius")]
+    [InlineData("""{"weather":{"city":"Oslo","unit":true}}""", "celsius")]
+    [InlineData("""{"weather":{"city":"Oslo","unit":{"deep":[1]}}}""", "celsius")]
+    public void WeatherUnitDefaultsToCelsiusAndReachesThePhone(string json, string expected)
+    {
+        var c = Load(json);
+        Assert.Equal(expected, c.Weather.Unit);
+        // a bad unit costs only the unit: the rest of the weather section (and the file) still loads
+        if (json.Contains("Oslo")) Assert.Equal("Oslo", c.Weather.City);
+        var weather = JsonSerializer.SerializeToElement(c.ToPublic(), ConfigStore.WriteOpts).GetProperty("weather");
+        Assert.Equal(expected, weather.GetProperty("unit").GetString());
+    }
+
     [Fact]
     public void BurnInProtectionIsOffByDefaultAndTheDimTimeIsClamped()
     {
