@@ -20,6 +20,8 @@ with a test that failed before it, kept as a regression test (#234, #235, #236, 
 **Panel**
 - Big button: a new option fills the key with the shortcut's uploaded picture, and another hides its label (#233,
   [dhiya13](https://github.com/dhiya13)).
+- With the panel in Turkish, built-in English widget titles are uppercased with English rules: NOTIFICATIONS, not
+  NOTİFİCATİONS (#240, [menes97](https://github.com/menes97)).
 - Typing in the Note editor no longer triggers panel shortcuts, and Escape (or Back on Android) closes the editor.
 - A late answer from the agent no longer overwrites a newer one, so settings, sessions and pushed values don't jump
   back. A note saved from the phone isn't undone by a reload that was already under way.
@@ -35,6 +37,11 @@ with a test that failed before it, kept as a regression test (#234, #235, #236, 
   clicked without leaving the field, and the two language selectors stay in step.
 
 **Agent**
+- Claude quota widget: with only the Claude Desktop app signed in, it says that the desktop app doesn't share its
+  sign-in and that the `claude` command-line tool is needed, instead of "Not signed in to Claude Code" (#247,
+  [hassanxs](https://github.com/hassanxs)).
+- Linux: the default Calculator, Settings and System Monitor shortcuts start the desktop's own apps on KDE, Xfce,
+  MATE and others when GNOME's are missing (#238, #246, [sateesh2020](https://github.com/sateesh2020)).
 - Home Assistant locks and vacuums read their state again before a toggle and do nothing when it is unknown.
 - Panic mute wins over push-to-talk: a microphone it closed (or failed to close) can't be reopened by a hold.
 - OBS, Docker, Spotify and Discord handle disconnects, account changes and malformed messages without stale data.
