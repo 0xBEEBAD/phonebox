@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+**Agent**
+- Claude quotas on macOS: a `~/.claude/.credentials.json` left behind by another tool or an older Claude Code no
+  longer hides the sign-in Claude Code renews in the Keychain. Once the file's token is missing or expired, the agent
+  reads the Keychain too and uses the sign-in that expires later, instead of showing "Token expired" for good (#277,
+  [sonvc94](https://github.com/sonvc94)).
+
 ## 0.9.22 — 2026-11-19
 
 Greek, a Trackpad widget, Claude Code session details and chat titles, CPU and GPU temperature on Apple silicon Macs,
