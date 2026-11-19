@@ -25,6 +25,8 @@ people who proposed or prototyped something are credited in the [changelog](../C
 - **Codex permission prompts on the phone**: answer Codex's own approval requests with Allow / Deny, like Claude Code's
   ([#253](https://github.com/ersinkoc/phonebox/issues/253), pull request
   [#254](https://github.com/ersinkoc/phonebox/pull/254)).
+- **Voice commands**: say what you want and a language model of your choice (local through Ollama, or a hosted one)
+  picks from the shortcuts you allowed; opt-in, off by default ([#257](https://github.com/ersinkoc/phonebox/issues/257)).
 - **Steam friends and activity widgets** (pull request [#244](https://github.com/ersinkoc/phonebox/pull/244)): waiting
   for an issue to agree on the scope, and a rebase.
 
