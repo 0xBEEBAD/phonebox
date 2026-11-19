@@ -218,7 +218,6 @@
       'w.noSessionsToday': 'No sessions yet today',
       'w.setDateFormat': 'Set a date as YYYY-MM-DD HH:MM',
       'w.notifyEmpty': 'Nothing yet.\nSend one with POST /api/notify',
-      'w.noMedia': 'No media playing',
       'w.noEvents': 'No upcoming events',
 
       // Settings UI
@@ -731,16 +730,8 @@
       's.wifi.lead': 'Pair a phone by plugging it in once over USB after turning this on (and restarting), or without a cable: <b>Pair a phone over Wi-Fi</b> shows a QR code to scan with the phone\'s camera. The phone then talks HTTPS to this PC, trusts only this PC\'s certificate and has to present a secret key. The phone and this PC must be on the same network &mdash; or both on <a href="https://tailscale.com" target="_blank" rel="noopener">Tailscale</a>, which also works from another place or across separate Wi-Fi networks. Windows Firewall asks once &mdash; allow it (tick the network type Tailscale uses, too).',
       's.upd.checksBefore': 'Checks',
       's.upd.checksAfter': 'on GitHub every 6 hours. The phone app is installed over USB without a prompt on the phone; the agent replaces its own files and restarts.',
-      's.wh.payloadHint': 'JSON payloads may carry',
       's.k.argsPlaceholderWindows': 'e.g. -d D:\\Projects claude',
       's.k.argsPlaceholderUnix': 'e.g. --new-window ~/Projects',
-      's.ap.fontOriginal': 'Original font',
-      's.ap.fontSans': 'Sans-serif',
-      's.ap.fontRounded': 'Rounded',
-      's.ap.fontCondensed': 'Condensed',
-      's.ap.fontSerif': 'Serif',
-      's.ap.fontMono': 'Monospace',
-      's.r.matchTime': '22:00-07:00',
       's.restartApplyTitle': 'Wi-Fi settings change after a restart',
       's.ap.inheritFont': 'Inherit ({font})',
       's.battery.leadHead': 'A phone that is plugged in all the time wears its battery out. PhoneBox can keep it between two',
@@ -938,7 +929,6 @@
       'w.noSessionsToday': 'Bugün henüz oturum yok',
       'w.setDateFormat': 'Tarihi YYYY-AA-GG SS:DD olarak ayarlayın',
       'w.notifyEmpty': 'Henüz bir şey yok.\nPOST /api/notify ile gönderin',
-      'w.noMedia': 'Medya oynatılmıyor',
       'w.noEvents': 'Yaklaşan etkinlik yok',
 
       's.phoneStatus': 'Telefon…',
@@ -1303,7 +1293,6 @@
       'w.noSessionsToday': 'Heute noch keine Sitzungen',
       'w.setDateFormat': 'Datum als JJJJ-MM-TT SS:MM angeben',
       'w.notifyEmpty': 'Noch nichts.\nMit POST /api/notify senden',
-      'w.noMedia': 'Keine Medienwiedergabe',
       'w.noEvents': 'Keine anstehenden Termine',
 
       's.phoneStatus': 'Telefon…',
@@ -1668,7 +1657,6 @@
       'w.noSessionsToday': 'Aucune session aujourd\'hui',
       'w.setDateFormat': 'Format de date : AAAA-MM-JJ HH:MM',
       'w.notifyEmpty': 'Rien pour l\'instant.\nEnvoyez via POST /api/notify',
-      'w.noMedia': 'Aucune lecture en cours',
       'w.noEvents': 'Aucun événement à venir',
 
       's.phoneStatus': 'Téléphone…',
@@ -2033,7 +2021,6 @@
       'w.noSessionsToday': 'Sin sesiones hoy',
       'w.setDateFormat': 'Fecha en formato AAAA-MM-DD HH:MM',
       'w.notifyEmpty': 'Nada aún.\nEnvía con POST /api/notify',
-      'w.noMedia': 'Sin reproducción',
       'w.noEvents': 'Sin próximos eventos',
 
       's.phoneStatus': 'Teléfono…',
@@ -2398,7 +2385,6 @@
       'w.noSessionsToday': 'Nessuna sessione oggi',
       'w.setDateFormat': 'Imposta data come AAAA-MM-GG OO:MM',
       'w.notifyEmpty': 'Ancora nulla.\nInvia con POST /api/notify',
-      'w.noMedia': 'Nessun contenuto in riproduzione',
       'w.noEvents': 'Nessun evento in programma',
 
       's.phoneStatus': 'Telefono…',
@@ -2763,7 +2749,6 @@
       'w.noSessionsToday': 'Sem sessões hoje',
       'w.setDateFormat': 'Defina a data como AAAA-MM-DD HH:MM',
       'w.notifyEmpty': 'Nada ainda.\nEnvie com POST /api/notify',
-      'w.noMedia': 'Sem reprodução',
       'w.noEvents': 'Sem próximos eventos',
 
       's.phoneStatus': 'Telefone…',
@@ -3128,7 +3113,6 @@
       'w.noSessionsToday': 'Nog geen sessies vandaag',
       'w.setDateFormat': 'Stel datum in als JJJJ-MM-DD UU:MM',
       'w.notifyEmpty': 'Nog niets.\nStuur via POST /api/notify',
-      'w.noMedia': 'Geen media actief',
       'w.noEvents': 'Geen komende afspraken',
 
       's.phoneStatus': 'Telefoon…',
@@ -3493,7 +3477,6 @@
       'w.noSessionsToday': 'Brak sesji dzisiaj',
       'w.setDateFormat': 'Ustaw datę jako RRRR-MM-DD GG:MM',
       'w.notifyEmpty': 'Jeszcze nic.\nWyślij przez POST /api/notify',
-      'w.noMedia': 'Brak odtwarzania',
       'w.noEvents': 'Brak nadchodzących wydarzeń',
 
       's.phoneStatus': 'Telefon…',
@@ -3858,7 +3841,6 @@
       'w.noSessionsToday': 'Сегодня ещё нет сессий',
       'w.setDateFormat': 'Укажите дату как ГГГГ-ММ-ДД ЧЧ:ММ',
       'w.notifyEmpty': 'Пока пусто.\nОтправьте через POST /api/notify',
-      'w.noMedia': 'Ничего не играет',
       'w.noEvents': 'Нет ближайших событий',
 
       's.phoneStatus': 'Телефон…',
@@ -4223,7 +4205,6 @@
       'w.noSessionsToday': 'Hôm nay chưa có phiên nào',
       'w.setDateFormat': 'Đặt ngày theo định dạng YYYY-MM-DD HH:MM',
       'w.notifyEmpty': 'Chưa có gì.\nGửi một thông báo bằng POST /api/notify',
-      'w.noMedia': 'Không có nội dung nào đang phát',
       'w.noEvents': 'Không có sự kiện sắp tới',
 
       's.phoneStatus': 'Điện thoại…',
@@ -4735,16 +4716,8 @@
       's.wifi.lead': 'Ghép nối điện thoại bằng cách cắm USB một lần sau khi bật mục này (và khởi động lại), hoặc không cần cáp: <b>Ghép nối điện thoại qua Wi-Fi</b> hiện mã QR để quét bằng camera điện thoại. Sau đó điện thoại nói chuyện HTTPS với máy tính này, chỉ tin chứng chỉ của máy này và phải trình một khóa bí mật. Điện thoại và máy tính phải cùng một mạng &mdash; hoặc cùng dùng <a href="https://tailscale.com" target="_blank" rel="noopener">Tailscale</a>, cách này cũng dùng được từ nơi khác hoặc qua các mạng Wi-Fi khác nhau. Tường lửa Windows sẽ hỏi một lần &mdash; hãy cho phép (tích cả loại mạng mà Tailscale dùng).',
       's.upd.checksBefore': 'Kiểm tra',
       's.upd.checksAfter': 'trên GitHub mỗi 6 giờ. Ứng dụng điện thoại được cài qua USB mà không hỏi gì trên điện thoại; agent tự thay các tệp của nó rồi khởi động lại.',
-      's.wh.payloadHint': 'Payload JSON có thể mang',
       's.k.argsPlaceholderWindows': 'ví dụ -d D:\\Projects claude',
       's.k.argsPlaceholderUnix': 'ví dụ --new-window ~/Projects',
-      's.ap.fontOriginal': 'Phông chữ gốc',
-      's.ap.fontSans': 'Không chân (sans-serif)',
-      's.ap.fontRounded': 'Bo tròn',
-      's.ap.fontCondensed': 'Hẹp',
-      's.ap.fontSerif': 'Có chân (serif)',
-      's.ap.fontMono': 'Đơn cách',
-      's.r.matchTime': '22:00-07:00',
       's.restartApplyTitle': 'Cài đặt Wi-Fi thay đổi sau khi khởi động lại',
       's.ap.inheritFont': 'Kế thừa ({font})',
       's.battery.leadHead': 'Điện thoại cắm sạc liên tục sẽ nhanh hỏng pin. PhoneBox có thể giữ pin trong khoảng hai',
@@ -4941,7 +4914,6 @@
       'w.noSessionsToday': '今天还没有专注记录',
       'w.setDateFormat': '请按 YYYY-MM-DD HH:MM 格式设置日期',
       'w.notifyEmpty': '暂无通知。\n可通过 POST /api/notify 发送',
-      'w.noMedia': '当前无媒体播放',
       'w.noEvents': '暂无日程',
 
       's.phoneStatus': '手机…',

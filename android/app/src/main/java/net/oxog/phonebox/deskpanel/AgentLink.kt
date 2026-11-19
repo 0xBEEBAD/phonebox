@@ -352,8 +352,6 @@ class AgentLink(private val context: Context) {
         background.shutdownNow()
     }
 
-    fun pairedPc(): String? = activePc()?.name
-
     /** Why a pairing failed, so the shell can say it in the phone's language instead of English inside a dialog. */
     sealed class PairFailure {
         /** No address answered: not the same network, or the firewall blocked PhoneBox. */
