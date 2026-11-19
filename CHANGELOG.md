@@ -27,6 +27,13 @@
   [Vasilispapg](https://github.com/Vasilispapg)).
 
 **Panel**
+- Media: the position bar is a slider; hold it to see where the song will continue, and it seeks when you let go. The
+  song time follows the computer more closely, also with Spotify on macOS, which reports no position of its own, and
+  no longer steps back and forth.
+- Volume and media changes reach the phone at once instead of at the next second, and on macOS a volume change takes
+  milliseconds instead of up to a second and a half. While the screen is off or another app is in front, the panel
+  stops asking the agent for updates and catches up when it is back (#268,
+  [Vasilispapg](https://github.com/Vasilispapg)).
 - Pomodoro: the Vietnamese example for your own sequence uses the words the timer understands (`25 focus, 5 break`);
   copied as shown, the translated words were not understood.
 - Clock widget: a new option chooses which AI quota providers its status line shows; clocks saved before it show
