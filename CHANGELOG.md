@@ -47,6 +47,12 @@
   changes" label, toasts with a mark that screen readers announce, and Escape closes dialogs. Motion stays off with the
   system's reduce-motion setting (#264, [Vasilispapg](https://github.com/Vasilispapg)).
 
+**Agent**
+- macOS: when a shortcut cannot press keys, the message on the phone says what helps after an update (remove
+  PhoneBoxAgent under Accessibility and add it again), and the setup script says it when it updates the agent. macOS
+  ties the permission to the exact build of the ad hoc signed agent (#269,
+  [nejcbat-x](https://github.com/nejcbat-x)).
+
 ## 0.9.21 — 2026-11-18
 
 Security and reliability fixes from an audit of the agent, the panel, the phone app and the installers, Big buttons

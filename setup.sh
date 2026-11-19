@@ -530,6 +530,11 @@ main() {
   if [ "$os" = osx ]; then
     info 'The agent is signed ad hoc, not with an Apple Developer ID, so macOS may ask about it the first time:'
     info 'allow it to control Music or Spotify (Now Playing) and, once Wi-Fi is on, to accept incoming connections.'
+    if [ -n "$installed" ]; then
+      # an ad hoc signature changes with every build, and macOS ties the Accessibility grant to it (#269)
+      info 'If you allowed it under Accessibility (shortcuts that press keys), macOS forgets that with every update:'
+      info 'in System Settings › Privacy & Security › Accessibility, remove PhoneBoxAgent with − and add it again.'
+    fi
   fi
 
   step 'Checking adb (needed for the USB connection to the phone)'

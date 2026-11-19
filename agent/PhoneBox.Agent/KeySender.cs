@@ -11,9 +11,14 @@ namespace PhoneBox.Agent;
 /// </summary>
 public static class KeySender
 {
-    /// <summary>What to do when macOS refuses to send keys. Fixed text, so the phone may show it as it is.</summary>
+    /// <summary>
+    /// What to do when macOS refuses to send keys. Fixed text, so the phone may show it as it is. The agent is signed ad
+    /// hoc, so macOS ties the permission to one exact build: after an update the old entry stays in the list (even
+    /// switched on) but no longer applies, and only removing it and adding the agent again helps (#269).
+    /// </summary>
     internal const string AccessibilityHint =
-        "macOS refused: allow PhoneBoxAgent in System Settings › Privacy & Security › Accessibility";
+        "macOS refused: allow PhoneBoxAgent in System Settings › Privacy & Security › Accessibility. " +
+        "After an update, remove it there with − and add it again";
 
     internal record struct MouseCall(string Action, int Dx, int Dy, int Delta);
     internal static Action<MouseCall>? TestMouseSink;
