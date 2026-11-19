@@ -128,13 +128,65 @@ W.media = {
         emit('tick');
       } catch (_) {}
     }));
-    q('.bar').addEventListener('click', async (e) => {
-      if (!media || !media.durMs || !media.canSeek) return;
-      const r = e.currentTarget.getBoundingClientRect();
-      const ms = Math.round(((e.clientX - r.left) / r.width) * media.durMs);
+    // The position bar is a slider. Holding it (touch, mouse) or moving it with the arrow keys shows a bubble with the time
+    // the song will continue from; it seeks on release, not while moving. Meanwhile the once-a-second state and the 250 ms
+    // refresh leave the bar alone (see update()).
+    const bar = q('.bar'), tip = q('.scrub-tip');
+    let scrub = null, seekTimer = 0, ariaSec = -1; // scrub: { id, ms, key } while held
+    const canScrub = () => !!(media && media.durMs > 0 && media.canSeek);
+    // which song a held bar belongs to: a different one underneath (next track) cancels the scrub instead of seeking it
+    const trackKey = () => (media ? [media.app, media.title, media.durMs].join('\n') : '');
+    const paintAria = (ms) => {
+      bar.setAttribute('aria-valuenow', Math.round(ms / 1000));
+      bar.setAttribute('aria-valuetext', fmtTime(ms));
+    };
+    const nowMs = () => Math.min(media.durMs, media.posMs + (media.playing ? performance.now() - media.at : 0));
+    const msFrom = (clientX) => {
+      const r = bar.getBoundingClientRect();
+      return Math.round(Math.min(1, Math.max(0, (clientX - r.left) / r.width)) * media.durMs);
+    };
+    const paintScrub = (ms) => {
+      const pct = (ms / media.durMs) * 100;
+      q('.fill').style.width = pct + '%';
+      q('.m-pos').textContent = tip.textContent = fmtTime(ms);
+      bar.style.setProperty('--tip', pct + '%');
+      paintAria(ms);
+    };
+    const endScrub = (commit) => {
+      clearTimeout(seekTimer);
+      if (!scrub) return;
+      const { ms, key } = scrub;
+      scrub = null;
+      bar.classList.remove('scrubbing');
+      if (!commit || !canScrub() || key !== trackKey()) return; // checked again: the song may have changed since it was held
       haptic();
-      media.posMs = ms; media.at = performance.now();
-      try { await api('/media/seek?ms=' + ms, 'POST'); } catch (_) {}
+      // the bar stays where it was put until the agent has caught up: its next samples still hold the old position
+      media.posMs = ms; media.at = performance.now(); media.hold = performance.now() + 2500;
+      api('/media/seek?ms=' + ms, 'POST').catch(() => {});
+    };
+    const startScrub = (id, ms) => { scrub = { id, ms, key: trackKey() }; bar.classList.add('scrubbing'); paintScrub(ms); };
+    bar.addEventListener('pointerdown', (e) => {
+      if (!canScrub() || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      clearTimeout(seekTimer);
+      startScrub(e.pointerId, msFrom(e.clientX));
+      try { bar.setPointerCapture(e.pointerId); } catch (_) {}
+    });
+    bar.addEventListener('pointermove', (e) => {
+      if (scrub && e.pointerId === scrub.id) { scrub.ms = msFrom(e.clientX); paintScrub(scrub.ms); }
+    });
+    bar.addEventListener('pointerup', (e) => { if (scrub && e.pointerId === scrub.id) endScrub(true); });
+    bar.addEventListener('pointercancel', () => endScrub(false));
+    bar.addEventListener('lostpointercapture', () => endScrub(false)); // a no-op after pointerup: the scrub has ended
+    bar.addEventListener('keydown', (e) => {
+      const step = { ArrowRight: 5000, ArrowUp: 5000, ArrowLeft: -5000, ArrowDown: -5000, PageUp: 30000, PageDown: -30000 }[e.key];
+      if (step === undefined && e.key !== 'Home' && e.key !== 'End') return;
+      if (!canScrub()) return;
+      e.preventDefault();
+      const base = scrub ? scrub.ms : nowMs();
+      const ms = e.key === 'Home' ? 0 : e.key === 'End' ? Math.max(0, media.durMs - 1000) : Math.min(media.durMs, Math.max(0, base + step));
+      startScrub(-1, ms);
+      clearTimeout(seekTimer);
+      seekTimer = setTimeout(() => endScrub(true), 350); // a run of key presses seeks once
     });
     const paintVol = (v) => { vol.style.setProperty('--p', v + '%'); q('.vol-val').textContent = v; };
     const cancelVolumeDrag = () => {
@@ -162,12 +214,14 @@ W.media = {
 
     return {
       update(kind) {
+        if (scrub && scrub.key !== trackKey()) endScrub(false); // the song changed under the finger
         if (kind === 'fast') {
-          if (!media) return;
+          if (!media || scrub) return; // while the bar is held it shows the chosen time, not the song's
           if (media.durMs > 0) {
             const pos = Math.min(media.durMs, media.posMs + (media.playing ? performance.now() - media.at : 0));
             q('.fill').style.width = (pos / media.durMs) * 100 + '%';
             q('.m-pos').textContent = fmtTime(pos);
+            if (Math.floor(pos / 1000) !== ariaSec) { ariaSec = Math.floor(pos / 1000); paintAria(pos); } // once a second, not every 250 ms
           } else if (media.app === 'Internet Radio') {
             const pos = Math.max(0, (media.posMs || 0) + (media.playing ? performance.now() - media.at : 0));
             q('.fill').style.width = media.playing ? '100%' : '0';
@@ -185,6 +239,7 @@ W.media = {
         } else q('.vol-val').textContent = 'n/a';
         box.classList.toggle('idle', !m);
         if (!m) {
+          endScrub(false);
           box.classList.remove('playing');
           q('.m-app-name').textContent = 'Media';
           sourceIcon.replaceChildren();
@@ -192,6 +247,7 @@ W.media = {
           q('.m-artist').textContent = t('w.pressToResume');
           q('.fill').style.width = '0';
           q('.m-pos').textContent = q('.m-dur').textContent = '0:00';
+          ariaSec = -1; paintAria(0); bar.setAttribute('aria-disabled', 'true');
           if (artId !== 0) { artId = 0; img.classList.remove('on'); setArtColor(null); }
           return;
         }
@@ -207,13 +263,24 @@ W.media = {
         } else {
           q('.m-dur').textContent = fmtTime(m.durMs);
         }
+        // the slider's range and value for assistive technology (its maximum defaults to 100 without this)
+        if (m.durMs > 0) {
+          bar.setAttribute('aria-valuemax', Math.max(1, Math.round(m.durMs / 1000)));
+          bar.setAttribute('aria-disabled', String(!m.canSeek));
+          if (media && !scrub) { ariaSec = Math.floor(nowMs() / 1000); paintAria(nowMs()); }
+        } else {
+          // no known length (a live stream): no range to move on, and nothing left over from the song before
+          bar.setAttribute('aria-valuemax', '0');
+          bar.setAttribute('aria-disabled', 'true');
+          ariaSec = -1; paintAria(0);
+        }
         if (m.artId !== artId) {
           artId = m.artId;
           if (m.artId) img.src = `${API}/art?id=${m.artId}`;
           else { img.classList.remove('on'); setArtColor(null); }
         }
       },
-      destroy: cancelVolumeDrag,
+      destroy() { endScrub(false); cancelVolumeDrag(); },
     };
   },
 };
