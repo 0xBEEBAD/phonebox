@@ -2597,7 +2597,7 @@ function actionFields(s, upd, text, cmdIn, preset) {
       text('args', t('s.k.arguments'), osName === 'windows' ? t('s.k.argsPlaceholderWindows') : t('s.k.argsPlaceholderUnix')),
       text('cwd', t('s.k.workingFolder'), t('s.k.optional')));
   } else if (kind === 'keys') {
-    fields.push(text('args', t('s.k.keys'), 'e.g. ctrl+shift+m', 'Combine with +, several in a row with commas. Ctrl, Shift, Alt, Win (Cmd on a Mac), letters, digits, F1–F24, enter, tab, esc, space, arrows, home, end, pageup, pagedown, delete, playpause, next, prev, mute, volumeup, volumedown.'));
+    fields.push(text('args', t('s.k.keys'), 'e.g. ctrl+shift+m', 'Combine with +, several in a row with commas. Ctrl, Shift, Alt, Win (Cmd on a Mac), letters, digits, F1–F24, enter, tab, esc, space, arrows, home, end, pageup, pagedown, delete, numpad0–numpad9, numpadenter, numpadadd, numpadsubtract, numpadmultiply, numpaddivide, numpaddecimal, playpause, next, prev, mute, volumeup, volumedown.'));
   } else if (kind === 'text') {
     fields.push(h('div', { class: 'field' }, h('label', {}, t('s.k.textToType')), area(s.args || '', 'Typed into whatever window has the focus', 3, (e) => upd('args', e.target.value, false))));
   } else {

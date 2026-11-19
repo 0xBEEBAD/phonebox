@@ -64,6 +64,10 @@
   PhoneBoxAgent under Accessibility and add it again), and the setup script says it when it updates the agent. macOS
   ties the permission to the exact build of the ad hoc signed agent (#269,
   [nejcbat-x](https://github.com/nejcbat-x)).
+- Shortcuts that press keys can use the keypad: `numpad0` to `numpad9`, `numpadenter`, `numpadadd`, `numpadsubtract`,
+  `numpadmultiply`, `numpaddivide` and `numpaddecimal` (also written `num3`, `kp3` or `KP_3`), sent as the keypad's own
+  keys, so a shortcut bound to Ctrl+Alt+Numpad3 in Discord or a game is matched (#270,
+  [adrianhermida](https://github.com/adrianhermida)).
 
 ## 0.9.21 — 2026-11-18
 
