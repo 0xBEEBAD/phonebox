@@ -5832,7 +5832,7 @@
       'Open configured projects and folders.': 'Mở các dự án và thư mục đã cấu hình.',
       'Output selection': 'Chọn đầu ra',
       'Overtime after minutes': 'Tính thêm giờ sau (phút)',
-      'Own sequence instead, e.g. 25 focus, 5 break, 25 focus, 15 long': 'Dùng chuỗi riêng, vd: 25 tập trung, 5 nghỉ, 25 tập trung, 15 nghỉ dài',
+      'Own sequence instead, e.g. 25 focus, 5 break, 25 focus, 15 long': 'Dùng chuỗi riêng, vd: 25 focus, 5 break, 25 focus, 15 long',
       'PC volume slider (drag), mute and steps. Vertical when tall.': 'Thanh trượt âm lượng PC (kéo), tắt tiếng và bước tăng. Dọc khi ô cao.',
       'Pattern': 'Kiểu thở',
       'Persistent elapsed meeting timer with overtime indication.': 'Hẹn giờ họp đếm lên, giữ nguyên qua khởi động lại, có báo thêm giờ.',

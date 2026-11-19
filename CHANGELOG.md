@@ -17,6 +17,8 @@
   (#259, [ajaybali9](https://github.com/ajaybali9)).
 
 **Panel**
+- Pomodoro: the Vietnamese example for your own sequence uses the words the timer understands (`25 focus, 5 break`);
+  copied as shown, the translated words were not understood.
 - Clock widget: a new option chooses which AI quota providers its status line shows; clocks saved before it show
   all of them, as before (#225, #228, [Seyamalam](https://github.com/Seyamalam)).
 - The computer switch buttons (overview and Computers widget) and the session details close button draw stroke icons
