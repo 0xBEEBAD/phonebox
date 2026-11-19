@@ -4,7 +4,8 @@
 
 **Languages**
 - Greek (Ελληνικά): the panel, the settings page, the widget and template catalog, the Android pairing dialogs and a
-  Greek README. Pick it under Settings › General › Language, or let the phone's language choose it.
+  Greek README. Pick it under Settings › General › Language, or let the phone's language choose it (#262,
+  [Vasilispapg](https://github.com/Vasilispapg)).
 
 **Widgets**
 - Trackpad: move, click and scroll the computer's mouse from the phone, with tap to click, two fingers to right-click
