@@ -43,7 +43,8 @@
 - Every remaining emoji in the panel and the settings page (weather, battery, widget and page icons, Home Assistant
   and rule icons, media and timer buttons, the moon phase) is drawn as the same Lucide stroke icon, so the panel looks
   the same on every phone. Emoji saved in your configuration keep working and are shown as the matching icon; one
-  without an icon, or any text, is shown as typed.
+  without an icon, or any text, is shown as typed. Icon-only buttons have translated names for screen readers (#265,
+  [Vasilispapg](https://github.com/Vasilispapg)).
 
 **Settings page**
 - Clearer and calmer: section icons and a highlighted current section and page, long introductions folded to two lines
