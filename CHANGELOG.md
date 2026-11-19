@@ -36,6 +36,12 @@
 - Session details show Folder, Status, Started and Last activity in one compact row (two rows on a narrow screen)
   instead of four lines.
 
+**Settings page**
+- Clearer and calmer: section icons and a highlighted current section and page, long introductions folded to two lines
+  (click to open), larger buttons and switches, hover and keyboard-focus states, a spinner on Save and an "Unsaved
+  changes" label, toasts with a mark that screen readers announce, and Escape closes dialogs. Motion stays off with the
+  system's reduce-motion setting (#264, [Vasilispapg](https://github.com/Vasilispapg)).
+
 ## 0.9.21 — 2026-11-18
 
 Security and reliability fixes from an audit of the agent, the panel, the phone app and the installers, Big buttons
