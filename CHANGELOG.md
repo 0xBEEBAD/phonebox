@@ -14,7 +14,7 @@
 - AI sessions: Cursor agent chats from `~/.cursor/projects/*/agent-transcripts` can show alongside Claude Code and Codex
   (off by default in Settings › General › Cursor sessions). Only the last message's role is kept; chat text is never
   shown, stored or sent. Project names use the folder basename from Cursor's `workspaceStorage`
-  ([ajaybali9](https://github.com/ajaybali9)).
+  (#259, [ajaybali9](https://github.com/ajaybali9)).
 
 **Panel**
 - Clock widget: a new option chooses which AI quota providers its status line shows; clocks saved before it show
