@@ -56,7 +56,7 @@ export const FALLBACK_PAGES = [{
 export const DEFAULT_CFG = {
   weather: { city: 'Tallinn', lat: 59.437, lon: 24.745, unit: 'celsius' },
   night: { enabled: true, start: '00:30', end: '07:30', brightness: 0.02 },
-  display: { showSeconds: true, idleReturnSec: 90, vibrate: true, volumeKeys: true },
+  display: { showSeconds: true, idleReturnSec: 90, vibrate: true, finishToast: true, volumeKeys: true },
   pages: FALLBACK_PAGES,
   shortcuts: [],
 };
@@ -846,7 +846,7 @@ export const S_ORDER = { waiting: 0, busy: 1, shell: 2, idle: 3 };
 export const prevStatus = new Map();
 export let workLoaded = false;
 
-/** Vibrates and shows a toast when a session finishes or starts waiting for input. */
+/** Vibrates and shows a toast when a session finishes or starts waiting for input; the finish toast can be turned off. */
 export function notifyTransitions(sessions) {
   for (const s of sessions) {
     const before = prevStatus.get(s.id);
@@ -856,7 +856,7 @@ export function notifyTransitions(sessions) {
         toast(s.waitingFor || t('panel.needsInput'), 'err', s.name);
       } else if (s.status === 'idle' && (before === 'busy' || before === 'shell')) {
         buzz('0,70,110,70');
-        toast(t('panel.sessionFinished', { name: s.name }), 'ok');
+        if (cfg.display?.finishToast !== false) toast(t('panel.sessionFinished', { name: s.name }), 'ok');
       }
     }
     prevStatus.set(s.id, s.status);

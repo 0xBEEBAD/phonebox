@@ -45,6 +45,10 @@
   Claude Code chat titles on the phone** (off by default) shows each chat's title, the name you gave it or the one
   Claude Code wrote, with the folder on the second line. The title is read from the end of the chat's own file on this
   computer and, with the switch off, is not read or sent at all (#261, [Vasilispapg](https://github.com/Vasilispapg)).
+- Sessions: claude-mem's background sessions (the short Claude Code runs in `~/.claude-mem/observer-sessions` that
+  write its memory notes) no longer show up, so they no longer pop up a "finished" message every few minutes.
+  Settings › General › Display › **Show a message when a session finishes** turns that message off for every session;
+  the "needs input" message still shows (#275, [TheRedViperV](https://github.com/TheRedViperV)).
 - Session details show Folder, Status, Started and Last activity in one compact row (two rows on a narrow screen)
   instead of four lines.
 - Every remaining emoji in the panel and the settings page (weather, battery, widget and page icons, Home Assistant
