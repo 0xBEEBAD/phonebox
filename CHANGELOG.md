@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+**Settings page**
+- A waiting update shows in the header, so it is seen from every section instead of only in the Updates card far
+  down General: **Update to 0.9.x** installs it, like the card's Update now. It waits while there are unsaved changes,
+  because the agent restarts, and says so while the update runs.
+
 **Agent**
 - Claude quotas on macOS: a `~/.claude/.credentials.json` left behind by another tool or an older Claude Code no
   longer hides the sign-in Claude Code renews in the Keychain. Once the file's token is missing or expired, the agent

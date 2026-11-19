@@ -317,6 +317,11 @@ dd { margin: 0; word-break: break-all; }
 .dirty { display: none; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); white-space: nowrap; }
 .is-dirty .dirty { display: inline-flex; animation: pb-in .18s var(--ease) backwards; }
 @media (max-width: 1000px) { .dirty span { display: none; } }
+/* a waiting update sits in the header, seen from every section: the Updates card is far down General */
+.upd-top { display: inline-flex; align-items: center; color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--panel)); border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); font-weight: 600; }
+.upd-top[hidden] { display: none; }
+.upd-top:disabled { opacity: .6; cursor: default; }
+@media (max-width: 700px) { .upd-top .lbl { display: none; } .upd-top .ico.m { margin-right: 0; } }
 
 /* ---------------------------------------------------------------- feel: feedback, targets, focus, motion
    Fitts: bigger hit areas, nothing moves under the pointer. Doherty: every control answers within 100 ms
@@ -460,6 +465,7 @@ nav a.on::before { color: var(--accent); }
   <img src="/favicon.ico" alt="" width="28" height="28">
   <h1>PhoneBox</h1><span class="ver" id="ver"></span>
   <span class="pill" id="phone"><i></i><span data-i18n="s.phoneStatus">Phone…</span></span>
+  <button class="btn sm upd-top" id="updTop" hidden></button>
   <div class="spacer"></div>
   <select id="langSel" data-i18n-title="lang.label" title="Language" aria-label="Language" style="padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);font-size:12.5px;max-width:160px"></select>
   <span class="dirty" role="status" data-i18n-title="s.unsavedChanges" title="Unsaved changes"><i class="dirty-dot"></i><span data-i18n="s.unsavedChanges">Unsaved changes</span></span>
@@ -3284,12 +3290,26 @@ function renderUpdate(u) {
     ...line(t('s.adv.latestRelease'), s.latest ? s.latest : '—'),
     ...line(t('s.adv.lastCheck'), s.lastCheck ? new Date(s.lastCheck).toLocaleString() : t('s.adv.notYet')));
   $('updApply').hidden = !(s.agentUpdate || s.appUpdate);
+  // the same update, in the header: it is the one thing on this page that changes the agent itself
+  const top = $('updTop'), busy = !!s.state && s.state !== 'idle' && s.state !== 'checking';
+  top.hidden = !(s.agentUpdate || s.appUpdate);
+  top.disabled = busy;
+  const label = busy ? t('s.updTop.busy') : t('s.updTop', { v: s.latest });
+  top.replaceChildren(icon('download', 'm'), h('span', { class: 'lbl' }, label));
+  top.setAttribute('aria-label', label);
+  top.title = [s.agentUpdate && `${t('s.adv.agent')}: ${s.agentVersion} → ${s.latest}`,
+    s.appUpdate && `${t('s.adv.phoneApp')}: ${s.appVersion} → ${s.latest}`].filter(Boolean).join('\n');
   $('updState').textContent = s.error ? s.error : s.state !== 'idle' ? s.state + '…' : '';
 }
 $('updCheck').onclick = async () => {
   $('updState').textContent = 'checking…';
   await fetch('/api/update/check', { method: 'POST' });
   loadInfo();
+};
+$('updTop').onclick = () => {
+  // the agent restarts when it updates: unsaved changes would be lost
+  if (!$('save').disabled) { toast(t('s.js.saveFirst'), true); return; }
+  $('updApply').onclick();
 };
 $('updApply').onclick = async () => {
   await fetch('/api/update/apply', { method: 'POST' });
