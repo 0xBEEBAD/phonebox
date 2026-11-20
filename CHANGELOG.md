@@ -12,6 +12,11 @@
   longer hides the sign-in Claude Code renews in the Keychain. Once the file's token is missing or expired, the agent
   reads the Keychain too and uses the sign-in that expires later, instead of showing "Token expired" for good (#277,
   [sonvc94](https://github.com/sonvc94)).
+- On air works again on current Windows 11. Recent builds (26200 with the October 2026 updates, 26300) stopped
+  updating the privacy record the agent read, so the widget and the microphone and camera rules stayed off during
+  calls. The agent now asks Windows directly: running recordings on any microphone, and cameras that are streaming
+  (Windows 10 2004 and later). The old record is the fallback where these can't be read (#282,
+  [ridhampansara27](https://github.com/ridhampansara27)).
 
 ## 0.9.22 — 2026-11-19
 
