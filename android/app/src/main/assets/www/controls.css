@@ -65,3 +65,4 @@ html.beat-3 .radio-eq i:nth-child(1),html.beat-2 .radio-eq i:nth-child(2),html.b
 .deck-trackpad.has-scroll-left .deck-trackpad-bar{border-left:none;border-right:1px solid rgba(255,255,255,.08)}
 .deck-trackpad-bar.is-scrolling{background:rgba(255,255,255,.08)}
 .deck-trackpad-bar-icon{font-size:13px;color:var(--muted,#94a3b8);opacity:.45;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:2px}
+.deck-channel-foot{flex-direction:column;justify-content:center}.deck-mute{width:38px;min-width:38px;padding:7px;display:inline-flex;align-items:center;justify-content:center}.deck-mute svg{width:20px;height:20px}
