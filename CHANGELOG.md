@@ -1,6 +1,17 @@
 # Changelog
 
-## Unreleased
+## 0.9.23 — 2026-11-20
+
+On air works again on current Windows 11, the Spectrum bars reach full height on monitors and surround outputs, a
+waiting update shows in the settings page's header, and Claude quotas on macOS read the Keychain past a stale
+credentials file.
+
+**Widgets**
+- Spectrum bars at full height on every output device. On outputs that apply the Windows volume in software (HDMI and
+  DisplayPort monitors, S/PDIF), the captured sound was as quiet as the slider, so a monitor at 28 % left the bars
+  nearly flat; the agent now undoes that volume (up to +40 dB) as the sound arrives. Stereo on a surround output (a
+  4-channel controller, 5.1 / 7.1) is no longer lowered 6–12 dB. With no output device to capture, the log says so
+  once instead of every second (#263, [joshua-jebadurai](https://github.com/joshua-jebadurai)).
 
 **Settings page**
 - A waiting update shows in the header, so it is seen from every section instead of only in the Updates card far
