@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.9.24 — 2026-11-20
+
+A security fix for phones connected over USB: the USB connection now answers only the PhoneBox app, so **update the
+agent and the phone app together**. Also: audio mixers show one control per app on Windows, Microphone and Output
+selection fit side by side, device batteries refresh faster, and a phone that is plugged in can be left as it is.
 
 **Security**
 - The USB connection answers only the PhoneBox app. `adb reverse` now ends on a loopback port of its own instead of the
