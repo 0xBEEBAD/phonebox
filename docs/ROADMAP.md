@@ -70,6 +70,9 @@ Agreed in principle, not being built in-house. Say so on the issue before starti
 
 ## Waiting on a report
 
+- **Razer BlackShark V2 Pro missing from Device batteries after 0.9.24**
+  ([#326](https://github.com/ersinkoc/phonebox/issues/326)): dongle or Bluetooth, Synapse, and what Windows reports are
+  needed to tell whether the new filter for disconnected Bluetooth devices hides it.
 - **Intel GPU load on Linux** ([#224](https://github.com/ersinkoc/phonebox/issues/224)): in 0.9.20, to be confirmed
   on real hardware.
 - **Network widget about 4x too high on a Realtek USB 2.5GbE adapter**
