@@ -5,7 +5,8 @@
 **Agent**
 - A new **Settings › Display › Open PhoneBox when the phone is plugged in** option (on by default, so nothing
   changes until you turn it off). Off, a phone that connects over USB, or reconnects after adb restarts, is left as it
-  is instead of being woken with the panel brought to the front, for a phone that also runs app tests over adb.
+  is instead of being woken with the panel brought to the front, for a phone that also runs app tests over adb (#291,
+  [snackncode](https://github.com/snackncode)).
 
 ## 0.9.23 — 2026-11-20
 
