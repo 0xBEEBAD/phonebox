@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+**Security**
+- The USB connection answers only the PhoneBox app. `adb reverse` now ends on a loopback port of its own instead of the
+  agent's local port, over TLS that the app pins to the agent's certificate, and every request must carry a key the
+  app makes. The agent reads that key and hands over the certificate's fingerprint over adb, through a place only the
+  adb shell can reach, after checking that it belongs to the PhoneBox app. Over USB the phone reaches the same paths as
+  over Wi-Fi, plus its pairing data and the feed proxy; the settings, shortcut tests and pairing controls stay on the
+  computer. **Update the agent and the phone app together**: an older app can't use USB with this agent, and the
+  settings page offers its update. If an app you don't trust was ever on the panel phone, pair Wi-Fi again and make a
+  new webhook key, and renew the Home Assistant, Discord and other tokens in the settings
+  ([GHSA-j6qc-pm3p-fhg7](https://github.com/ersinkoc/phonebox/security/advisories/GHSA-j6qc-pm3p-fhg7)).
+
 **Widgets**
 - Audio mixers on Windows: one control per app instead of one per Windows audio session. An app that plays on two
   outputs, or that you moved to another output, no longer shows up twice. Apps get the name Windows' own mixer shows
