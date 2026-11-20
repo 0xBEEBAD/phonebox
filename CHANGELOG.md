@@ -3,6 +3,11 @@
 ## Unreleased
 
 **Widgets**
+- Audio mixers on Windows: one control per app instead of one per Windows audio session. An app that plays on two
+  outputs, or that you moved to another output, no longer shows up twice. Apps get the name Windows' own mixer shows
+  (MSI Center, not `DCv2`), and the phone lists only apps that are playing, plus System sounds. Volume and mute reach
+  every session of the app; ducking, the sleep timer and audio profiles still see every session (#292,
+  [RawreeUX](https://github.com/RawreeUX)).
 - Microphone and Output selection: a **Layout** option (horizontal, grid or the vertical list as before), so several
   devices fit side by side on a phone, and **Device labels** to show a short name or an emoji for a device
   (`Speakers (USB Audio CODEC) = 🔊`, one per line, matched by its exact name). Switching still uses the device itself,
@@ -11,6 +16,8 @@
   fit without overlapping (#293, [RawreeUX](https://github.com/RawreeUX)).
 - Device batteries on Windows: a paired Bluetooth device that has disconnected (a controller or headset turned off) is
   no longer shown with its last battery reading (#295, [RawreeUX](https://github.com/RawreeUX)).
+- Device batteries: the Razer Barracuda Pro, read through its 2.4 GHz receiver, also while Razer Synapse runs (#296,
+  [RawreeUX](https://github.com/RawreeUX)).
 - Device batteries refresh every 20 seconds while the widget is shown, instead of once a minute; macOS stays at once a
   minute, because reading headphones there takes seconds (#297, [RawreeUX](https://github.com/RawreeUX)).
 
