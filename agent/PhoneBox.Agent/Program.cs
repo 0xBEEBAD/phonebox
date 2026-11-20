@@ -82,6 +82,7 @@ AddMonitor<MediaMonitor>(builder.Services);
 AddMonitor<QuotaMonitor>(builder.Services);
 AddMonitor<ProcessMonitor>(builder.Services);
 AddMonitor<SessionMonitor>(builder.Services);
+AddMonitor<OpenCodeApprovals>(builder.Services);
 AddMonitor<FeedMonitor>(builder.Services);
 builder.Services.AddSingleton<PhotoFrame>();
 builder.Services.AddSingleton<CameraFeeds>();
@@ -836,7 +837,8 @@ app.MapDelete("/api/codex/hook", (ConfigStore cfg) => CodexHook.Configure(false,
 
 // Permission prompts waiting for the phone (posted by an AI coding agent hook).
 app.MapGet("/api/approvals", (ApprovalStore a) => Results.Json(new { items = a.Snapshot() }));
-app.MapPost("/api/approvals/{id}", (string id, string decision, ApprovalStore a) => a.Decide(id, decision) ? Results.Ok() : Results.NotFound());
+app.MapPost("/api/approvals/{id}", (string id, string decision, string? value, ApprovalStore a) =>
+    a.Decide(id, decision, value) ? Results.Ok() : Results.NotFound());
 
 // Spectrum bars widget: each call keeps audio capture running for a few seconds and returns the latest bands
 // (the live stream also sends them as "spectrum" events; panels without the stream poll this instead).
