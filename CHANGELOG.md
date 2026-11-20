@@ -6,6 +6,9 @@
 - Brazilian Portuguese (pt-BR): the panel, the settings page, the widget catalog and the Android pairing dialog. A phone
   set to pt-BR picks it on its own, and other Portuguese phones keep Portugal's Portuguese (#313,
   [ThalesAugusto0](https://github.com/ThalesAugusto0)).
+- About 170 texts the widgets wrote in English (empty states, button names, metric labels, toasts) now go through a
+  translation table, translated into pt-BR. Other languages show them in English as before until someone fills in
+  their part of the table (#328, [RedZinnm](https://github.com/RedZinnm)).
 
 **Widgets**
 - Shortcut macros: `clipboard:<text>` puts text on the computer's clipboard, `paste:<text>` pastes it through the
@@ -51,6 +54,17 @@
   untested on a Mac with a built-in camera; see the guide (#301, [Vasilispapg](https://github.com/Vasilispapg)).
 
 **Agent**
+- OpenCode on the phone, through the local API of its background service: permission prompts with **Allow**,
+  **Allow always** (only when OpenCode says which pattern it saves, and after a short countdown) and **Deny**, and
+  the agent's questions with their choices or a typed answer. Its sessions can show in the Sessions widget. Each part
+  has its own switch in **Settings › General**, and all of them are off by default: phone answers, sessions, session
+  titles, and OpenCode inside WSL. WSL is looked at only for distributions that are already running, at most once a
+  minute, so a stopped distribution is never started. The service's password stays on the computer (#319,
+  [Haruki1707](https://github.com/Haruki1707)).
+- Copilot CLI status on the panel: a guide and a small bridge script ([docs/COPILOT-CLI.md](docs/COPILOT-CLI.md))
+  send whether a GitHub Copilot CLI session is working, has finished its turn or needs attention through the webhook
+  API, also from WSL2. Only the state is sent, never prompts, paths or output (#331, #317,
+  [quasimagia](https://github.com/quasimagia)).
 - Codex permission prompts on the phone: install the Codex hook in **Settings › General** (next to Claude Code's), trust
   it once in Codex, and Codex's approval requests arrive on the phone with **Allow** and **Deny**, like Claude Code's.
   The hooks never go through a proxy (#321, #254, [akpinarserdar](https://github.com/akpinarserdar)).
