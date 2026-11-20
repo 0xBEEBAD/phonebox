@@ -7,6 +7,9 @@
   half a second runs another key you choose (hold *Mute* to open the mixer). The phone only says the key was held, so
   the long press cannot point at anything but a key from your own settings (#307,
   [Vasilispapg](https://github.com/Vasilispapg)).
+- News feeds on Windows: an article whose link has square brackets after the host, such as Franceinfo's
+  `#xtor=RSS-3-[lestitres]`, opens in the browser instead of File Explorer's Documents folder (#312,
+  [Emsaco64](https://github.com/Emsaco64)).
 
 **Agent**
 - Wake-on-LAN: a **Wake a computer** shortcut (Settings › Shortcuts) turns on another machine on your network from its
