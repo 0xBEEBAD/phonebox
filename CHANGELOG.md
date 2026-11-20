@@ -18,8 +18,8 @@
 - Pomodoro: an optional sound when a step ends, off by default and silent on the night screen, at a share of the
   phone's media volume (#305, [abdulah-x](https://github.com/abdulah-x)).
 - Trackpad on macOS: the widget now moves the pointer, clicks and scrolls on a Mac, and three- and four-finger swipes,
-  spread and pinch do what the Mac's own Trackpad settings say (Mission Control, App Exposé, switching spaces, Show
-  Desktop, Launchpad). It needs Accessibility for PhoneBox. New **Haptics** options set how strongly the phone vibrates;
+  spread and pinch do what the Mac's own Trackpad settings say (Mission Control, App Exposé, moving between
+  full-screen apps, Show Desktop, Apps). It needs Accessibility for PhoneBox. New **Haptics** options set how strongly the phone vibrates;
   a tick while scrolling is off by default, and gestures vibrate only where the computer acts on them (#300,
   [Vasilispapg](https://github.com/Vasilispapg)).
 - On air and the `mic-in-use` / `camera-in-use` rules work on macOS: the agent reads which apps use the microphone
