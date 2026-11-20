@@ -17,6 +17,14 @@
   [docs/STEAM.md](docs/STEAM.md) (#244, [Sawaid-hub](https://github.com/Sawaid-hub)).
 - Pomodoro: an optional sound when a step ends, off by default and silent on the night screen, at a share of the
   phone's media volume (#305, [abdulah-x](https://github.com/abdulah-x)).
+- Trackpad on macOS: the widget now moves the pointer, clicks and scrolls on a Mac, and three- and four-finger swipes,
+  spread and pinch do what the Mac's own Trackpad settings say (Mission Control, App Exposé, switching spaces, Show
+  Desktop, Launchpad). It needs Accessibility for PhoneBox. New **Haptics** options set how strongly the phone vibrates;
+  a tick while scrolling is off by default, and gestures vibrate only where the computer acts on them (#300,
+  [Vasilispapg](https://github.com/Vasilispapg)).
+- On air and the `mic-in-use` / `camera-in-use` rules work on macOS: the agent reads which apps use the microphone
+  (macOS 14.2 and later; before that, only whether one does) and whether a camera is running. The camera part is
+  untested on a Mac with a built-in camera; see the guide (#301, [Vasilispapg](https://github.com/Vasilispapg)).
 
 **Agent**
 - Wake-on-LAN: a **Wake a computer** shortcut (Settings › Shortcuts) turns on another machine on your network from its
