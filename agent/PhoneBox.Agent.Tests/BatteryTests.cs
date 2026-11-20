@@ -7,6 +7,13 @@ public class BatteryTests
     public void ActiveBatteryRefreshBalancesResponsivenessAndReceiverWakeups()
         => Assert.InRange(BatteryMonitor.ActiveRefreshIntervalMs, 15_000, 20_000);
 
+    [Fact]
+    public void MacBatteriesStayAtOnceAMinuteBecauseSystemProfilerIsSlow()
+    {
+        Assert.Equal(60_000, BatteryMonitor.RefreshIntervalMs(macOS: true));
+        Assert.Equal(BatteryMonitor.ActiveRefreshIntervalMs, BatteryMonitor.RefreshIntervalMs(macOS: false));
+    }
+
     [Theory]
     [InlineData(false, 0, true)]
     [InlineData(true, 0, false)]

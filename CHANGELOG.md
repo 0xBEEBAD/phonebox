@@ -11,6 +11,8 @@
   fit without overlapping (#293, [RawreeUX](https://github.com/RawreeUX)).
 - Device batteries on Windows: a paired Bluetooth device that has disconnected (a controller or headset turned off) is
   no longer shown with its last battery reading (#295, [RawreeUX](https://github.com/RawreeUX)).
+- Device batteries refresh every 20 seconds while the widget is shown, instead of once a minute; macOS stays at once a
+  minute, because reading headphones there takes seconds (#297, [RawreeUX](https://github.com/RawreeUX)).
 
 **Agent**
 - A new **Settings › Display › Open PhoneBox when the phone is plugged in** option (on by default, so nothing
