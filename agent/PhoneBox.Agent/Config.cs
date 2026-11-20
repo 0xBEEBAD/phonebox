@@ -43,6 +43,8 @@ public sealed class AgentConfig
     public DiscordConfig Discord { get; set; } = new();
     /// <summary>App console widget: key and dial bindings per app (the phone gets labels and ids, not the keys to press).</summary>
     public ConsoleConfig Console { get; set; } = new();
+    /// <summary>Steam friends presence (the Web API key stays on this computer and is never sent to the phone).</summary>
+    public SteamConfig Steam { get; set; } = new();
 
     /// <summary>The pages a phone shows: its own selection (Settings › Phones), or all of them.</summary>
     public IEnumerable<PageConfig> PagesFor(string? deviceId)
@@ -357,6 +359,13 @@ public sealed class DiscordConfig
     public string? ClientSecret { get; set; }
 }
 
+public sealed class SteamConfig
+{
+    public bool Enabled { get; set; }
+    public string? SteamId { get; set; }
+    public string? ApiKey { get; set; }
+}
+
 public sealed class HomeAssistantConfig
 {
     public string? Url { get; set; }
@@ -416,7 +425,7 @@ public sealed partial class ConfigStore(string path)
     /// <summary>Pages a fresh install (or an empty page list) starts with.</summary>
     public static readonly string[] DefaultPages = ["home", "ai", "work", "system", "procs", "deck"];
 
-    private static readonly JsonSerializerOptions ReadOpts = new()
+    public static readonly JsonSerializerOptions ReadOpts = new()
     {
         PropertyNameCaseInsensitive = true,
         ReadCommentHandling = JsonCommentHandling.Skip,
@@ -430,6 +439,14 @@ public sealed partial class ConfigStore(string path)
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping, // keep emoji and non-ASCII text readable
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
+
+    /// <summary>Retain a secret redacted from settings GETs when a client sends it back as missing or null.</summary>
+    internal static bool PreserveSteamApiKey(AgentConfig? proposed, string? storedKey)
+    {
+        if (proposed?.Steam is not { ApiKey: null } steam || storedKey is null) return false;
+        steam.ApiKey = storedKey;
+        return true;
+    }
 
     private readonly Lock _lock = new();
     private AgentConfig _config = Normalize(new AgentConfig());
@@ -642,6 +659,9 @@ public sealed partial class ConfigStore(string path)
         c.Discord ??= new();
         c.Discord.ClientId = string.IsNullOrWhiteSpace(c.Discord.ClientId) ? null : c.Discord.ClientId.Trim();
         c.Discord.ClientSecret = string.IsNullOrWhiteSpace(c.Discord.ClientSecret) ? null : c.Discord.ClientSecret.Trim();
+        c.Steam ??= new();
+        c.Steam.SteamId = string.IsNullOrWhiteSpace(c.Steam.SteamId) ? null : c.Steam.SteamId.Trim();
+        c.Steam.ApiKey = string.IsNullOrWhiteSpace(c.Steam.ApiKey) ? null : c.Steam.ApiKey.Trim();
         if (string.IsNullOrWhiteSpace(c.Obs.Url)) c.Obs.Url = "ws://127.0.0.1:4455";
         c.HomeAssistant ??= new();
         c.HomeAssistant.Url = string.IsNullOrWhiteSpace(c.HomeAssistant.Url) ? null : c.HomeAssistant.Url.Trim().TrimEnd('/');
