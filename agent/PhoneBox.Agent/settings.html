@@ -2718,7 +2718,8 @@ function actionFields(s, upd, text, cmdIn, preset) {
   } else if (kind === 'keys') {
     fields.push(text('args', t('s.k.keys'), 'e.g. ctrl+shift+m', 'Combine with +, several in a row with commas. Ctrl, Shift, Alt, Win (Cmd on a Mac), letters, digits, F1–F24, enter, tab, esc, space, arrows, home, end, pageup, pagedown, delete, numpad0–numpad9, numpadenter, numpadadd, numpadsubtract, numpadmultiply, numpaddivide, numpaddecimal, playpause, next, prev, mute, volumeup, volumedown.'));
   } else if (kind === 'text') {
-    fields.push(h('div', { class: 'field' }, h('label', {}, t('s.k.textToType')), area(s.args || '', 'Typed into whatever window has the focus', 3, (e) => upd('args', e.target.value, false))));
+    fields.push(h('div', { class: 'field' }, h('label', {}, t('s.k.textToType')), area(s.args || '', 'Typed into whatever window has the focus', 3, (e) => upd('args', e.target.value, false)),
+      h('span', { class: 'hint' }, t('s.k.textHint')), h('span', { class: 'hint' }, t('s.k.clipboardWarn'))));
   } else if (kind === 'cycle') {
     // each tap runs the next key of the list; the key on the phone shows the one that ran last
     const choices = cfg.shortcuts.filter((o) => o !== s && o.id);
@@ -2734,7 +2735,7 @@ function actionFields(s, upd, text, cmdIn, preset) {
   } else {
     fields.push(h('div', { class: 'field' }, h('label', {}, t('s.k.steps')),
       area((s.steps || []).join('\n'), 'keys:ctrl+c\nwait:200\ntext:Hello\nshortcut:terminal', 6, (e) => upd('steps', e.target.value.split('\n').map((x) => x.trim()).filter(Boolean), false)),
-      h('span', { class: 'hint' }, t('s.k.macroHint'))));
+      h('span', { class: 'hint' }, t('s.k.macroHint')), h('span', { class: 'hint' }, t('s.k.clipboardWarn'))));
   }
   if (osName === 'macos' && kind !== 'run' && kind !== 'cycle') fields.push(h('p', { class: 'hint' }, t('s.k.macosPermission')));
   if (osName === 'linux' && kind !== 'run' && kind !== 'cycle') fields.push(h('p', { class: 'hint' }, t('s.k.linuxNeedsXdotool')));
