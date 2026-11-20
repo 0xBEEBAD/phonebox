@@ -7,6 +7,13 @@
   half a second runs another key you choose (hold *Mute* to open the mixer). The phone only says the key was held, so
   the long press cannot point at anything but a key from your own settings (#307,
   [Vasilispapg](https://github.com/Vasilispapg)).
+- Shortcut keys: a new **Cycle through other keys** kind. Each tap runs the next key of its list and starts again after
+  the last, and the key shows the face of the key that ran. Where it stands is kept until the agent restarts (#310,
+  [Vasilispapg](https://github.com/Vasilispapg)).
+- Shortcut macros: `if:` … `else` … `endif` runs steps only when a condition holds: `running:<program>`, `muted`,
+  `on:<shortcut id>` (a toggle that is on) or `push:<key>` (a pushed value that is on), and `!` in front turns it
+  around. Each macro is checked before its first step, so a missing `endif` stops it before anything runs (#309,
+  [Vasilispapg](https://github.com/Vasilispapg)).
 - News feeds on Windows: an article whose link has square brackets after the host, such as Franceinfo's
   `#xtor=RSS-3-[lestitres]`, opens in the browser instead of File Explorer's Documents folder (#312,
   [Emsaco64](https://github.com/Emsaco64)).
