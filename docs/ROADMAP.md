@@ -31,6 +31,8 @@ people who proposed or prototyped something are credited in the [changelog](../C
 - **Wake the PC from the panel**: a Wake button while the paired computer is unreachable; the phone sends the
   Wake-on-LAN packet itself ([#304](https://github.com/ersinkoc/phonebox/issues/304), pull request
   [#303](https://github.com/ersinkoc/phonebox/pull/303)). The Wake a computer shortcut is #302.
+- **GitHub Copilot CLI status on the panel**: a documented, read-only bridge from Copilot CLI hooks (also in WSL2) to
+  the webhook API, status and timestamps only ([#317](https://github.com/ersinkoc/phonebox/issues/317)).
 - **Voice commands**: say what you want and a language model of your choice (local through Ollama, or a hosted one)
   picks from the shortcuts you allowed; opt-in, off by default ([#257](https://github.com/ersinkoc/phonebox/issues/257)).
 - **Immich album as a photo frame source** ([#278](https://github.com/ersinkoc/phonebox/issues/278), pull requests
