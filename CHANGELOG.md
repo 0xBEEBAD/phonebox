@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+**Widgets**
+- Microphone and Output selection: a **Layout** option (horizontal, grid or the vertical list as before), so several
+  devices fit side by side on a phone, and **Device labels** to show a short name or an emoji for a device
+  (`Speakers (USB Audio CODEC) = 🔊`, one per line, matched by its exact name). Switching still uses the device itself,
+  and the full name stays in the button's tooltip (#294, [RawreeUX](https://github.com/RawreeUX)).
+- Audio mixers: mute is a compact speaker icon under the volume instead of a wide Mute / Unmute button, so many apps
+  fit without overlapping (#293, [RawreeUX](https://github.com/RawreeUX)).
+- Device batteries on Windows: a paired Bluetooth device that has disconnected (a controller or headset turned off) is
+  no longer shown with its last battery reading (#295, [RawreeUX](https://github.com/RawreeUX)).
+
 **Agent**
 - A new **Settings › Display › Open PhoneBox when the phone is plugged in** option (on by default, so nothing
   changes until you turn it off). Off, a phone that connects over USB, or reconnects after adb restarts, is left as it
