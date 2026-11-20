@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+**Languages**
+- Brazilian Portuguese (pt-BR): the panel, the settings page, the widget catalog and the Android pairing dialog. A phone
+  set to pt-BR picks it on its own, and other Portuguese phones keep Portugal's Portuguese (#313,
+  [ThalesAugusto0](https://github.com/ThalesAugusto0)).
+
 **Widgets**
 - Shortcut keys: a **Long press runs** option on each key. Tapping the key on the phone runs it as before; holding it for
   half a second runs another key you choose (hold *Mute* to open the mixer). The phone only says the key was held, so
