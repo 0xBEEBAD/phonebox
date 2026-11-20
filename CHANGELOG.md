@@ -8,6 +8,14 @@
   [ThalesAugusto0](https://github.com/ThalesAugusto0)).
 
 **Widgets**
+- Photo frame: an **Immich album** as the source, next to a folder on this computer (Settings › General › Photo
+  frame: the Immich address, a read-only API key, **Load albums**, pick one). The agent fetches Immich's preview-size
+  pictures and serves them to the phone like the folder's; the address and the key stay on the computer. Tested with
+  Immich 3.4.1 and 3.4.2 (#280, #279, [snachodog](https://github.com/snachodog)).
+- A **Wake the PC** button on the panel while the paired computer is unreachable: the phone sends the Wake-on-LAN
+  packet itself, only on the computer's own network (a network holding one of the addresses it was paired with), to the
+  MAC addresses the computer gave it when Wi-Fi pairing is on. Not offered on Android 5.0 (#303,
+  [Vasilispapg](https://github.com/Vasilispapg)).
 - Shortcut keys: a **Long press runs** option on each key. Tapping the key on the phone runs it as before; holding it for
   half a second runs another key you choose (hold *Mute* to open the mixer). The phone only says the key was held, so
   the long press cannot point at anything but a key from your own settings (#307,
