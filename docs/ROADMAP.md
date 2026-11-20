@@ -31,6 +31,26 @@ people who proposed or prototyped something are credited in the [changelog](../C
   ([#267](https://github.com/ersinkoc/phonebox/issues/267)).
 - **Steam friends and activity widgets** (pull request [#244](https://github.com/ersinkoc/phonebox/pull/244)): waiting
   for an issue to agree on the scope, and a rebase.
+- **Immich album as a photo frame source** ([#278](https://github.com/ersinkoc/phonebox/issues/278), pull requests
+  [#279](https://github.com/ersinkoc/phonebox/pull/279) and [#280](https://github.com/ersinkoc/phonebox/pull/280)).
+- **Windows audio mixer and device batteries** ([#283](https://github.com/ersinkoc/phonebox/issues/283)): one mixer
+  control per app with the names Windows shows, idle helper sessions hidden, a mute icon, compact output and
+  microphone pickers with short labels, Razer Barracuda Pro batteries, and no stale readings from disconnected
+  Bluetooth devices. The reporter has a working build; to come as several small pull requests.
+
+## Open for a contributor
+
+Agreed in principle, not being built in-house. Say so on the issue before starting.
+
+- **Photo frame pictures as the page background** ([#288](https://github.com/ersinkoc/phonebox/issues/288)): a
+  per-page background from the photo frame's folder, dimmed under the widgets, using the same `/api/photos` feed.
+- **Android screen saver (DreamService)** ([#287](https://github.com/ersinkoc/phonebox/issues/287)): show the panel as
+  the phone's screen saver while it charges or docks, with the lock screen left in place. With Keep awake on, the
+  agent turns the phone's screen saver off over adb, so that has to follow the new setting.
+- **Headless Linux server and container image** ([#281](https://github.com/ersinkoc/phonebox/issues/281)): a documented
+  way to run the Linux agent without a desktop session, an address to advertise for Wi-Fi pairing from behind
+  container networking, and persistent data. Remote access to the settings page needs its own sign-in first; until
+  then an SSH tunnel to the loopback port is the safe way.
 
 ## Waiting on someone else
 
