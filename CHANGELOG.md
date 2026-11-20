@@ -8,6 +8,10 @@
   [ThalesAugusto0](https://github.com/ThalesAugusto0)).
 
 **Widgets**
+- Shortcut macros: `clipboard:<text>` puts text on the computer's clipboard, `paste:<text>` pastes it through the
+  clipboard and then puts back the text that was copied, and `{clipboard}` in a text, clipboard or paste step (or a
+  *Type text* key) is replaced by what is on the clipboard. Pasted text is kept out of Windows' clipboard history and
+  cloud clipboard (#308, [Vasilispapg](https://github.com/Vasilispapg)).
 - Photo frame: an **Immich album** as the source, next to a folder on this computer (Settings › General › Photo
   frame: the Immich address, a read-only API key, **Load albums**, pick one). The agent fetches Immich's preview-size
   pictures and serves them to the phone like the folder's; the address and the key stay on the computer. Tested with
@@ -47,6 +51,12 @@
   untested on a Mac with a built-in camera; see the guide (#301, [Vasilispapg](https://github.com/Vasilispapg)).
 
 **Agent**
+- Codex permission prompts on the phone: install the Codex hook in **Settings › General** (next to Claude Code's), trust
+  it once in Codex, and Codex's approval requests arrive on the phone with **Allow** and **Deny**, like Claude Code's.
+  The hooks never go through a proxy (#321, #254, [akpinarserdar](https://github.com/akpinarserdar)).
+- Live Codex quotas without a running Codex session: an opt-in setting (**Settings › General › AI quotas & CodexBar**,
+  off by default) reads them through the Codex CLI's own app-server every few minutes while a page shows Codex
+  quotas, backing off after failures (#290, #298, [wahackr](https://github.com/wahackr)).
 - Shortcuts on Windows: a program a shortcut starts (Spotify, say) opens in front instead of behind the window in use,
   as the App dock's apps already do (#322, [adamjorgkaizen-oss](https://github.com/adamjorgkaizen-oss)).
 - Discord: the login no longer fails with `invalid_request: Missing "redirect_uri"`. The authorization request now

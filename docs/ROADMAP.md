@@ -22,12 +22,6 @@ people who proposed or prototyped something are credited in the [changelog](../C
 - **Rules for pushed values**: a "not updated for N seconds" condition, `>=` / `<=`, and a separate release threshold
   ([#242](https://github.com/ersinkoc/phonebox/issues/242), pull request
   [#245](https://github.com/ersinkoc/phonebox/pull/245), in 0.9.21, did the first two).
-- **Codex permission prompts on the phone**: answer Codex's own approval requests with Allow / Deny, like Claude Code's
-  ([#253](https://github.com/ersinkoc/phonebox/issues/253), pull request
-  [#254](https://github.com/ersinkoc/phonebox/pull/254)).
-- **Live Codex quota without a running session**: read the quota through Codex's own app-server, so the numbers
-  update while Codex isn't running on this computer ([#298](https://github.com/ersinkoc/phonebox/issues/298), pull
-  request [#290](https://github.com/ersinkoc/phonebox/pull/290)).
 - **GitHub Copilot CLI status on the panel**: a documented, read-only bridge from Copilot CLI hooks (also in WSL2) to
   the webhook API, status and timestamps only ([#317](https://github.com/ersinkoc/phonebox/issues/317)).
 - **Voice commands**: say what you want and a language model of your choice (local through Ollama, or a hosted one)
