@@ -33,10 +33,6 @@ people who proposed or prototyped something are credited in the [changelog](../C
   [#244](https://github.com/ersinkoc/phonebox/pull/244)): scope agreed; waiting for a rebase and the review fixes.
 - **Immich album as a photo frame source** ([#278](https://github.com/ersinkoc/phonebox/issues/278), pull requests
   [#279](https://github.com/ersinkoc/phonebox/pull/279) and [#280](https://github.com/ersinkoc/phonebox/pull/280)).
-- **Windows audio mixer and device batteries** ([#283](https://github.com/ersinkoc/phonebox/issues/283)): one mixer
-  control per app with the names Windows shows, idle helper sessions hidden, a mute icon, compact output and
-  microphone pickers with short labels, Razer Barracuda Pro batteries, and no stale readings from disconnected
-  Bluetooth devices. The reporter has a working build; to come as several small pull requests.
 
 ## Open for a contributor
 
