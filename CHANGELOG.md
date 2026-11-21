@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+**Agent**
+- USB on Android 5 and 6: the panel is opened once per connection and stays connected, instead of being reopened about
+  every ten seconds. The agent no longer asks these phones for their `adb reverse` rules (their adb answers with a
+  protocol fault and drops the phone, and the phone's own USB dialog covered the panel); it remembers the rule it set,
+  and sets it again when the phone is plugged in again (#334, [binhnguyenbinh](https://github.com/binhnguyenbinh)).
+
 ## 0.9.25 — 2026-11-21
 
 Brazilian Portuguese for the panel and the settings page, OpenCode and Codex permission prompts on the phone, Copilot
