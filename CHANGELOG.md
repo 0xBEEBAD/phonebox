@@ -6,6 +6,9 @@
 - Phone app updates: a phone that cannot take a streamed install (`splice failed: EINVAL`, seen with Android 15 on a
   3.10 kernel) is tried once more without streaming, and a phone whose app was updated another way no longer keeps
   "Update available" on until the agent restarts (#353, [MU74NTLabs](https://github.com/MU74NTLabs)).
+- Discord: a speaking ring can no longer stay on after someone stops talking when you switch channels; speaking
+  events count only once both of the channel's subscriptions are in place (#354,
+  [M00n-of-saturn](https://github.com/M00n-of-saturn)).
 
 ## 0.9.27 — 2026-11-21
 
