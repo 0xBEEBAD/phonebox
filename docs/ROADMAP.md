@@ -17,7 +17,6 @@ people who proposed or prototyped something are credited in the [changelog](../C
 - **Discord login through the desktop app** ([#338](https://github.com/ersinkoc/phonebox/issues/338)): Discord refuses
   `AUTHORIZE` over IPC both without `redirect_uri` (0.9.24) and with it (0.9.25); the working combination is being
   tested against a real Discord client.
-- **Discord widget: show who is speaking** ([#226](https://github.com/ersinkoc/phonebox/issues/226)).
 - **Feeding PhoneBox from MQTT**: a bridge script and a guide example for pushed values and notifications
   ([#241](https://github.com/ersinkoc/phonebox/issues/241)).
 - **Rules for pushed values**: a "not updated for N seconds" condition, `>=` / `<=`, and a separate release threshold
@@ -30,6 +29,13 @@ people who proposed or prototyped something are credited in the [changelog](../C
   played first, covers and update progress, read from Steam's own files with no API key or sign-in. Starting a game
   from the phone is a separate per-widget option, off by default and asking first, and the agent starts only an
   installed game's app id through Steam's URL handler.
+
+- **Pomodoro focus history** ([#350](https://github.com/ersinkoc/phonebox/issues/350)): an option on the Pomodoro
+  widget, off by default, with a small line chart of finished focus minutes per day for the last seven days, kept on
+  the phone with the widget's own state.
+- **One "AI providers I use" setting** ([#351](https://github.com/ersinkoc/phonebox/issues/351)): a list in Settings ›
+  General, all on by default, that the Clock's status line, Quotas and the Quota ring's picker follow unless a widget
+  sets its own providers.
 
 ## Open for a contributor
 
