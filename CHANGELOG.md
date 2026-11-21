@@ -1,17 +1,26 @@
 # Changelog
 
-## Unreleased
+## 0.9.27 — 2026-11-21
+
+The Discord login works again, nine new languages (23 in all, Arabic right to left), Discord shows who is speaking,
+news feeds get categories and OPML import, and Antigravity chats can show in the AI sessions widget.
 
 **Languages**
 - Nine new languages, for 23 in all: Japanese, Korean, Indonesian, Thai, Ukrainian, Hindi, Czech, Arabic (right to
   left) and Traditional Chinese. The Android pairing dialog and the Windows tray menu are now translated too, in every
   language, and each language has its own README.
+- Right to left (Arabic): pages turn as in other languages, widgets stay where they were saved, and the overview map,
+  charts, playback timelines, meters and command output keep their left-to-right drawing (#346, #352,
+  [ahmedalnimr](https://github.com/ahmedalnimr)).
 
 **Widgets**
 - News feeds: each feed can have a **category**, and a News feeds widget can show only one category (**Only this
   category**). **Import feeds (OPML / bulk)** in Settings › General › News feeds reads an OPML export (Feedly,
   Inoreader, NetNewsWire and others; folders become categories) or pasted `Category | Name | URL` lines, skips feeds
   that are already in the list, and keeps to the 30-feed limit (#337, [hariharen9](https://github.com/hariharen9)).
+- Discord: while you are in a voice channel or call, the member who is talking gets Discord's green ring. It uses the
+  voice scope PhoneBox already asks for; the widget asks the agent twice a second only while you are in a channel and
+  the widget is on screen (#348, #226, [M00n-of-saturn](https://github.com/M00n-of-saturn)).
 
 **Agent**
 - Antigravity chats in the AI sessions widget, from the IDE and the CLI: model, last tool, token counts and whether a
