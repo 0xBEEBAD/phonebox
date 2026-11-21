@@ -16,6 +16,9 @@ people who proposed or prototyped something are credited in the [changelog](../C
 
 ## Contributions in progress
 
+- **Discord login through the desktop app** ([#338](https://github.com/ersinkoc/phonebox/issues/338)): Discord refuses
+  `AUTHORIZE` over IPC both without `redirect_uri` (0.9.24) and with it (0.9.25); the working combination is being
+  tested against a real Discord client.
 - **Discord widget: show who is speaking** ([#226](https://github.com/ersinkoc/phonebox/issues/226)).
 - **Feeding PhoneBox from MQTT**: a bridge script and a guide example for pushed values and notifications
   ([#241](https://github.com/ersinkoc/phonebox/issues/241)).
@@ -47,6 +50,13 @@ Agreed in principle, not being built in-house. Say so on the issue before starti
 - **Pushed values without refetching the whole list** ([#329](https://github.com/ersinkoc/phonebox/issues/329)): the
   change event carries the key and its new value, and the phone fetches all of `/api/push` again only when it missed a
   version. A value pushed every second, such as a game's FPS, then costs one small event instead of the full list.
+
+- **Synced lyrics** ([#339](https://github.com/ersinkoc/phonebox/issues/339)): a widget next to Now playing that shows
+  the timed lyric of the current track and follows the playback position. The agent looks the track up on LRCLIB
+  (title, artist, album, duration) only when the user turns the lookup on and only while such a widget is on an enabled
+  page; results stay in memory, and the phone never contacts LRCLIB.
+- **A larger device switcher** ([#340](https://github.com/ersinkoc/phonebox/issues/340)): bigger touch targets for the
+  computers in the all-pages overview, each with an icon (emoji or uploaded picture) and a colour set per computer.
 
 ## Waiting on someone else
 
