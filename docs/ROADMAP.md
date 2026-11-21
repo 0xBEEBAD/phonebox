@@ -37,6 +37,12 @@ people who proposed or prototyped something are credited in the [changelog](../C
   General, all on by default, that the Clock's status line, Quotas and the Quota ring's picker follow unless a widget
   sets its own providers.
 
+- **More of Discord on the panel** ([#356](https://github.com/ersinkoc/phonebox/issues/356)), in separate pull
+  requests: a Voice Activity / Push-to-Talk toggle; favourite servers and channels picked on the phone; who is in each
+  voice channel; a global **Allow Discord control** setting (off by default) for custom widgets and shortcuts. Later,
+  each behind its own switch, off by default and kept in memory only: a read-only chat tab and unread dots
+  (`messages.read`), and screen sharing (`rpc.screenshare.*`).
+
 ## Open for a contributor
 
 Agreed in principle, not being built in-house. Say so on the issue before starting.
