@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+**Widgets**
+- News feeds: each feed can have a **category**, and a News feeds widget can show only one category (**Only this
+  category**). **Import feeds (OPML / bulk)** in Settings › General › News feeds reads an OPML export (Feedly,
+  Inoreader, NetNewsWire and others; folders become categories) or pasted `Category | Name | URL` lines, skips feeds
+  that are already in the list, and keeps to the 30-feed limit (#337, [hariharen9](https://github.com/hariharen9)).
+
+**Agent**
+- Antigravity chats in the AI sessions widget, from the IDE and the CLI: model, last tool, token counts and whether a
+  turn is running. Off by default (**Settings › General › Antigravity sessions**), and chat titles reach the phone only
+  with their own switch on. The agent reads the local transcripts for their step metadata only; prompts, replies and
+  tool arguments are never kept or sent (#341, [blx10](https://github.com/blx10)).
+
+**Setup**
+- Windows: setup adds PhoneBox to the Start Menu, so it can be started again after **Quit** without the autostart
+  shortcut; uninstalling removes it (#342, [hariharen9](https://github.com/hariharen9)).
+
 ## 0.9.26 — 2026-11-21
 
 Two fixes: Turn off the monitor no longer makes the display go off and on again after a Modern Standby PC wakes,

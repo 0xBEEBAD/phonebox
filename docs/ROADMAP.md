@@ -6,8 +6,6 @@ people who proposed or prototyped something are credited in the [changelog](../C
 
 ## Being built in-house
 
-- **Antigravity sessions on the panel:** detect running Antigravity sessions, the way Claude Code and Codex
-  sessions already show up (reference [#36](https://github.com/ersinkoc/phonebox/pull/36)).
 - **Kiosk page for older devices:** a panel that runs in an older browser or tablet, with a paired key that can only
   do what the panel needs ([#41](https://github.com/ersinkoc/phonebox/issues/41); reference
   [#43](https://github.com/ersinkoc/phonebox/pull/43); old iPads in [#222](https://github.com/ersinkoc/phonebox/issues/222)).
