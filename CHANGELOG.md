@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.9.25 — 2026-11-21
+
+Brazilian Portuguese for the panel and the settings page, OpenCode and Codex permission prompts on the phone, Copilot
+CLI status, an Immich album for the photo frame, Steam friends widgets, clipboard steps and `if:` conditions in
+shortcut macros, long-press and cycling keys, and the trackpad, On air and camera rules on macOS.
 
 **Languages**
 - Brazilian Portuguese (pt-BR): the panel, the settings page, the widget catalog and the Android pairing dialog. A phone
