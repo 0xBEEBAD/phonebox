@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+**Languages**
+- Nine new languages, for 23 in all: Japanese, Korean, Indonesian, Thai, Ukrainian, Hindi, Czech, Arabic (right to
+  left) and Traditional Chinese. The Android pairing dialog and the Windows tray menu are now translated too, in every
+  language, and each language has its own README.
+
 **Widgets**
 - News feeds: each feed can have a **category**, and a News feeds widget can show only one category (**Only this
   category**). **Import feeds (OPML / bulk)** in Settings › General › News feeds reads an OPML export (Feedly,
