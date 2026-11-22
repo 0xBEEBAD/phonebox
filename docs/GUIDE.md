@@ -118,6 +118,23 @@ vibrate for them). **Tick while scrolling**, off by default, adds a light tick f
 settings, **Haptic feedback** sets how strong they are (no vibration, light, normal or strong). The vibrations follow the
 display's vibration switch and night mode like the panel's other ones.
 
+**Steam library** shows the Steam games installed on this computer: the favorites you tick in the widget's options
+first, in the order you ticked them, then the most recently played, with their covers, the game being played and update progress.
+**Games shown** sets how many appear (8 by default), and **Show only the favorite games** hides the rest. The agent reads
+Steam's own files, so the widget needs no Steam API key, no sign-in and no internet, and nothing is sent to Steam:
+`libraryfolders.vdf` and the `appmanifest_*.acf` file of each game in every library folder, `localconfig.vdf` for when a
+game was last played, covers from Steam's `appcache/librarycache`, and Steam's `RunningAppID` (the registry on Windows,
+`registry.vdf` on Linux and macOS). It reads them only while the widget is on an enabled page, at most every two seconds
+however many phones ask, and parses a file again only after it changed; each file has a size limit. Steam tools and
+runtimes (Proton, Steamworks Common Redistributables…) are left out.
+
+Starting a game from the phone is off by default: turn on **Let the phone start games** in the widget's options. Each
+Steam library widget decides for itself: the agent checks the option of the widget a tap comes from. With
+**Ask before starting** (on by default) the first tap marks the game and a second tap within four seconds starts it.
+The phone sends only the game's app id; the agent starts it only if that id is installed right then, by handing
+Steam's own `steam://rungameid/<id>` link to the system (Windows' URL handler, `xdg-open` on Linux, `open` on macOS).
+Steam may still ask on the computer before a game starts, for example to install an update first.
+
 **Smart Stack** combines up to 12 widgets in one slot. Add it from the Layout category, then drag widgets into it or
 use its picker. Reorder cards, open their settings, or disable individual cards. Tap the dots or swipe vertically to
 change cards; horizontal swipes still change pages. Focused controls pause rotation. Command widgets belong directly
