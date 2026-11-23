@@ -350,7 +350,7 @@ app.MapGet("/api/lan", (ConfigStore cfg) => Results.Json(new
     fingerprint = lanCert is null ? null : Lan.Fingerprint(lanCert),
 }));
 
-app.MapGet("/api/update", (UpdateService upd, ConfigStore cfg) => Results.Json(new { status = upd.Status(), auto = cfg.Get().Updates.Auto, installed = UpdateService.RunningInstalled }));
+app.MapGet("/api/update", (UpdateService upd, ConfigStore cfg) => Results.Json(new { status = upd.Status(), auto = cfg.Get().Updates.Auto, installed = UpdateService.CanUpdateAgent }));
 // Settings › General: install the phone app on a phone that does not have it yet (local only).
 app.MapPost("/api/phone/install", async (UpdateService upd) =>
     await upd.InstallAppAsync() is { } error ? Results.BadRequest(new { error }) : Results.Ok(new { ok = true }));
@@ -1082,7 +1082,7 @@ app.Run();
 // Restart requested from the settings page (e.g. Wi-Fi turned on): hand over to a fresh instance.
 single.ReleaseMutex();
 single.Dispose();
-if (AppRestart.Requested && Environment.ProcessPath is { } exe)
+if (AppRestart.Requested && (AppRestart.Executable ?? Environment.ProcessPath) is { } exe)
 {
     if (AppRestart.ServiceManaged(Environment.GetEnvironmentVariable, Environment.ProcessId, AppRestart.ParentName)) Environment.ExitCode = AppRestart.ServiceRestartCode;
     else System.Diagnostics.Process.Start(AppRestart.StartInfo(exe, args));
