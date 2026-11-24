@@ -152,6 +152,14 @@ body.dots-hidden #dots { display: none; }
 #dots.pagebar .dot.on { color: var(--text); background: color-mix(in srgb, var(--accent, #2dd4bf) 22%, transparent); }
 #dots.pagebar .dot.aim, #dots.pagebar .dot:focus-visible { box-shadow: inset 0 0 0 1.5px var(--accent, #fff); }
 #dots.pagebar .page-all, #dots.pagebar .page-pause { min-width: 32px; min-height: 40px; margin: 0; }
+/* A bottom or top page bar that is wider than the screen (many pages on a narrow phone, e.g. 16:9 at ~750 CSS px):
+   main.js adds .pb-tight, then only the current page keeps its name and the spacing is tightened. Wide screens and
+   the side bar (pb-vertical) are untouched. */
+#dots.pagebar.pb-tight:not(.pb-vertical) { gap: 2px; padding: 3px; }
+#dots.pagebar.pb-tight:not(.pb-vertical) .dot { padding: 0 9px; gap: 5px; max-width: none; }
+#dots.pagebar.pb-tight:not(.pb-vertical) .dot:not(.on) .dot-ic + .dot-nm { display: none; } /* only when an icon stands in front of the name: a page without an icon keeps its name */
+#dots.pagebar.pb-tight:not(.pb-vertical) .dot.on .dot-nm { max-width: none; font-size: 13px; overflow: visible; text-overflow: clip; }
+#dots.pagebar.pb-tight:not(.pb-vertical) .page-all, #dots.pagebar.pb-tight:not(.pb-vertical) .page-pause { min-width: 30px; }
 #dots.pagebar .page-all svg, #dots.pagebar .page-pause svg { width: 13px; height: 13px; }
 body.controls-top #dots.pagebar:not(.pb-vertical) { bottom: auto; top: 6px; }
 /* down the left or right edge: icon above a short name */
