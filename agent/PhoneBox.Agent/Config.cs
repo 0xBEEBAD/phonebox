@@ -126,6 +126,19 @@ public sealed class AgentConfig
     public bool ShowCodexQuota() => Widgets(enabledPagesOnly: true)
         .Any(w => w.Type is "codexbar" or "quotas" && WidgetIncludesProvider(w, "codex"));
 
+    /// <summary>
+    /// True when an enabled page (including enabled Smart Stack children) shows Grok quotas: a Quotas or CodexBar
+    /// widget, or a Clock with its status line, whose providers include Grok, or a Quota ring set to Grok.
+    /// </summary>
+    public bool ShowGrokQuota() => Widgets(enabledPagesOnly: true)
+        .Any(w => w.Type switch
+        {
+            "codexbar" or "quotas" => WidgetIncludesProvider(w, "grok"),
+            "clock" => w.Bool("status") != false && WidgetIncludesProvider(w, "grok"),
+            "quotaring" => w.Str("provider") == "grok",
+            _ => false,
+        });
+
     private bool WidgetIncludesProvider(WidgetConfig w, string id)
     {
         if (w.Opt("providers") is { ValueKind: JsonValueKind.Array } arr)
@@ -740,7 +753,8 @@ public sealed partial class ConfigStore(string path)
         c.Weather.Unit = WeatherUnitJsonConverter.Normalize(c.Weather.Unit);
         c.Weather.Model = WeatherModelJsonConverter.Normalize(c.Weather.Model);
         c.CodexBar ??= new();
-        c.CodexBar.Providers = (c.CodexBar.Providers ?? []).Where(p => p is "claude" or "codex" or "antigravity").Distinct().ToArray();
+        // The same ids as the checkboxes in settings.html (cb_claude, cb_codex, cb_antigravity, cb_grok).
+        c.CodexBar.Providers = (c.CodexBar.Providers ?? []).Where(p => p is "claude" or "codex" or "antigravity" or "grok").Distinct().ToArray();
         c.CodexBar.PageSize = Math.Clamp(c.CodexBar.PageSize, 0, 6);
         c.CodexBar.RotateInterval = Math.Clamp(c.CodexBar.RotateInterval, 2, 300);
         c.Night ??= new();
@@ -1147,7 +1161,7 @@ public sealed partial class ConfigStore(string path)
 
 public sealed class CodexBarConfig
 {
-    public string[] Providers { get; set; } = ["claude", "codex", "antigravity"];
+    public string[] Providers { get; set; } = ["claude", "codex", "antigravity", "grok"];
     public bool Rotate { get; set; } = true;
     public int PageSize { get; set; } = 2;
     public int RotateInterval { get; set; } = 8;
