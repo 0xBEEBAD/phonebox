@@ -2,6 +2,15 @@
 window.PhoneBoxLocaleData = Object.assign(window.PhoneBoxLocaleData || {}, {
   "ko": {
     "strings": {
+      "s.display.weekStart": "한 주의 시작 요일",
+      "s.display.weekStart.monday": "월요일",
+      "s.display.weekStart.sunday": "일요일",
+      "s.display.weekStart.auto": "표시 언어 따르기",
+      "s.conn.ignoredDevices": "무시할 USB 기기",
+      "s.conn.connectedDevices": "연결된 USB 기기",
+      "s.conn.addIgnoredDevice": "기기 무시",
+      "s.conn.ignoredDevicesHint": "한 줄에 일련번호 하나를 입력하세요. 에이전트는 USB 연결과 앱 설치 시 이 기기를 건너뜁니다. 저장하면 적용됩니다.",
+      "s.quotas.codexLiveProviderHint": "제공자 목록에서 Codex를 선택하면 몇 분마다 백그라운드에서 codex를 실행합니다(기본값은 꺼짐). Codex CLI는 자체 로그인 세션을 갱신할 수 있습니다.",
       "s.display.standby": "대기 모드",
       "s.display.standby.off": "끄기: 패널이 실행되는 동안 화면 유지",
       "s.display.standby.power": "USB 충전이 끊기면 절전",

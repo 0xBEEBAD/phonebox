@@ -2,6 +2,15 @@
 window.PhoneBoxLocaleData = Object.assign(window.PhoneBoxLocaleData || {}, {
   "th": {
     "strings": {
+      "s.display.weekStart": "วันแรกของสัปดาห์",
+      "s.display.weekStart.monday": "วันจันทร์",
+      "s.display.weekStart.sunday": "วันอาทิตย์",
+      "s.display.weekStart.auto": "ตามภาษาที่แสดง",
+      "s.conn.ignoredDevices": "อุปกรณ์ USB ที่ละเว้น",
+      "s.conn.connectedDevices": "อุปกรณ์ USB ที่เชื่อมต่อ",
+      "s.conn.addIgnoredDevice": "ละเว้นอุปกรณ์",
+      "s.conn.ignoredDevicesHint": "ป้อนหมายเลขซีเรียลหนึ่งหมายเลขต่อบรรทัด เอเจนต์จะข้ามอุปกรณ์เหล่านี้เมื่อเชื่อมต่อ USB หรือติดตั้งแอป บันทึกเพื่อใช้การตั้งค่า",
+      "s.quotas.codexLiveProviderHint": "เรียก codex เบื้องหลังทุกสองสามนาทีเมื่อเลือก Codex ในรายการผู้ให้บริการ (ปิดไว้โดยค่าเริ่มต้น) Codex CLI สามารถต่ออายุการลงชื่อเข้าใช้เองได้",
       "s.display.standby": "โหมดสแตนด์บาย",
       "s.display.standby.off": "ปิด: เปิดหน้าจอค้างไว้ขณะที่แผงทำงาน",
       "s.display.standby.power": "เข้าสู่โหมดสลีปเมื่อตัดการชาร์จ USB",

@@ -428,6 +428,7 @@ public class ConfigTests
     [InlineData("""{"display":{"standby":"power"}}""", false, "off")]
     [InlineData("""{"deviceSerial":"FAKE1","display":{"standby":"power"}}""", false, "off")]
     [InlineData("""{"deviceSerial":"FAKE1","display":{"standby":"power"}}""", true, "power")]
+    [InlineData("""{"deviceSerial":"FAKE1","ignoredDeviceSerials":["FAKE1"],"display":{"standby":"power"}}""", true, "off")]
     public void StandbyReachesOnlyTheSelectedUsbPhone(string json, bool selected, string expected)
     {
         var c = Load(json);

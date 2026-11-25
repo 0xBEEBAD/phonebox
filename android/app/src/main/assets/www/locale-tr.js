@@ -2,6 +2,15 @@
 window.PhoneBoxLocaleData = Object.assign(window.PhoneBoxLocaleData || {}, {
   "tr": {
     "strings": {
+      "s.display.weekStart": "Haftanın ilk günü",
+      "s.display.weekStart.monday": "Pazartesi",
+      "s.display.weekStart.sunday": "Pazar",
+      "s.display.weekStart.auto": "Arayüz dilini izle",
+      "s.conn.ignoredDevices": "Yok sayılan USB cihazları",
+      "s.conn.connectedDevices": "Bağlı USB cihazları",
+      "s.conn.addIgnoredDevice": "Cihazı yok say",
+      "s.conn.ignoredDevicesHint": "Her satıra bir seri numarası girin. Agent bu cihazlara USB üzerinden bağlanmaz veya uygulama kurmaz. Uygulamak için kaydedin.",
+      "s.quotas.codexLiveProviderHint": "Sağlayıcı listesinde Codex seçiliyken birkaç dakikada bir arka planda codex çalışır (varsayılan olarak kapalı). Codex CLI oturumu yönetir ve yenileyebilir.",
       "s.display.standby": "Güç beklemesi",
       "s.display.standby.off": "Kapalı: panel çalışırken ekran açık kalır",
       "s.display.standby.power": "USB şarjı kesilince uyu",

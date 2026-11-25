@@ -2,6 +2,15 @@
 window.PhoneBoxLocaleData = Object.assign(window.PhoneBoxLocaleData || {}, {
   "zh-Hant": {
     "strings": {
+      "s.display.weekStart": "每週第一天",
+      "s.display.weekStart.monday": "星期一",
+      "s.display.weekStart.sunday": "星期日",
+      "s.display.weekStart.auto": "依介面語言",
+      "s.conn.ignoredDevices": "忽略的 USB 裝置",
+      "s.conn.connectedDevices": "已連接的 USB 裝置",
+      "s.conn.addIgnoredDevice": "忽略裝置",
+      "s.conn.ignoredDevicesHint": "每行一個序號。代理程式會在建立 USB 連線和安裝應用程式時略過這些裝置。儲存後生效。",
+      "s.quotas.codexLiveProviderHint": "在供應商清單選取 Codex 後，每隔幾分鐘在背景執行 codex（預設關閉）。Codex CLI 可以自行更新登入狀態。",
       "s.display.standby": "待機模式",
       "s.display.standby.off": "關閉：面板執行時保持螢幕恆亮",
       "s.display.standby.power": "USB 充電中斷時休眠",

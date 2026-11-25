@@ -11,6 +11,10 @@ public sealed class AgentConfig
     public CodexBarConfig CodexBar { get; set; } = new();
     public ControlDeckConfig Controls { get; set; } = new();
     public string? DeviceSerial { get; set; }
+    public string[] IgnoredDeviceSerials { get; set; } = [];
+
+    internal bool UsesUsbDevice(string serial) => (string.IsNullOrEmpty(DeviceSerial) || DeviceSerial == serial)
+        && !IgnoredDeviceSerials.Contains(serial, StringComparer.Ordinal);
     public string? AdbPath { get; set; }
     public WeatherConfig Weather { get; set; } = new();
     public PingConfig Ping { get; set; } = new();
@@ -83,7 +87,7 @@ public sealed class AgentConfig
         weather = Weather,
         codexBar = CodexBar,
         night = Night,
-        display = Display.ForPhone(standbyForPhone && !string.IsNullOrEmpty(DeviceSerial)),
+        display = Display.ForPhone(standbyForPhone && DeviceSerial is { Length: > 0 } serial && UsesUsbDevice(serial)),
         // this device's own home page (Settings › Phones), when it has one among the pages it shows
         homePage = HomePageFor(deviceId),
         wallpaperRev = wallpaperRev?.ToString(System.Globalization.CultureInfo.InvariantCulture),
@@ -123,10 +127,6 @@ public sealed class AgentConfig
     /// <summary>True when an enabled page (including enabled Smart Stack children) shows the quota cost overview card.</summary>
     public bool ShowQuotaOverview() => Widgets(enabledPagesOnly: true)
         .Any(w => w.Type is "codexbar" or "quotas" && w.Bool("showOverview") == true);
-
-    /// <summary>True when an enabled page (including enabled Smart Stack children) shows a quota or CodexBar widget that includes Codex.</summary>
-    public bool ShowCodexQuota() => Widgets(enabledPagesOnly: true)
-        .Any(w => w.Type is "codexbar" or "quotas" && WidgetIncludesProvider(w, "codex"));
 
     /// <summary>
     /// True when an enabled page (including enabled Smart Stack children) shows Grok quotas: a Quotas or CodexBar
@@ -209,6 +209,7 @@ public sealed class DisplayConfig
     /// it is a distinct entry from pt, not a variant of it, so it must survive a save in this exact form.</summary>
     internal static readonly string[] Languages = ["auto", "en", "tr", "de", "fr", "es", "it", "pt", "pt-BR", "nl", "pl", "ru", "el", "vi", "zh", "ja", "ko", "id", "th", "uk", "hi", "cs", "ar", "zh-Hant"];
     public bool ShowSeconds { get; set; } = true;
+    public string WeekStart { get; set; } = "monday";
     /// <summary>false ("14:05", default), true ("2:05 PM") or "auto" (follow the phone).</summary>
     [JsonConverter(typeof(Hour12JsonConverter))]
     public string Hour12 { get; set; } = "false";
@@ -824,9 +825,12 @@ public sealed partial class ConfigStore(string path)
         // a control character (a stray newline from a paste) can't be part of a token, and would break the request header
         c.Controls.PlexToken = new string((c.Controls.PlexToken ?? "").Where(ch => !char.IsControl(ch)).ToArray()).Trim() is { Length: > 0 } plexToken
             ? Cap(plexToken, 256) : null;
+        c.IgnoredDeviceSerials = (c.IgnoredDeviceSerials ?? []).Select(s => s?.Trim())
+            .OfType<string>().Where(s => s.Length > 0).Distinct(StringComparer.Ordinal).ToArray();
         c.Display ??= new();
         c.Display.Appearance?.Normalize();
         c.Display.Hour12 = Hour12JsonConverter.Normalize(c.Display.Hour12);
+        c.Display.WeekStart = c.Display.WeekStart is "auto" or "sunday" ? c.Display.WeekStart : "monday";
         c.Display.PageBar = c.Display.PageBar is "dots" or "auto" or "bar" or "hidden" ? c.Display.PageBar : "dots";
         c.Display.PageBarSide = c.Display.PageBarSide is "bottom" or "left" or "right" ? c.Display.PageBarSide : "bottom";
         c.Display.IdleReturnSec = Math.Clamp(c.Display.IdleReturnSec, 0, 3600);

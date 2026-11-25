@@ -2,6 +2,15 @@
 window.PhoneBoxLocaleData = Object.assign(window.PhoneBoxLocaleData || {}, {
   "ar": {
     "strings": {
+      "s.display.weekStart": "أول أيام الأسبوع",
+      "s.display.weekStart.monday": "الاثنين",
+      "s.display.weekStart.sunday": "الأحد",
+      "s.display.weekStart.auto": "اتّباع لغة الواجهة",
+      "s.conn.ignoredDevices": "أجهزة USB المتجاهلة",
+      "s.conn.connectedDevices": "أجهزة USB المتصلة",
+      "s.conn.addIgnoredDevice": "تجاهل الجهاز",
+      "s.conn.ignoredDevicesHint": "أدخل رقمًا تسلسليًا واحدًا في كل سطر. يتجاوز الوكيل هذه الأجهزة عند الاتصال عبر USB وتثبيت التطبيق. احفظ التغييرات لتطبيقها.",
+      "s.quotas.codexLiveProviderHint": "يشغّل codex في الخلفية كل بضع دقائق عند اختيار Codex من قائمة المزوّدين (متوقف افتراضيًا). يمكن لواجهة Codex تجديد تسجيل دخولها.",
       "s.display.standby": "وضع الاستعداد",
       "s.display.standby.off": "إيقاف: إبقاء الشاشة مضاءة أثناء تشغيل اللوحة",
       "s.display.standby.power": "السكون عند قطع الشحن عبر USB",

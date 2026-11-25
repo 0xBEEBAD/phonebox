@@ -2,6 +2,15 @@
 window.PhoneBoxLocaleData = Object.assign(window.PhoneBoxLocaleData || {}, {
   "cs": {
     "strings": {
+      "s.display.weekStart": "První den v týdnu",
+      "s.display.weekStart.monday": "Pondělí",
+      "s.display.weekStart.sunday": "Neděle",
+      "s.display.weekStart.auto": "Podle jazyka rozhraní",
+      "s.conn.ignoredDevices": "Ignorovaná zařízení USB",
+      "s.conn.connectedDevices": "Připojená zařízení USB",
+      "s.conn.addIgnoredDevice": "Ignorovat zařízení",
+      "s.conn.ignoredDevicesHint": "Jedno sériové číslo na řádek. Agent tato zařízení vynechá při připojení přes USB a instalaci aplikace. Změny uložte.",
+      "s.quotas.codexLiveProviderHint": "Spouští codex na pozadí každých několik minut, když je Codex vybraný v seznamu poskytovatelů (ve výchozím stavu vypnuto). Codex CLI může obnovit vlastní přihlášení.",
       "s.display.standby": "Pohotovostní režim",
       "s.display.standby.off": "Vypnuto: nechat displej rozsvícený, dokud panel běží",
       "s.display.standby.power": "Uspat, když se přeruší nabíjení přes USB",

@@ -2,6 +2,15 @@
 window.PhoneBoxLocaleData = Object.assign(window.PhoneBoxLocaleData || {}, {
   "uk": {
     "strings": {
+      "s.display.weekStart": "Перший день тижня",
+      "s.display.weekStart.monday": "Понеділок",
+      "s.display.weekStart.sunday": "Неділя",
+      "s.display.weekStart.auto": "За мовою інтерфейсу",
+      "s.conn.ignoredDevices": "Ігноровані пристрої USB",
+      "s.conn.connectedDevices": "Підключені пристрої USB",
+      "s.conn.addIgnoredDevice": "Ігнорувати пристрій",
+      "s.conn.ignoredDevicesHint": "Один серійний номер у рядку. Агент пропускає ці пристрої під час підключення через USB та встановлення застосунку. Збережіть зміни.",
+      "s.quotas.codexLiveProviderHint": "Запускає codex у фоновому режимі кожні кілька хвилин, якщо Codex вибрано в переліку постачальників (типово вимкнено). Codex CLI може поновлювати власний сеанс.",
       "s.display.standby": "Режим очікування",
       "s.display.standby.off": "Вимкнено: тримати екран увімкненим, поки працює панель",
       "s.display.standby.power": "Засинати, коли припиняється заряджання через USB",
