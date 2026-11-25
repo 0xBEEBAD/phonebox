@@ -23,8 +23,11 @@ public sealed class AgentConfig
     public LanConfig Lan { get; set; } = new();
     public UpdateConfig Updates { get; set; } = new();
     public ClaudeConfig Claude { get; set; } = new();
-    /// <summary>Cursor agent-transcript sessions on the AI sessions widget (off by default).</summary>
+    /// <summary>Symbols for the Stocks widget watchlist.</summary>
+    public List<string> Stocks { get; set; } = [];
+    /// <summary>WorkBuddy sessions and phone approvals (off by default).</summary>
     public WorkBuddyConfig WorkBuddy { get; set; } = new();
+    /// <summary>Cursor agent-transcript sessions on the AI sessions widget (off by default).</summary>
     public CursorConfig Cursor { get; set; } = new();
     /// <summary>Clipboard sharing with the paired phone (macOS only; off by default).</summary>
     public BridgeConfig Bridge { get; set; } = new();
@@ -871,6 +874,8 @@ public sealed partial class ConfigStore(string path)
             ? Cap(plexToken, 256) : null;
         c.IgnoredDeviceSerials = (c.IgnoredDeviceSerials ?? []).Select(s => s?.Trim())
             .OfType<string>().Where(s => s.Length > 0).Distinct(StringComparer.Ordinal).ToArray();
+        c.Stocks = (c.Stocks ?? []).Select(StockService.NormalizeCode).OfType<string>()
+            .Distinct(StringComparer.Ordinal).Take(20).ToList();
         c.WorkBuddy ??= new();
         c.WorkBuddy.TimeoutSec = Math.Clamp(c.WorkBuddy.TimeoutSec, 10, 3600);
         c.Display ??= new();

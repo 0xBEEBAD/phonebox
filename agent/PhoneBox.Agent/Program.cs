@@ -83,6 +83,7 @@ builder.Services.AddSingleton<PlexControl>();
 builder.Services.AddSingleton<ControlDeck>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<ControlDeck>());
 builder.Services.AddSingleton<PushStore>();
+builder.Services.AddSingleton<StockService>();
 // Phone bridge (macOS only): clipboard sharing with the paired phone. Every switch is off until Settings turns it on.
 builder.Services.AddSingleton<BridgeStream>();
 #if !WINDOWS
@@ -506,6 +507,23 @@ app.MapGet("/api/info", (AdbReverse adb, ConfigStore cfg, SystemMonitor monitor)
     // the clipboard bridge is on but macOS gives the agent no text (its paste privacy setting): the card says so
     bridgeRefused = app.Services.GetService<ClipboardBridge>()?.Refused ?? false,
 }));
+
+// Quotes for the Stocks widget: the watchlist comes from Config.Stocks.
+app.MapGet("/api/stocks", (StockService stocks, ConfigStore cfg) =>
+{
+    if (!cfg.Get().Widgets(enabledPagesOnly: true).Any(w => w.Type == "stocks")) return Results.NotFound();
+    var (quotes, updated, error) = stocks.Snapshot();
+    return Results.Json(new { quotes, updated, error });
+});
+// Intraday minute prices for one symbol (the Stocks widget's chart mode).
+app.MapGet("/api/stocks/minutes", async (StockService stocks, ConfigStore cfg, string? code) =>
+{
+    if (!cfg.Get().Widgets(enabledPagesOnly: true).Any(w => w.Type == "stocks" && w.Str("mode") == "chart")) return Results.NotFound();
+    var (points, prev, date, updated, error) = await stocks.MinutesAsync(code ?? "");
+    return points is null
+        ? Results.Json(new { error = error ?? "no data" }, statusCode: 404)
+        : Results.Json(new { points, prevClose = prev, date, updated, error });
+});
 
 // Guba (East Money stock forum) latest posts for one stock code, e.g. "002317".
 app.MapGet("/api/guba", async (ConfigStore cfg, string? code, int? count) =>
