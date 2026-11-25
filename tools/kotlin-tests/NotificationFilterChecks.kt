@@ -5,9 +5,8 @@ import java.util.concurrent.atomic.AtomicInteger
 // JVM checks for the phone's notification rules: NotificationFilter.kt, DeliveryQueue.kt, BridgeConfigCache.kt and the
 // nested JSON reader in BridgeClip.kt. Run with: python3 tools/test-bridge-checks.py
 //
-// UNVERIFIED FIXTURES: the call checks use the documented Android model (a CallStyle notification of type "incoming", or
-// an answer action) because the owner's Samsung dialer has not been recorded yet (plan task D0, the live session). Replace
-// them with the recorded notifications there.
+// The generic call checks use the documented Android model (a CallStyle notification of type "incoming", or an answer
+// action); the Samsung in-call UI checks use what was recorded on a Galaxy S25 Ultra. Other makers' dialers are not recorded.
 
 private var passed = 0
 private fun check(name: String, ok: Boolean) {
@@ -21,8 +20,8 @@ private const val OWN = "net.oxog.phonebox.deskpanel"
 private fun info(
     pkg: String = "com.msg", key: String = "k", ongoing: Boolean = false, groupSummary: Boolean = false,
     category: String? = null, callStyleIncoming: Boolean = false, hasAnswerAction: Boolean = false,
-    title: String = "Anna", text: String = "hi",
-) = NotificationInfo(pkg, key, ongoing, groupSummary, category, callStyleIncoming, hasAnswerAction, title, text, 1L)
+    title: String = "Anna", text: String = "hi", callStyle: Boolean = false,
+) = NotificationInfo(pkg, key, ongoing, groupSummary, category, callStyleIncoming, hasAnswerAction, title, text, 1L, callStyle)
 
 private fun filterChecks() {
     val allowed = mutableSetOf("com.msg", "com.dialer", OWN)
@@ -48,10 +47,93 @@ private fun filterChecks() {
         f.decide(info(pkg = "com.dialer", category = "missed_call", title = "Maria", text = "Missed call")) == Decision.SEND_AS_MISSED_CALL)
     check("a missed call from an unlisted app is skipped", f.decide(info(pkg = "com.x", category = "missed_call")) == Decision.SKIP)
 
+    // Recorded on a Galaxy S25 Ultra: the ringing call comes from com.samsung.android.incallui as an ongoing CallStyle notification
+    // (type 2) with only a Hang up button; the default dialer is com.samsung.android.dialer.
+    var dialer: String? = "com.dialer"
+    val samsung = NotificationFilter({ allowed }, OWN, { dialer })
+    val ring = info(pkg = "com.samsung.android.incallui", category = "call", ongoing = true, callStyle = true, title = "Maria", text = "")
+    val voip = info(pkg = "com.whatsapp", category = "call", ongoing = true, callStyle = true, title = "Maria", text = "")
+    check("another app's CallStyle call is NOT let through on the dialer's say", samsung.decide(voip) == Decision.SKIP)
+    check("not even when it is of type incoming, with the dialer listed and the app not", samsung.decide(voip.copy(callStyleIncoming = true)) == Decision.SKIP)
+    check("an in-call UI call without CallStyle follows the list, which the in-call UI is not on", samsung.decide(ring.copy(callStyle = false)) == Decision.SKIP)
+    allowed.add("com.whatsapp")
+    check("a listed app's incoming CallStyle call follows the list rule", samsung.decide(voip.copy(callStyleIncoming = true)) == Decision.SEND)
+    check("a listed app's ongoing call (answered or placed by the owner) is not sent", samsung.decide(voip) == Decision.SKIP)
+    allowed.remove("com.whatsapp")
+    check("Samsung's in-call UI call is sent when the default dialer is on the list", samsung.decide(ring) == Decision.SEND)
+    check("it is also sent once it says Incoming call", samsung.decide(ring.copy(text = "Incoming call")) == Decision.SEND)
+    check("it is skipped when the default dialer is not on the list", NotificationFilter({ allowed - "com.dialer" }, OWN, { dialer }).decide(ring) == Decision.SKIP)
+    check("it is skipped when the default dialer is unknown", NotificationFilter({ allowed }, OWN, { null }).decide(ring) == Decision.SKIP)
+    check("an ongoing CallStyle notification without a call category is skipped", samsung.decide(ring.copy(category = null)) == Decision.SKIP)
+    check("a call with nothing to show (no caller) is skipped", samsung.decide(ring.copy(title = "", text = "")) == Decision.SKIP)
+    check("a call from the filter without a dialer function still follows the list", f.decide(ring) == Decision.SKIP)
+    check("a message from another unlisted app is still skipped with a dialer set", samsung.decide(info(pkg = "com.shop")) == Decision.SKIP)
+
+
     allowed.remove("com.msg")
     check("the list is read on every decision (removing an app stops it)", f.decide(info()) == Decision.SKIP)
     allowed.add("com.msg")
     check("and adding it back starts it again", f.decide(info()) == Decision.SEND)
+}
+
+private fun callerNameChecks() {
+    check("a plain number is number-like", CallerName.isNumberLike("6940931040") && CallerName.isNumberLike("+30 694 093 1040") && CallerName.isNumberLike("(210) 555-1234"))
+    check("a name is not", !CallerName.isNumberLike("Maria Papadopoulou") && !CallerName.isNumberLike("Έρωτας Μου") && !CallerName.isNumberLike(""))
+    check("a name with a few digits is not a number", !CallerName.isNumberLike("Room 12") && !CallerName.isNumberLike("Pizza 24"))
+    check("a name already in the title is kept", CallerName.pick("Maria", "Someone", { "Contact" }) == "Maria")
+    check("a number is replaced by the name the notification carries", CallerName.pick("6940931040", "Maria", { "Contact" }) == "Maria")
+    check("a person that is only a number again is not a name", CallerName.pick("6940931040", "+30 694 093 1040", { "Contact" }) == "Contact")
+    check("a number is replaced by the contact when the notification has no name", CallerName.pick("6940931040", null, { "Έρωτας Μου" }) == "Έρωτας Μου")
+    check("an unknown number stays a number", CallerName.pick("6940931040", null, { null }) == "6940931040" && CallerName.pick("6940931040", " ", { " " }) == "6940931040")
+    check("the contacts are asked with the number as it was shown", run { var asked = ""; CallerName.pick("+30 694 093 1040", null) { asked = it; null }; asked == "+30 694 093 1040" })
+    check("the contacts are not asked when the title is a name", run { var asked = false; CallerName.pick("Maria", null) { asked = true; null }; !asked })
+    // an Arabic or Hebrew phone wraps the number in direction marks; Germany writes 030/1234567; Arabic-Indic digits are digits
+    val wrapped = "‪+30 694 093 1040‬"
+    check("a number in direction marks is number-like", CallerName.isNumberLike(wrapped) && CallerName.isNumberLike("⁨030/1234567⁩") && CallerName.isNumberLike("٠١٢٣٤٥٦٧٨٩"))
+    check("and the contacts are asked without the marks", run { var asked = ""; CallerName.pick(wrapped, null) { asked = it; "Maria" } == "Maria" && asked == "+30 694 093 1040" })
+    check("an unknown number in marks is shown as it came", CallerName.pick(wrapped, null) { null } == wrapped)
+    check("a short code is a number, two digits are not", CallerName.isNumberLike("112") && CallerName.isNumberLike("*100#") && !CallerName.isNumberLike("12"))
+    check("a Hebrew or Arabic name is not a number", !CallerName.isNumberLike("‏מריה") && !CallerName.isNumberLike("ماريا 24"))
+
+    var lookups = 0
+    val once = LookupOnce { lookups++; if (it == "6940931040") "Maria" else null }
+    check("the contacts are asked once for the number of a call", once.get("6940931040") == "Maria" && once.get("6940931040") == "Maria" && lookups == 1)
+    check("an unknown number is not looked up again at every update", once.get("2105551234") == null && once.get("2105551234") == null && lookups == 2)
+    once.forget()
+    check("after the call ended the next call is looked up again", once.get("2105551234") == null && lookups == 3)
+
+    val calls = CallLifetimes()
+    calls.begin("c", 1000L, "6940931040")
+    check("the same title is not sent again", calls.renamed("c", "6940931040") == null)
+    check("a name that arrives later is sent again, for the same call start", calls.renamed("c", "Maria") == 1000L)
+    check("and only once", calls.renamed("c", "Maria") == null)
+    check("a call that is not known is never renamed", calls.renamed("other", "Maria") == null)
+    calls.ended("c")
+    check("after the call ended nothing is renamed", calls.renamed("c", "Anna") == null)
+
+    // the listener reconnects while a call is posted: the Mac may show it already, under the start time it had then
+    calls.running("r", 2000L)
+    check("a call already running at reconnect is not sent at its next update", calls.begin("r", 2500L, "6940931040") == null)
+    check("nor when its title differs from anything sent", calls.renamed("r", "6940931040") == null && calls.renamed("r", "Maria") == null)
+    calls.ended("r")
+    check("the next call under that key is sent again", calls.begin("r", 9000L, "Anna") == 9000L)
+    calls.begin("s", 100L, "Maria")
+    calls.running("s", 200L)
+    check("a reconnect does not reset a call this listener knows", calls.renamed("s", "Anna") == 100L)
+}
+
+private fun callLifetimeChecks() {
+    check("a call from the in-call UI is gated by the default dialer", gatePackage("com.dialer", "com.samsung.android.incallui") == "com.dialer")
+    check("with no default dialer known it falls back to the posting app", gatePackage(null, "com.samsung.android.incallui") == "com.samsung.android.incallui")
+    check("any other notification is gated by its own app", gatePackage("com.dialer", "com.msg") == "com.msg")
+    check("a VoIP call is gated by its own app, not by the dialer", gatePackage("com.dialer", "com.whatsapp") == "com.whatsapp")
+    val calls = CallLifetimes()
+    check("the first update of a call is sent, with the time the call began", calls.begin("incallui|1", 1000L) == 1000L)
+    check("later updates of the same call are not", calls.begin("incallui|1", 1500L) == null)
+    calls.ended("incallui|1")
+    check("the next call, after the notification went away, is sent, with its own time", calls.begin("incallui|1", 9000L) == 9000L)
+    calls.clear()
+    check("after the listener was cut off the next one is sent", calls.begin("incallui|1", 9500L) == 9500L)
 }
 
 private fun callKeyChecks() {
@@ -99,6 +181,19 @@ private fun queueChecks() {
     r.clear()
     check("a batch taken before a clear is no longer current", !r.isCurrent(mark2))
     check("and cannot be put back", !r.restore(batch2, mark2) && r.isEmpty())
+
+    val beforeLookup = q.mark()
+    q.clear()
+    q.add("new computer")
+    check("a lookup started before a clear cannot admit a call to the new queue",
+        !q.addIfCurrent("old call", beforeLookup) && q.take().single().item == "new computer")
+    val foundAt = now
+    val validLookup = q.mark()
+    now += 119_000
+    check("the current generation accepts a call with its original time",
+        q.addIfCurrent("waiting for a name", validLookup, foundAt))
+    now += 2_000
+    check("a late lookup does not extend the notification lifetime", q.take().isEmpty())
 }
 
 private fun notificationBodyChecks() {
@@ -345,6 +440,8 @@ private fun deliveryChecks() {
 fun main() {
     filterChecks()
     callKeyChecks()
+    callLifetimeChecks()
+    callerNameChecks()
     queueChecks()
     notificationBodyChecks()
     jsonChecks()
