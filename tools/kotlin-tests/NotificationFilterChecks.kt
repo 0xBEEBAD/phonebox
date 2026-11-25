@@ -69,6 +69,30 @@ private fun filterChecks() {
     check("a call from the filter without a dialer function still follows the list", f.decide(ring) == Decision.SKIP)
     check("a message from another unlisted app is still skipped with a dialer set", samsung.decide(info(pkg = "com.shop")) == Decision.SKIP)
 
+    var everything = false
+    val all = NotificationFilter({ allowed }, OWN, { dialer }) { everything }
+    val shop = info(pkg = "com.shop")
+    check("an app that is not on the list is skipped while all apps is off", all.decide(shop) == Decision.SKIP)
+    everything = true
+    check("with all apps on, an app that is not on the list is sent", all.decide(shop) == Decision.SEND)
+    check("with all apps on, PhoneBox's own notifications are still skipped", all.decide(info(pkg = OWN)) == Decision.SKIP)
+    check("with all apps on, an ongoing notification is still skipped", all.decide(info(pkg = "com.shop", ongoing = true)) == Decision.SKIP)
+    check("with all apps on, a group summary is still skipped", all.decide(info(pkg = "com.shop", groupSummary = true)) == Decision.SKIP)
+    check("with all apps on, an empty notification is still skipped", all.decide(info(pkg = "com.shop", title = "", text = "")) == Decision.SKIP)
+    check("with all apps on, a ringing call is sent even when no dialer is known", NotificationFilter({ emptySet() }, OWN, { null }) { true }.decide(ring) == Decision.SEND)
+    // the send-time gate checks what the filter let through against the same rule, for the package the Mac is shown
+    for (on in listOf(true, false)) for (n in listOf(shop, info(), ring, voip.copy(callStyleIncoming = true))) {
+        for (dial in listOf("com.dialer", null)) {
+            everything = on; dialer = dial
+            val sent = all.decide(n) != Decision.SKIP
+            check("what the filter sends passes the send-time gate (all apps $on, ${n.pkg}, dialer $dial)",
+                !sent || appAllowed(everything, allowed, gatePackage(dial, n.pkg)))
+        }
+    }
+    dialer = "com.dialer"
+    everything = false
+    check("all apps off: the send-time gate follows the list", appAllowed(false, allowed, "com.msg") && !appAllowed(false, allowed, "com.shop"))
+    check("all apps on: the send-time gate lets any app through", appAllowed(true, emptySet(), "com.shop"))
 
     allowed.remove("com.msg")
     check("the list is read on every decision (removing an app stops it)", f.decide(info()) == Decision.SKIP)
@@ -182,6 +206,18 @@ private fun queueChecks() {
     check("a batch taken before a clear is no longer current", !r.isCurrent(mark2))
     check("and cannot be put back", !r.restore(batch2, mark2) && r.isEmpty())
 
+    val late = DeliveryQueue<String>(max = 2, ttlMs = 120_000) { now }
+    late.add("newer", now - 40)
+    late.add("newest", now - 10)
+    late.addIfCurrent("oldest", late.mark(), now - 90)
+    check("a late insertion evicts the entry with the earliest timestamp",
+        late.take().map { it.item } == listOf("newer", "newest"))
+    late.add("in flight", now - 30)
+    val (pendingMark, inFlight) = late.takeBatch()
+    late.add("arrived late", now - 40)
+    check("restoring a batch still orders by timestamp",
+        late.restore(inFlight, pendingMark) && late.take().map { it.item } == listOf("arrived late", "in flight"))
+
     val beforeLookup = q.mark()
     q.clear()
     q.add("new computer")
@@ -210,6 +246,22 @@ private fun notificationBodyChecks() {
     check("the time is a number", (m["time"] as Double).toLong() == 1_700_000_000_123L)
     check("the body has no raw control character", body.none { it < ' ' })
     check("the body names exactly the seven fields the agent reads", m.keys == setOf("key", "app", "package", "title", "text", "category", "time"))
+
+    val withIcon = BridgeClip.notificationBody("k", "Facebook", "com.facebook.katana", "Anna", "hi", "message", 1L, "iVBORw0KGgo+/=")
+    val n = BridgeClip.parseObject(withIcon)
+    check("an icon travels as the icon field", n != null && n["icon"] == "iVBORw0KGgo+/=")
+    check("with an icon the body still reads as one object with the same fields", n!!.keys == setOf("key", "app", "package", "title", "text", "category", "time", "icon"))
+    check("the other fields are unchanged by the icon", n["title"] == "Anna" && n["package"] == "com.facebook.katana" && (n["time"] as Double).toLong() == 1L)
+    check("no icon means no icon field", BridgeClip.parseObject(BridgeClip.notificationBody("k", "a", "p", "t", "x", "message", 1L, null))!!.containsKey("icon").not())
+    // the largest icon AppIcons sends (30 KiB of PNG, 40 KB of base64) with text that is all six-byte escapes and a long key
+    val bigIcon = "A".repeat(40_960)
+    val escapes = "\u0001".repeat(2_000)
+    val fits = BridgeClip.notificationBody("k", "a", "p", "t", escapes, "message", 1L, bigIcon)
+    check("a full-size icon with the longest escaped text still fits the agent's 64 KiB", fits.toByteArray().size <= BridgeClip.MAX_NOTIFICATION_BYTES && BridgeClip.parseObject(fits)!!["icon"] == bigIcon)
+    val over = BridgeClip.notificationBody("k".repeat(20_000), "a", "p", "t", escapes, "message", 1L, bigIcon)
+    val overMap = BridgeClip.parseObject(over)
+    check("a body that the icon would push past 64 KiB is sent without the icon, not refused whole",
+        over.toByteArray().size <= BridgeClip.MAX_NOTIFICATION_BYTES && overMap != null && !overMap.containsKey("icon") && overMap["text"] == escapes)
 }
 
 /** The agent's real /api/config reply: {"version": "...", "config": { ...the public config... }}. */
@@ -390,6 +442,14 @@ private fun deliveryChecks() {
     check("an unreachable Mac asks for a retry", cappedDelivery.drain())
     check("the unsent come back before the newer ones and the oldest is the one dropped",
         capped.take().map { it.item.body } == listOf("b", "new1", "new2"))
+
+    // "all apps" let an unlisted app's notification into the queue; the owner turns it off before it is sent
+    val everyApp = Rig { now }
+    var allAppsOn = true
+    everyApp.add("com.shop", "unlisted", now); everyApp.add("com.msg", "listed", now)
+    NotificationDelivery(everyApp.queue, { everyApp.phoneOn }, { appAllowed(allAppsOn, everyApp.allowedApps, it) }, { everyApp.macOn },
+        { body -> everyApp.sent.add(body); SendResult.OK }, { }, { }, { }).also { allAppsOn = false }.drain()
+    check("what all apps queued is not sent once it is turned off, but a listed app still is", everyApp.sent == listOf("listed"))
 
     r = Rig { now }
     r.add("com.msg", "one"); r.add("com.msg", "two"); r.add("com.msg", "three")

@@ -351,6 +351,8 @@ Share what you copy between the Mac and the phone. It starts with the clipboard.
   notification access** and switch PhoneBox on in the list (on Android 13 and later the switch is greyed out until you
   open **App info**, tap ⋮ and choose **Allow restricted settings**; the screen says so). **Choose apps** lists your apps
   with a switch each: only the ones you turn on are sent. At first only the phone's own dialer and messaging app are on.
+  **All apps** at the top sends every app instead (banking and other private notifications too), so it is off until you
+  turn it on. The Mac shows each app's icon as the notification's picture.
   The Mac's switch (Settings › Phone bridge › Show phone notifications) must be on too; the screen shows whether the
   last notification reached the Mac.
 - **Login codes:** with **Copy one-time codes from messages** on as well, a code in a message ("Your verification code is
@@ -362,8 +364,9 @@ Share what you copy between the Mac and the phone. It starts with the clipboard.
   missed call is sent as "Missed call". Calls show who is calling; the voice stays on the phone. Answer there. If the Mac is asleep or away, notifications are kept for two minutes and sent when it
   is back, then dropped (a login code older than that is no use). On a Samsung phone a ringing call is posted by the in-call
   app rather than the dialer, so it is sent whenever the default dialer is on your app list (other apps' calls, such as
-  WhatsApp, follow your list like any notification); an outgoing call looks the same there and is sent too. When Android
-  shows only the number, it asks once for **Contacts**: allowed, the caller's name is shown on the Mac instead of the
+  WhatsApp, follow your list like any notification); an outgoing call looks the same there and is sent too. Opening the
+  Phone bridge screen while notifications are enabled can prompt once for **Contacts**. If Android shows only the
+  number and you allow access, the caller's name is shown on the Mac instead of the
   number (one lookup of that number, nothing is read in bulk or kept), and a name that arrives a moment later replaces
   the first notification.
 - The text goes only to your own paired phones over the PhoneBox link (USB or paired Wi-Fi / Tailscale), with the
