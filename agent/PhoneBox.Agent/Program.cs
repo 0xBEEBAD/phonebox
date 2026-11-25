@@ -798,6 +798,7 @@ app.MapGet("/api/batteries", (BatteryMonitor b) => Results.Json(new { devices = 
 app.MapPost("/api/rules/test", (RuleConfig rule, RuleEngine rules) =>
 {
     if (!RuleConfig.Actions.Contains(rule.Then)) return Results.BadRequest(new { error = "unknown action" });
+    if (rule.Then == "night") return Results.BadRequest(new { error = "the night screen requires an active rule" });
     if (string.IsNullOrWhiteSpace(rule.Id)) rule.Id = "test";
     rules.Test(rule);
     return Results.Ok(new { ok = true });

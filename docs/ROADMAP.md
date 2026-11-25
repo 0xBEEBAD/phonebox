@@ -72,9 +72,6 @@ Agreed in principle, not being built in-house. Say so on the issue before starti
   way to run the Linux agent without a desktop session, an address to advertise for Wi-Fi pairing from behind
   container networking, and persistent data. Remote access to the settings page needs its own sign-in first; until
   then an SSH tunnel to the loopback port is the safe way.
-- **Night screen as a rule action** ([#330](https://github.com/ersinkoc/phonebox/issues/330)): while a rule holds
-  (for example *PC away for 5 minutes*), the phone shows the night screen at its own brightness, and goes back when the
-  rule ends. The schedule stays as it is, and a tap still wakes the screen for a while.
 - **Pushed values without refetching the whole list** ([#329](https://github.com/ersinkoc/phonebox/issues/329)): the
   change event carries the key and its new value, and the phone fetches all of `/api/push` again only when it missed a
   version. A value pushed every second, such as a game's FPS, then costs one small event instead of the full list.

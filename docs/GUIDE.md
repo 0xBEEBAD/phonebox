@@ -486,7 +486,9 @@ With **only while it lasts**, the effect ends with the condition: the phone goes
 you moved on yourself) and stays on the rule's page instead of returning home when idle; a pushed value is removed
 again. The editor starts from examples (Claude needs me → AI page, music → Music page, on air during calls, CPU busy,
 away → Ambient, evenings → Calm, doorbell, quota warning, review requested, CI failed, workday mornings, low battery,
-too warm) and has a Test button for each rule.
+too warm). The Test button runs one-shot actions. Use **Show the night screen** to dim the phone while a
+rule is active, such as after five minutes away from the PC. A tap temporarily wakes the screen. The
+normal night schedule applies independently.
 
 **Battery care** (Settings › General) keeps the phone's battery between two levels, 50–80 % by default, so a panel
 that is always plugged in lasts longer. Phones cannot stop charging without root, so PhoneBox switches the power
