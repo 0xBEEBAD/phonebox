@@ -325,8 +325,21 @@ Share what you copy between the Mac and the phone. It starts with the clipboard.
   auto-generated, the markers 1Password, Bitwarden, KeePassXC and Strongbox use). A copy is read only once the clipboard
   has stayed the same for a moment. A password manager can omit a marker or add it after the bridge has read the copy.
   Turn off sharing before copying sensitive text.
-- **Phone to Mac:** the phone sends text to the Mac, which puts it on the Mac's clipboard. Android does not let an app
-  read the clipboard in the background, so the phone's side is one tap (the Android app adds the ways to send).
+  On Android 9 and older, every app on the phone can read the clipboard at any time. From Android 10, the foreground
+  app and the default keyboard can read it.
+- **Phone to Mac:** Android does not let an app read the clipboard in the background, so sending from the phone is
+  something you do, in any of four places. **Send to Mac** in the text-selection menu (select text, it sits next to
+  Copy, and the text is sent without copying first) and **Share › Send to Mac** ask first, because any app can hand text
+  to them: a dialog shows the start of the text, says how much more there is that it does not show, and sends it when
+  you tap **Send to Mac** there (the button works after half a second). A **Send to Mac** tile (add it under Quick
+  Settings › Edit) and the **Send to Mac** button on the app's "sharing the clipboard" notification are one tap and send
+  what is on the clipboard straight away. A short message says whether it arrived. These entries appear in your apps
+  only while the phone's switch below is on.
+- **On the phone:** open the page overview (long-press the page dots) and tap **Phone bridge**, then turn on **Share
+  the clipboard with the Mac**. Both switches, this one and the Mac's, must be on; the screen says whether it is
+  connected, the Mac's switch is off, the computer has no bridge, the phone must be paired again (the Mac was paired
+  again or got a new key), or Android stopped the service (opening the screen starts it again). Android 13 and later asks to show notifications. On Samsung phones set PhoneBox's battery use to
+  **Unrestricted** (Settings › Apps › PhoneBox › Battery), or the system may stop the service.
 - The text goes only to your own paired phones over the PhoneBox link (USB or paired Wi-Fi / Tailscale), with the
   phone's key. Enable the bridge only on a computer where users and software with access to the local agent API are
   trusted. The text is kept in memory and never stored
