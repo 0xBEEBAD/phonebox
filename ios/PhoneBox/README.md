@@ -122,7 +122,8 @@ Wi-Fi.
 
 The app must stay in the foreground. There is no USB-only pairing. The agent needs usbmuxd — Apple Mobile
 Device Support on Windows (installed with iTunes or Apple Devices), libimobiledevice on Linux, or the system
-daemon on macOS — and retries quietly when no iPhone is attached. One iPhone at a time.
+daemon on macOS — and retries quietly when no iPhone is attached. The agent reserves a connection attempt
+for each attached USB device when the pool has room, and favors the last working phone for spare connections.
 
 ## How the panel is served
 
