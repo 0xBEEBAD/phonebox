@@ -16,7 +16,7 @@ struct RootView: View {
     }
 }
 
-/// The panel fills the screen. A small options button opens the paired computer's details and Forget.
+/// The panel shares the screen with a toolbar for the paired computer's details and Forget.
 private struct PanelScreen: View {
     let computer: PairedComputer
     @EnvironmentObject private var pairing: PairingStore
@@ -29,20 +29,23 @@ private struct PanelScreen: View {
     }
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
-            PanelView(computer: computer, usb: usb)
-                .ignoresSafeArea()
-
-            Button {
-                showingOptions = true
-            } label: {
-                Image(systemName: "ellipsis.circle.fill")
-                    .font(.system(size: 17))
-                    .symbolRenderingMode(.palette)
-                    .foregroundStyle(.white.opacity(0.8), .black.opacity(0.45))
-                    .padding(10)
+        VStack(spacing: 0) {
+            HStack {
+                Spacer(minLength: 0)
+                Button {
+                    showingOptions = true
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .font(.system(size: 19))
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .accessibilityLabel("Paired computer options")
             }
-            .accessibilityLabel("Paired computer options")
+            .padding(.horizontal, 4)
+            .background(.bar)
+            PanelView(computer: computer, usb: usb)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .sheet(isPresented: $showingOptions) {
             ComputerOptionsView(computer: computer, usb: usb) {
@@ -71,8 +74,9 @@ private struct ComputerOptionsView: View {
                     Text(computer.fingerprint)
                         .font(.system(.caption, design: .monospaced))
                         .textSelection(.enabled)
-                    LabeledContent("Check code", value: computer.checkCode)
-                        .font(.system(.body, design: .monospaced))
+                    LabeledContent("Check code") {
+                        Text(computer.checkCode).monospaced()
+                    }
                 }
                 Section {
                     LabeledContent("USB cable", value: usb.isConnected ? "Connected" : "Not connected")
