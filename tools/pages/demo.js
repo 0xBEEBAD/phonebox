@@ -421,7 +421,11 @@
     // the output device follows the computer's volume, and the first player is the one in /api/state
     Object.assign(deck.audio.devices[0], { volume: audio.volume, muted: audio.muted });
     Object.assign(deck.media[0], { title: TRACKS[player.track][0], playing: player.playing, position: position(), duration: TRACKS[player.track][3] });
-    return { ...deck, allowListening: !!controls.allowListening, allowPower: !!controls.allowPower,
+    // like PortableDeckNative on Linux and macOS: only the system output, no app sessions, no microphones
+    const portable = (window.__demoOs || 'windows') !== 'windows';
+    const deckAudio = portable ? { ...deck.audio, sessions: [], devices: [{ id: 'default', name: 'System output', direction: 'output',
+      default: true, volume: audio.volume, muted: audio.muted, peak: 0, channels: 1, canControl: true }] } : deck.audio;
+    return { ...deck, audio: deckAudio, allowListening: !!controls.allowListening, allowPower: !!controls.allowPower,
       // ControlDeck.Describe / DescribeShortcut: ids, labels and kinds only
       actions: (controls.actions || []).filter((a) => a.enabled !== false).map((a) => ({ id: a.id, name: a.label, kind: a.kind, state: actionState[a.id] ?? (/^(app|project|shortcut|focus)$/.test(a.kind) ? (c.shortcuts.some((x) => x.id === a.target) ? 'Ready' : 'Shortcut is missing') : null),
         available: !/^(app|project|shortcut|focus)$/.test(a.kind) || c.shortcuts.some((x) => x.id === a.target) })),
@@ -462,7 +466,14 @@
     const id = q.get('id'), op = q.get('op'), value = q.has('value') ? +q.get('value') : null;
     const c = await config();
     if (kind === 'device' || kind === 'session') {
-      const item = (kind === 'device' ? deck.audio.devices : deck.audio.sessions).find(x => x.id === id);
+      // the first output follows the computer's volume (/api/volume, the mute key): start from its current state, so a
+      // mute-only command keeps the volume and a volume-only one keeps the mute
+      Object.assign(deck.audio.devices[0], { volume: audio.volume, muted: audio.muted });
+      // like PortableDeckNative: off Windows the only device is "default", the system output (deckState's first device),
+      // with no sessions and no per-channel volume
+      const portable = (window.__demoOs || 'windows') !== 'windows';
+      const item = portable ? (kind === 'device' && id === 'default' && op !== 'left' && op !== 'right' ? deck.audio.devices[0] : null)
+        : (kind === 'device' ? deck.audio.devices : deck.audio.sessions).find(x => x.id === id);
       if (!item) return { ok: false, error: 'Device unavailable' };
       if (value != null) {
         if(kind==='device' && (op==='left'||op==='right'))item.channelVolumes[op==='left'?0:1]=value;
