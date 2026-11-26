@@ -62,7 +62,7 @@ W.lyrics = {
     const perPlayer = parsePlayerOffsets(o.playerOffsets); // a lead that depends on the player (Apple Music needs one, others don't)
     const plainToo = o.plain !== false;
     let track = '', result = null, lines = [], rows = [], shown = -2, loading = false, retryAt = 0, timedShown = null, requestGen = 0;
-    const trackKey = (m) => (m?.title ? [m.app, m.title, m.artist, m.album, m.durMs].join('\n') : '');
+    const trackKey = (m) => (m?.title && !m.phone ? [m.app, m.title, m.artist, m.album, m.durMs].join('\n') : ''); // the agent only knows the computer's songs
     // a player that reports no timeline (no length) gives no position to follow
     const hasPosition = () => Number(media?.durMs) > 0;
     const say = (text) => { note.textContent = text; note.hidden = !text; };
@@ -133,7 +133,7 @@ W.lyrics = {
     paint(); // nothing playing yet: the idle note until the first update brings a track
     return {
       update(kind) {
-        const key = trackKey(D.state?.media);
+        const key = trackKey(media);
         if (key !== track) {
           track = key;
           if (key) fetchFor(key); else { result = null; lines = []; paint(); }

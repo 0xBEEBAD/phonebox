@@ -1,4 +1,4 @@
-import { $, API, D, LEVEL_COLOR, LOCALE, mediaHtml, METRICS, PANEL_HEADERS, PREVIEW, Q_STYLE, S_ORDER, ago, api, averageColor, buildLayout, buzz, cfg, chime, cfgVersion, chart, color, cssVar, currentProcessesSort, emit, fillIcon, fmtClock, clockPeriod, fmtDur, fmtHM, fmtMem, fmtReset, fmtTime, fmtValue, gotoProcesses, gpuMem, gpusOf, h, en, haptic, hasProcessesPage, hist, hour12, icon, keyButton, setKeyFace, labelled, levelOf, media, mediaPosMs, metricText, online, openSheet, paceInfo, pad, prRow, pushView, quotaProviders, quotaWanted, r1, registerProcessesSorter, renderStatus, ringSvg, setArtColor, configMark, configReadSince, localWriteStored, setMediaState, setVolDragging, shortDur, shortGpu, store, t, tick, toast, volDragging, wxBlock, wxDeg, wxIcon, emo, rich, tp, tpv, quotaText, pages, curPage, gotoPageRef } from '../main.js';
+import { $, API, D, LEVEL_COLOR, phoneMediaArt, phoneMediaControl, phoneAudio, phoneMute, phoneVolume, setMediaChoice, swapOn, swapPhone, LOCALE, mediaHtml, METRICS, PANEL_HEADERS, PREVIEW, Q_STYLE, S_ORDER, ago, api, averageColor, buildLayout, buzz, cfg, chime, cfgVersion, chart, color, cssVar, currentProcessesSort, emit, fillIcon, fmtClock, clockPeriod, fmtDur, fmtHM, fmtMem, fmtReset, fmtTime, fmtValue, gotoProcesses, gpuMem, gpusOf, h, en, haptic, hasProcessesPage, hist, hour12, icon, keyButton, setKeyFace, labelled, levelOf, media, mediaPosMs, metricText, online, openSheet, paceInfo, pad, prRow, pushView, quotaProviders, quotaWanted, r1, registerProcessesSorter, renderStatus, ringSvg, setArtColor, configMark, configReadSince, localWriteStored, setMediaState, setVolDragging, shortDur, shortGpu, store, t, tick, toast, volDragging, wxBlock, wxDeg, wxIcon, emo, rich, tp, tpv, quotaText, pages, curPage, gotoPageRef } from '../main.js';
 import { W } from '../registry.js';
 import { weekStartDay } from './time.js';
 import { invalidateDeckState } from './controls.js';
@@ -130,6 +130,7 @@ W.media = {
         media.at = performance.now();
         box.classList.toggle('playing', media.playing);
       }
+      if (media?.phone) { phoneMediaControl(action); return; } // the phone's own song: its buttons drive the phone, and it tells the panel back
       try {
         const res = await api('/media/' + action, 'POST');
         if (res && typeof res === 'object' && 'media' in res) setMediaState(res.media);
@@ -137,6 +138,8 @@ W.media = {
         emit('tick');
       } catch (_) {}
     }));
+    // both the computer and the phone play: a two-sided switch shows which one the widget follows
+    q('.m-swap').addEventListener('click', () => { haptic(); setMediaChoice(swapPhone ? 'mac' : 'phone'); });
     // The position bar is a slider. Holding it (touch, mouse) or moving it with the arrow keys shows a bubble with the time
     // the song will continue from; it seeks on release, not while moving. Meanwhile the once-a-second state and the 250 ms
     // refresh leave the bar alone (see update()).
@@ -144,7 +147,7 @@ W.media = {
     let scrub = null, seekTimer = 0, ariaSec = -1; // scrub: { id, ms, key } while held
     const canScrub = () => !!(media && media.durMs > 0 && media.canSeek);
     // which song a held bar belongs to: a different one underneath (next track) cancels the scrub instead of seeking it
-    const trackKey = () => (media ? [media.app, media.title, media.durMs].join('\n') : '');
+    const trackKey = () => (media ? [media.phone ? 'phone' : 'computer', media.app, media.title, media.durMs].join('\n') : ''); // the source too: a pending seek must not follow a switch to the other one
     const paintAria = (ms) => {
       bar.setAttribute('aria-valuenow', Math.round(ms / 1000));
       bar.setAttribute('aria-valuetext', fmtTime(ms));
@@ -171,7 +174,8 @@ W.media = {
       haptic();
       // the bar stays where it was put until the agent has caught up: its next samples still hold the old position
       media.posMs = ms; media.at = performance.now(); media.hold = performance.now() + 2500;
-      api('/media/seek?ms=' + ms, 'POST').catch(() => {});
+      if (media.phone) phoneMediaControl('seek', ms);
+      else api('/media/seek?ms=' + ms, 'POST').catch(() => {});
     };
     const startScrub = (id, ms) => { scrub = { id, ms, key: trackKey() }; bar.classList.add('scrubbing'); paintScrub(ms); };
     bar.addEventListener('pointerdown', (e) => {
@@ -208,7 +212,11 @@ W.media = {
       setVolDragging(vol, true);
       paintVol(vol.value);
       clearTimeout(volTimer);
-      volTimer = setTimeout(() => api('/volume?level=' + vol.value, 'POST').catch(() => {}), 120);
+      const toPhone = !!media?.phone, level = vol.value; // bound to what the slider showed when it moved
+      volTimer = setTimeout(() => {
+        if (!!media?.phone !== toPhone) return; // the source changed meanwhile: this level was not meant for the other device
+        if (toPhone) phoneVolume(Number(level)); else api('/volume?level=' + level, 'POST').catch(() => {});
+      }, 120);
     });
     vol.addEventListener('change', () => {
       clearTimeout(volumeRelease);
@@ -217,6 +225,7 @@ W.media = {
     vol.addEventListener('pointercancel', cancelVolumeDrag);
     q('.mute').addEventListener('click', async () => {
       haptic();
+      if (media?.phone) { phoneMute(); setTimeout(() => emit('state'), 150); return; } // the phone's own media volume
       if ((!D.state?.audio || D.state.audio.canControl === false)) return;
       try { const a = await api('/volume?op=mute', 'POST'); D.state.audio = a; emit('state'); } catch (_) {}
     });
@@ -238,7 +247,7 @@ W.media = {
           }
           return;
         }
-        const m = D.state?.media, a = D.state?.audio;
+        const m = media, a = m?.phone ? phoneAudio() : D.state?.audio; // the volume row follows the song shown
         vol.disabled = (!a || a.canControl === false);
         box.classList.toggle('volume-unavailable', (!a || a.canControl === false));
         q('.mute').disabled = (!a || a.canControl === false);
@@ -247,6 +256,9 @@ W.media = {
           if (!volDragging) { vol.value = a.volume; paintVol(a.volume); }
         } else q('.vol-val').textContent = 'n/a';
         box.classList.toggle('idle', !m);
+        box.classList.toggle('phone-song', !!m?.phone); // its own song needs no computer: the offline message stays off it
+        q('.m-swap').hidden = !swapOn; // while the phone has a song, also when the computer shows nothing
+        q('.m-swap').classList.toggle('phone', swapPhone);
         if (!m) {
           endScrub(false);
           box.classList.remove('playing');
@@ -285,7 +297,8 @@ W.media = {
         }
         if (m.artId !== artId) {
           artId = m.artId;
-          if (m.artId) img.src = `${API}/art?id=${m.artId}`;
+          const phoneArt = m.artId && m.phone ? phoneMediaArt(m.artId) : '';
+          if (phoneArt || (m.artId && !m.phone)) img.src = phoneArt || `${API}/art?id=${m.artId}`;
           else { img.classList.remove('on'); setArtColor(null); }
         }
       },

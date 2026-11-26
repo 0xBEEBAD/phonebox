@@ -30,7 +30,22 @@ object BridgePrefs {
         val edit = p.edit().putBoolean("notifications", on)
         if (on && !p.contains("apps")) edit.putStringSet("apps", defaultApps(context))
         edit.apply()
-        if (!on) PhoneNotificationListener.clearPending() // what was waiting for the Mac must not be sent after the switch is off
+        if (on) PhoneNotificationListener.seedCalls() // a listener kept bound by the phone's music has not looked for calls in progress
+        if (!on) {
+            PhoneNotificationListener.clearPending() // what was waiting for the Mac must not be sent after the switch is off
+            PhoneNotificationListener.forgetCalls()  // and no call is tracked while nothing is read
+        }
+    }
+
+    /**
+     * Show the song the phone itself plays in the panel's Now playing widget (and drive it from there) when the computer plays
+     * nothing. Needs the notification listener, so it also keeps that listener enabled. Off until the owner turns it on.
+     */
+    fun phoneMediaEnabled(context: Context): Boolean = prefs(context).getBoolean("phoneMedia", false)
+
+    fun setPhoneMediaEnabled(context: Context, on: Boolean) {
+        prefs(context).edit().putBoolean("phoneMedia", on).apply()
+        PhoneMediaMonitor.sync(context)
     }
 
     /** Whether the phone has asked for Contacts already: it asks once, and the owner can still allow it in Android's settings. */

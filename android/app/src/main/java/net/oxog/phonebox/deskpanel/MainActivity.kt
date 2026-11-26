@@ -666,6 +666,12 @@ class MainActivity : Activity(), SensorEventListener {
         web.onResume()
         web.evaluateJavascript("window.onAppPause && window.onAppPause(false)", null) // the panel catches up at once
         stream.start()
+        // the phone's own music for the Now playing widget: told about every change while the panel is on screen, and
+        // handed what is playing now (the page also asks once when it starts)
+        PhoneMediaMonitor.onChange = { json -> pushPhoneMedia(json) }
+        // always, whatever the switch says: turning it off on the Phone bridge screen (this activity paused, so no onChange) published
+        // "null" to nobody, and the panel would keep showing the song. The page ignores a null after a null, so it costs no redraw.
+        pushPhoneMedia(if (BridgePrefs.phoneMediaEnabled(applicationContext)) PhoneMediaMonitor.current() else "null")
         hideSystemUi()
         sensors?.getDefaultSensor(Sensor.TYPE_LIGHT)?.let { sensors?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL) }
         sensors?.getDefaultSensor(Sensor.TYPE_PROXIMITY)?.let { sensors?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL) }
@@ -677,8 +683,14 @@ class MainActivity : Activity(), SensorEventListener {
             dictation.onPermission(grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED)
     }
 
+    private fun pushPhoneMedia(json: String) {
+        if (destroyed || !hasWeb) return
+        web.evaluateJavascript("window.onPhoneMedia && window.onPhoneMedia(${JSONObject.quote(json)})", null)
+    }
+
     override fun onPause() {
         resumed = false
+        PhoneMediaMonitor.onChange = null
         dictation.cancel(0) // the microphone is never left open behind another app or a dark screen
         sensors?.unregisterListener(this)
         stream.stop()
@@ -693,6 +705,7 @@ class MainActivity : Activity(), SensorEventListener {
     override fun onDestroy() {
         destroyed = true
         resumed = false
+        PhoneMediaMonitor.onChange = null
         standbyDestroyed = true
         standbyHandler.removeCallbacks(standbyTick)
         standbyPowerReceiver?.let { runCatching { unregisterReceiver(it) } }
@@ -768,9 +781,35 @@ class MainActivity : Activity(), SensorEventListener {
     inner class Bridge {
         private fun ok(key: String) = key == bridgeKey
 
+        /** The phone's-music calls do nothing while its switch is off, keyed or not. */
+        private fun phoneMediaOn() = BridgePrefs.phoneMediaEnabled(applicationContext)
+
         private val validTrackpadTypes = setOf("move", "click", "rightClick", "mousedown", "mouseup", "scroll", "hscroll") +
             // multi-finger gestures: three or four fingers swiping, four or five spreading or pinching (the agent follows the Mac's settings)
             listOf("swipe3up", "swipe3down", "swipe3left", "swipe3right", "swipe4up", "swipe4down", "swipe4left", "swipe4right", "spread", "pinch")
+
+        /** The song the phone itself plays, as the Now playing widget's media object, or "null" (see [PhoneMediaMonitor]). */
+        @JavascriptInterface
+        fun phoneMedia(key: String): String = if (ok(key) && phoneMediaOn()) PhoneMediaMonitor.current() else "null"
+
+        /** The cover picture of that song as a data URL, or "". */
+        @JavascriptInterface
+        fun phoneMediaArt(key: String, id: Int): String = if (ok(key) && phoneMediaOn()) PhoneMediaMonitor.art(id) else ""
+
+        /** The phone's media volume and mute as the agent's audio state ("null" when it cannot be read). */
+        @JavascriptInterface
+        fun phoneAudio(key: String): String = if (ok(key) && phoneMediaOn()) PhoneMediaMonitor.audioJson(applicationContext) else "null"
+
+        @JavascriptInterface
+        fun phoneVolume(key: String, percent: Int): Boolean = ok(key) && phoneMediaOn() && PhoneMediaMonitor.setVolume(applicationContext, percent)
+
+        @JavascriptInterface
+        fun phoneMute(key: String): Boolean = ok(key) && phoneMediaOn() && PhoneMediaMonitor.toggleMute(applicationContext)
+
+        /** A button of the Now playing widget pressed while the phone's song is shown: playpause, next, prev or seek (to [ms]). */
+        @JavascriptInterface
+        fun phoneMediaControl(key: String, action: String, ms: Double): Boolean =
+            ok(key) && phoneMediaOn() && PhoneMediaMonitor.control(action, if (ms.isFinite()) ms.toLong() else 0L)
 
         @JavascriptInterface
         fun trackpad(key: String, type: String, dx: Float, dy: Float, delta: Float) {
