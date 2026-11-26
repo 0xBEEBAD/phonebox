@@ -95,7 +95,7 @@ public sealed class RuleEngine(ConfigStore config, PushStore push, SessionMonito
             if (holds) { st.FalseSince = 0; if (st.TrueSince == 0) st.TrueSince = now; }
             else { st.TrueSince = 0; if (st.FalseSince == 0) st.FalseSince = now; }
 
-            var sustainSec = rule.ForSec > 0 ? rule.ForSec : rule.When == "cpu-above" ? CpuSustainSec : 0;
+            var sustainSec = SustainSec(rule);
             var sustained = holds && now - st.TrueSince >= sustainSec * 1000L;
             var cooled = !_fired.TryGetValue(rule.Id, out var last) || now - last >= rule.CooldownMin * 60_000L;
 
@@ -195,6 +195,28 @@ public sealed class RuleEngine(ConfigStore config, PushStore push, SessionMonito
         }
     }
 
+    /// <summary>
+    /// How long the condition must hold before the rule acts: the rule's own seconds, or for the CPU's load and
+    /// temperature 15 s, so a CPU hovering around the limit or a one-second boost spike does not fire, end and fire again.
+    /// </summary>
+    internal static int SustainSec(RuleConfig rule) =>
+        rule.ForSec > 0 ? rule.ForSec : rule.When is "cpu-above" or "cpu-temp-above" ? CpuSustainSec : 0;
+
+    /// <summary>The CPU temperature (from the hardware sensors) at or above the limit, 85 °C by default.</summary>
+    internal static (bool Holds, string Detail) CpuTempAbove(double? temp, double? limit) =>
+        temp >= (limit ?? 85) ? (true, $"CPU {temp:0} °C") : (false, "");
+
+    /// <summary>How long a phone battery report counts: the panel sends one every 30 s while it runs.</summary>
+    internal const long PhoneReportFreshMs = 180_000;
+
+    /// <summary>
+    /// The phone's battery temperature (the panel's battery report) at or above the limit, 40 °C by default. Only a recent
+    /// report counts: a phone that went away must not stay "hot" on its last reading.
+    /// </summary>
+    internal static (bool Holds, string Detail) PhoneBatteryTempAbove(PhoneBatteryReport? report, double? limit, long nowMs) =>
+        report?.Temp is { } temp && nowMs - report.At < PhoneReportFreshMs && temp >= (limit ?? 40)
+            ? (true, $"Phone battery {temp:0} °C") : (false, "");
+
     private (bool Holds, string Detail) Check(RuleConfig r)
     {
         var match = r.Match?.Trim() ?? "";
@@ -246,6 +268,10 @@ public sealed class RuleEngine(ConfigStore config, PushStore push, SessionMonito
                 var ev = calendar.Current(names);
                 return ev is null ? (false, "") : (true, ev.Title);
             }
+            case "cpu-temp-above":
+                return CpuTempAbove(system.Snapshot()?.CpuTemp, r.Value);
+            case "phone-battery-temp-above":
+                return PhoneBatteryTempAbove(ChargeGuard.LastReport, r.Value, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
             case "cpu-above":
             {
                 var cpu = system.Snapshot()?.Cpu;
