@@ -34,9 +34,6 @@ people who proposed or prototyped something are credited in the [changelog](../C
   from the phone is a separate per-widget option, off by default and asking first, and the agent starts only an
   installed game's app id through Steam's URL handler.
 
-- **Pomodoro focus history** ([#350](https://github.com/ersinkoc/phonebox/issues/350)): an option on the Pomodoro
-  widget, off by default, with a small line chart of finished focus minutes per day for the last seven days, kept on
-  the phone with the widget's own state.
 - **One "AI providers I use" setting** ([#351](https://github.com/ersinkoc/phonebox/issues/351)): a list in Settings ›
   General, all on by default, that the Clock's status line, Quotas and the Quota ring's picker follow unless a widget
   sets its own providers.
@@ -55,6 +52,16 @@ people who proposed or prototyped something are credited in the [changelog](../C
 - **A white theme and an e-ink option** ([#383](https://github.com/ersinkoc/phonebox/issues/383)), in two pull
   requests: a pure white theme, then an "E-ink screen" option, off by default, with no pulsing or animations and a
   slower refresh for fast widgets.
+- **LCD image retention protection** ([#642](https://github.com/ersinkoc/phonebox/issues/642)): an option next to OLED
+  burn-in protection, off by default, that mirrors the grid every 10 minutes (by the widgets' grid positions, so the
+  inside of each widget is untouched) and shifts the page up to ±4 px every 2 minutes. No per-card flip.
+- **The whole title on the media widget** ([#643](https://github.com/ersinkoc/phonebox/issues/643)): the title's font
+  shrinks to fit (never below 11 px, then an ellipsis) instead of cutting at two lines, also on the Control Deck
+  media remote. The default, with no option.
+- **Three small additions** ([#644](https://github.com/ersinkoc/phonebox/issues/644)), each its own pull request: the
+  phone's battery time left or time to full; an estimated GPU power (marked "≈", on the tile only, never seen by
+  rules or history as a reading) when the card reports none; and an Automatic / Dark / Light switch on the desktop
+  settings page.
 
 ## Open for a contributor
 
