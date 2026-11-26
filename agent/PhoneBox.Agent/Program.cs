@@ -585,6 +585,7 @@ app.MapGet("/api/catalog", () => Results.Text($"{{\"cols\":{Catalog.Cols},\"rows
 // DELETE /api/push/{key}     removes a value; GET /api/push lists them.
 // POST /api/notify           {"title","text","level":"info|ok|warn|error","vibrate":true,"page":"<page id>","seconds":5} or plain text
 // POST /api/goto/{page}      switches the phone to a page (id, or 1-based number)
+// POST /api/goto/next|prev   switches the phone to the next or previous page; the phone resolves it (#616)
 // POST /api/refresh          refreshes quotas/GitHub now and makes the phone reload its settings and data; ?reload=1 reloads the whole panel
 app.MapGet("/api/push", (PushStore push) => Results.Json(new { version = push.Version, items = push.Snapshot() }));
 app.MapGet("/api/push/{key}", (string key, PushStore push) => push.Get(key) is { } item ? Results.Json(item) : Results.NotFound());
@@ -611,6 +612,11 @@ app.MapPost("/api/notify", async (HttpRequest req, PushStore push) =>
 // ?countdown=0 switches at once; otherwise the phone counts down like for a rule.
 app.MapPost("/api/goto/{page}", (string page, int? countdown, PushStore push) =>
     Results.Json(push.Emit("goto", JsonSerializer.SerializeToElement(new { page, countdown = countdown is { } c ? Math.Clamp(c, 0, 30) : (int?)null }))));
+
+// "next" and "prev" are relative: only the phone knows which page it shows, and it clamps at the edges (#616).
+// The payload carries a "step" field, not a "page": a page id called "next" must keep meaning that page.
+app.MapPost("/api/goto/next", (PushStore push) => Results.Json(push.Emit("goto", JsonSerializer.SerializeToElement(new { step = "next" }))));
+app.MapPost("/api/goto/prev", (PushStore push) => Results.Json(push.Emit("goto", JsonSerializer.SerializeToElement(new { step = "prev" }))));
 
 app.MapPost("/api/refresh", (bool? reload, PushStore push) =>
 {
